@@ -141,9 +141,9 @@ class _TwoSidedAnimatedFrameState extends State<TwoSidedAnimatedFrame>
         final bottomPosition =
             (1.sh(context) -
                 widget.frameHeight -
-                AppConstants.bottomFrameContainerHeight) /
-            2 +
-            topOffset;
+                AppConstants.bottomFrameContainerHeight -
+                topOffset) /
+            2;
 
         return Stack(
           children: [
@@ -194,7 +194,7 @@ class _TwoSidedAnimatedFrameState extends State<TwoSidedAnimatedFrame>
 
             /// CornerBorderBox of the document frame
             Positioned(
-              bottom: (1.sh(context) - widget.frameHeight) / 2 + 17,
+              bottom: (1.sh(context) - widget.frameHeight - topOffset) / 2 + 17,
               left: 0,
               right: 0,
               child: Align(
