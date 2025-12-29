@@ -87,8 +87,9 @@ class DocumentDetectionService {
           .toDouble(); // Use the calculated crop area
 
       // Size Alignment Check
+      // Thresholds: lower bound 70% (was 60%), upper bound 98% (was 95%)
       final bool sizeAligned =
-          objectArea > (0.60 * frameArea) && objectArea < (0.95 * frameArea);
+          objectArea > (0.70 * frameArea) && objectArea < (0.98 * frameArea);
 
       // Optional: give 5-10% tolerance
       final double frameTolerance = 0.05;
