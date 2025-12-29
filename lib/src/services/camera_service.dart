@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:math';
 
 import 'package:camera/camera.dart';
 import 'package:path_provider/path_provider.dart';
@@ -28,6 +29,23 @@ class CameraService {
 
     // Optional: Set flash mode
     await cameraController!.setFlashMode(FlashMode.auto);
+
+    // Set auto focus mode
+    await cameraController!.setFocusMode(FocusMode.auto);
+  }
+
+  /// Triggers auto focus at the center of the frame
+  Future<void> triggerAutoFocus() async {
+    if (cameraController == null || !cameraController!.value.isInitialized) {
+      return;
+    }
+
+    try {
+      // Focus at the center point (0.5, 0.5)
+      await cameraController!.setFocusPoint(const Point<double>(0.5, 0.5));
+    } catch (e) {
+      // Ignore errors if focus point setting is not supported
+    }
   }
 
   Future<String> captureImage() async {
