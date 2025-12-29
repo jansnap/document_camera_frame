@@ -1,4 +1,5 @@
 import 'dart:async';
+import 'dart:ui';
 import 'package:camera/camera.dart';
 import 'package:document_camera_frame/document_camera_frame.dart';
 import 'package:flutter/material.dart';
@@ -74,6 +75,12 @@ class DocumentCameraFrame extends StatefulWidget {
   /// Callback triggered when a camera-related error occurs (e.g., initialization, streaming, or capture failure).
   final void Function(Object error)? onCameraError;
 
+  /// Callback triggered when frame bounds are updated.
+  /// Provides the bounding box of the document frame as a Rect.
+  /// Rect contains: left (x), top (y), right (x + width), bottom (y + height)
+  /// To get width: frameBounds.width, height: frameBounds.height
+  final void Function(Rect frameBounds)? onFrameBoundsChanged;
+
   /// Constructor for the [DocumentCameraFrame].
   const DocumentCameraFrame({
     super.key,
@@ -98,6 +105,7 @@ class DocumentCameraFrame extends StatefulWidget {
     this.sideInfoOverlay,
     this.enableAutoCapture = false,
     this.onCameraError,
+    this.onFrameBoundsChanged,
   });
 
   @override
@@ -541,8 +549,35 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
     );
   }
 
+  /// Updates and notifies frame bounds.
+  /// Calculates the bounding box of the document frame in screen coordinates.
+  /// Returns a Rect with: left (x), top (y), right (x + width), bottom (y + height)
+  void _updateFrameBounds(BuildContext context) {
+    if (widget.onFrameBoundsChanged == null) return;
+
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final topOffset = 100.0; // フレームを下に移動するオフセット
+    final frameTotalHeight = _updatedFrameHeight + AppConstants.bottomFrameContainerHeight;
+    final bottomPosition = (screenHeight - frameTotalHeight - topOffset) / 2 - 100.0; // 白枠を100px下に移動
+
+    // Calculate frame position in screen coordinates
+    final left = (screenWidth - _updatedFrameWidth) / 2; // x position
+    final top = screenHeight - bottomPosition - _updatedFrameHeight; // y position
+    final right = left + _updatedFrameWidth; // x + width
+    final bottom = screenHeight - bottomPosition; // y + height
+
+    final frameBounds = Rect.fromLTRB(left, top, right, bottom);
+    widget.onFrameBoundsChanged?.call(frameBounds);
+  }
+
   @override
   Widget build(BuildContext context) {
+    // フレームのバウンディングボックスを更新
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      _updateFrameBounds(context);
+    });
+
     return Scaffold(
       backgroundColor: Colors.black,
       body: MediaQuery.removePadding(
