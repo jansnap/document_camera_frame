@@ -138,12 +138,12 @@ class _TwoSidedAnimatedFrameState extends State<TwoSidedAnimatedFrame>
         final animatedFrameHeight = _getAnimatedFrameHeight();
         final animatedCornerHeight = _getAnimatedCornerHeight();
         final topOffset = 100.0; // フレームを下に移動するオフセット
-        final bottomPosition =
-            (1.sh(context) -
-                widget.frameHeight -
-                AppConstants.bottomFrameContainerHeight -
-                topOffset) /
-            2;
+        final screenHeight = 1.sh(context);
+        final frameTotalHeight = widget.frameHeight + AppConstants.bottomFrameContainerHeight;
+        final centerTop = (screenHeight - frameTotalHeight - topOffset) / 2 + topOffset;
+        final centerBottom = (screenHeight - frameTotalHeight - topOffset) / 2;
+        // 角のボックス位置の微調整オフセット（固定値）
+        const cornerBoxOffset = 17.0;
 
         return Stack(
           children: [
@@ -156,7 +156,7 @@ class _TwoSidedAnimatedFrameState extends State<TwoSidedAnimatedFrame>
                     frameWidth: widget.frameWidth,
                     frameMaxHeight: _frameHeight,
                     animatedFrameHeight: animatedFrameHeight,
-                    bottomPosition: bottomPosition,
+                    bottomPosition: centerBottom,
                     borderRadius: widget.outerFrameBorderRadius,
                     context: context,
                   ),
@@ -165,11 +165,11 @@ class _TwoSidedAnimatedFrameState extends State<TwoSidedAnimatedFrame>
 
             /// Border of the document frame
             Positioned(
-              bottom: bottomPosition,
+              top: centerTop,
+              bottom: centerBottom,
               right: (1.sw(context) - widget.frameWidth) / 2,
               child: AnimatedContainer(
                 width: widget.frameWidth,
-                height: animatedFrameHeight,
                 duration: _isFlipping ? Duration.zero : animatedFrameDuration,
                 curve: widget.frameFlipCurve,
                 decoration: BoxDecoration(
@@ -194,7 +194,8 @@ class _TwoSidedAnimatedFrameState extends State<TwoSidedAnimatedFrame>
 
             /// CornerBorderBox of the document frame
             Positioned(
-              bottom: (1.sh(context) - widget.frameHeight - topOffset) / 2 + 17,
+              top: centerTop + cornerBoxOffset,
+              bottom: centerBottom + cornerBoxOffset,
               left: 0,
               right: 0,
               child: Align(
