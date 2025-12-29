@@ -173,18 +173,7 @@ class _TwoSidedAnimatedFrameState extends State<TwoSidedAnimatedFrame>
                 duration: _isFlipping ? Duration.zero : animatedFrameDuration,
                 curve: widget.frameFlipCurve,
                 decoration: BoxDecoration(
-                  border: Border.all(
-                    color: _isFlipping
-                        ? Colors.white
-                        : widget.isDocumentAligned
-                        ? Colors.green.shade400
-                        : (widget.border is Border
-                              ? (widget.border as Border).top.color
-                              : Colors.white),
-                    width: widget.border is Border
-                        ? (widget.border as Border).top.width
-                        : 3,
-                  ),
+                  // 外側の枠線は削除（角丸の枠のみ表示）
                   borderRadius: BorderRadius.circular(
                     widget.innerCornerBroderRadius,
                   ),
