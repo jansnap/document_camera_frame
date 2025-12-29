@@ -622,16 +622,17 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
               ),
 
             // Instruction text
-            Positioned(
-              top:
-                  widget.requireBothSides &&
-                      widget.sideIndicatorStyle.showSideIndicator
-                  ? MediaQuery.of(context).padding.top + 120
-                  : MediaQuery.of(context).padding.top + 60,
-              left: 0,
-              right: 0,
-              child: _buildInstructionText(),
-            ),
+            if (false)
+              Positioned(
+                top:
+                    widget.requireBothSides &&
+                        widget.sideIndicatorStyle.showSideIndicator
+                    ? MediaQuery.of(context).padding.top + 120
+                    : MediaQuery.of(context).padding.top + 60,
+                left: 0,
+                right: 0,
+                child: _buildInstructionText(),
+              ),
 
             // Screen title
             if (widget.titleStyle.title != null ||
