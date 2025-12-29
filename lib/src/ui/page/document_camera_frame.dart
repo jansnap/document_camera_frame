@@ -552,7 +552,9 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
           children: [
             // Camera preview
             if (isInitialized && _controller.cameraController != null)
-              CameraPreview(_controller.cameraController!),
+              Positioned.fill(
+                child: CameraPreview(_controller.cameraController!),
+              ),
 
             // Captured image preview
             if (false)
