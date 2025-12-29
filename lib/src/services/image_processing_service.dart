@@ -29,7 +29,8 @@ class ImageProcessingService {
     );
 
     final String croppedFilePath = filePath.replaceAll('.jpg', '_cropped.jpg');
-    File(croppedFilePath).writeAsBytesSync(img.encodeJpg(croppedImage));
+    // Use maximum quality JPEG encoding (100%) for best image quality
+    File(croppedFilePath).writeAsBytesSync(img.encodeJpg(croppedImage, quality: 100));
 
     return croppedFilePath;
   }
