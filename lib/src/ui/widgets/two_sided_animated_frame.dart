@@ -199,7 +199,7 @@ class _TwoSidedAnimatedFrameState extends State<TwoSidedAnimatedFrame>
               right: 0,
               child: Align(
                 child: AnimatedContainer(
-                  height: animatedFrameHeight,
+                  height: animatedFrameHeight / 2, // 角丸の枠の高さを半分に
                   width:
                       widget.frameWidth -
                       AppConstants.kCornerBorderBoxHorizontalPadding,
