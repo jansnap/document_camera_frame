@@ -545,11 +545,14 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: Colors.black,
-      body: ValueListenableBuilder<bool>(
-        valueListenable: _isInitializedNotifier,
-        builder: (context, isInitialized, child) => Stack(
-          fit: StackFit.expand,
-          children: [
+      body: MediaQuery.removePadding(
+        context: context,
+        removeTop: true,
+        child: ValueListenableBuilder<bool>(
+          valueListenable: _isInitializedNotifier,
+          builder: (context, isInitialized, child) => Stack(
+            fit: StackFit.expand,
+            children: [
             // Camera preview
             if (isInitialized && _controller.cameraController != null)
               Positioned.fill(
@@ -736,6 +739,7 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
           ],
         ),
       ),
+        ),
     );
   }
 
