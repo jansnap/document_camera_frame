@@ -253,16 +253,16 @@ class _TwoSidedAnimatedFrameState extends State<TwoSidedAnimatedFrame>
       decoration: BoxDecoration(
         border: Border(
           top: topLeft || topRight
-              ? BorderSide(color: borderColor, width: 2)
+              ? BorderSide(color: borderColor, width: 4) // 角丸の枠の線を太く
               : BorderSide.none,
           left: topLeft || bottomLeft
-              ? BorderSide(color: borderColor, width: 2)
+              ? BorderSide(color: borderColor, width: 4) // 角丸の枠の線を太く
               : BorderSide.none,
           right: topRight || bottomRight
-              ? BorderSide(color: borderColor, width: 2)
+              ? BorderSide(color: borderColor, width: 4) // 角丸の枠の線を太く
               : BorderSide.none,
           bottom: bottomLeft || bottomRight
-              ? BorderSide(color: borderColor, width: 2)
+              ? BorderSide(color: borderColor, width: 4) // 角丸の枠の線を太く
               : BorderSide.none,
         ),
         borderRadius: BorderRadius.only(
