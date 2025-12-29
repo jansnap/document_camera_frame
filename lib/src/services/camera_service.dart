@@ -1,5 +1,5 @@
 import 'dart:io';
-import 'dart:math';
+import 'dart:ui';
 
 import 'package:camera/camera.dart';
 import 'package:path_provider/path_provider.dart';
@@ -42,7 +42,7 @@ class CameraService {
 
     try {
       // Focus at the center point (0.5, 0.5)
-      await cameraController!.setFocusPoint(const Point<double>(0.5, 0.5));
+      await cameraController!.setFocusPoint(const Offset(0.5, 0.5));
     } catch (e) {
       // Ignore errors if focus point setting is not supported
     }
