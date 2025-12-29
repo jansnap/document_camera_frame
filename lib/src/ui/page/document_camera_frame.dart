@@ -591,21 +591,18 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
             ValueListenableBuilder<bool>(
               valueListenable: _isDocumentAlignedNotifier,
               builder: (context, isAligned, child) {
-                return Positioned.fill(
-                  top: 100, // フレームを下に移動
-                  child: TwoSidedAnimatedFrame(
-                    frameHeight: _updatedFrameHeight,
-                    frameWidth: _updatedFrameWidth,
-                    outerFrameBorderRadius:
-                        widget.frameStyle.outerFrameBorderRadius,
-                    innerCornerBroderRadius:
-                        widget.frameStyle.innerCornerBroderRadius,
-                    frameFlipDuration: widget.animationStyle.frameFlipDuration,
-                    frameFlipCurve: widget.animationStyle.frameFlipCurve,
-                    border: widget.frameStyle.frameBorder,
-                    currentSideNotifier: _currentSideNotifier,
-                    isDocumentAligned: isAligned,
-                  ),
+                return TwoSidedAnimatedFrame(
+                  frameHeight: _updatedFrameHeight,
+                  frameWidth: _updatedFrameWidth,
+                  outerFrameBorderRadius:
+                      widget.frameStyle.outerFrameBorderRadius,
+                  innerCornerBroderRadius:
+                      widget.frameStyle.innerCornerBroderRadius,
+                  frameFlipDuration: widget.animationStyle.frameFlipDuration,
+                  frameFlipCurve: widget.animationStyle.frameFlipCurve,
+                  border: widget.frameStyle.frameBorder,
+                  currentSideNotifier: _currentSideNotifier,
+                  isDocumentAligned: isAligned,
                 );
               },
             ),

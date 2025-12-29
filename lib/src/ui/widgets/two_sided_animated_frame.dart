@@ -137,11 +137,13 @@ class _TwoSidedAnimatedFrameState extends State<TwoSidedAnimatedFrame>
       builder: (context, child) {
         final animatedFrameHeight = _getAnimatedFrameHeight();
         final animatedCornerHeight = _getAnimatedCornerHeight();
+        final topOffset = 100.0; // フレームを下に移動するオフセット
         final bottomPosition =
             (1.sh(context) -
                 widget.frameHeight -
                 AppConstants.bottomFrameContainerHeight) /
-            2;
+            2 +
+            topOffset;
 
         return Stack(
           children: [
