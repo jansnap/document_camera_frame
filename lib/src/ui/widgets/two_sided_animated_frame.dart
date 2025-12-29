@@ -146,19 +146,20 @@ class _TwoSidedAnimatedFrameState extends State<TwoSidedAnimatedFrame>
         return Stack(
           children: [
             /// Animated Camera Frame Overlay
-            Positioned.fill(
-              child: CustomPaint(
-                painter: AnimatedDocumentCameraFramePainter(
-                  isFlipping: _isFlipping,
-                  frameWidth: widget.frameWidth,
-                  frameMaxHeight: _frameHeight,
-                  animatedFrameHeight: animatedFrameHeight,
-                  bottomPosition: bottomPosition,
-                  borderRadius: widget.outerFrameBorderRadius,
-                  context: context,
+            if (false)
+              Positioned.fill(
+                child: CustomPaint(
+                  painter: AnimatedDocumentCameraFramePainter(
+                    isFlipping: _isFlipping,
+                    frameWidth: widget.frameWidth,
+                    frameMaxHeight: _frameHeight,
+                    animatedFrameHeight: animatedFrameHeight,
+                    bottomPosition: bottomPosition,
+                    borderRadius: widget.outerFrameBorderRadius,
+                    context: context,
+                  ),
                 ),
               ),
-            ),
 
             /// Border of the document frame
             Positioned(
