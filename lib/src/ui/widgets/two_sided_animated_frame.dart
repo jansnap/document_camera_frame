@@ -194,7 +194,8 @@ class _TwoSidedAnimatedFrameState extends State<TwoSidedAnimatedFrame>
 
             /// CornerBorderBox of the document frame
             Positioned(
-              bottom: bottomPosition + cornerBoxOffset - 100.0, // 白枠と一緒に100px下に移動
+              // 白枠の中央に角丸の枠を配置（高さが半分なので、白枠の中央から高さの1/4上に配置）
+              bottom: bottomPosition + animatedFrameHeight / 4 + cornerBoxOffset - 100.0,
               left: 0,
               right: 0,
               child: Align(
