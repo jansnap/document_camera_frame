@@ -75,11 +75,12 @@ class DocumentCameraFrame extends StatefulWidget {
   /// Callback triggered when a camera-related error occurs (e.g., initialization, streaming, or capture failure).
   final void Function(Object error)? onCameraError;
 
-  /// Callback triggered when frame bounds are updated.
+  /// Callback triggered when capture is successful.
   /// Provides the bounding box of the document frame as a Rect.
   /// Rect contains: left (x), top (y), right (x + width), bottom (y + height)
   /// To get width: frameBounds.width, height: frameBounds.height
-  final void Function(Rect frameBounds)? onFrameBoundsChanged;
+  /// Called once per successful capture.
+  final void Function(Rect frameBounds)? onCaptureSuccess;
 
   /// Constructor for the [DocumentCameraFrame].
   const DocumentCameraFrame({
@@ -105,7 +106,7 @@ class DocumentCameraFrame extends StatefulWidget {
     this.sideInfoOverlay,
     this.enableAutoCapture = false,
     this.onCameraError,
-    this.onFrameBoundsChanged,
+    this.onCaptureSuccess,
   });
 
   @override
@@ -351,6 +352,12 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
 
       _capturedImageNotifier.value = _controller.imagePath;
       _handleCapture(_controller.imagePath);
+
+      // 撮影成功時にフレームのバウンディングボックスを通知（1回だけ）
+      if (mounted && widget.onCaptureSuccess != null) {
+        final frameBounds = _calculateFrameBounds(context);
+        widget.onCaptureSuccess!(frameBounds);
+      }
     } catch (e) {
       debugPrint('Capture failed: $e');
       widget.onCameraError?.call(e);
@@ -549,11 +556,9 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
     );
   }
 
-  /// Updates and notifies frame bounds.
-  /// Calculates the bounding box of the document frame in screen coordinates.
+  /// Calculates and returns the bounding box of the document frame in screen coordinates.
   /// Returns a Rect with: left (x), top (y), right (x + width), bottom (y + height)
-  void _updateFrameBounds(BuildContext context) {
-    if (widget.onFrameBoundsChanged == null) return;
+  Rect _calculateFrameBounds(BuildContext context) {
 
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
@@ -567,17 +572,11 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
     final right = left + _updatedFrameWidth; // x + width
     final bottom = screenHeight - bottomPosition; // y + height
 
-    final frameBounds = Rect.fromLTRB(left, top, right, bottom);
-    widget.onFrameBoundsChanged?.call(frameBounds);
+    return Rect.fromLTRB(left, top, right, bottom);
   }
 
   @override
   Widget build(BuildContext context) {
-    // フレームのバウンディングボックスを更新
-    WidgetsBinding.instance.addPostFrameCallback((_) {
-      _updateFrameBounds(context);
-    });
-
     return Scaffold(
       backgroundColor: Colors.black,
       body: MediaQuery.removePadding(
