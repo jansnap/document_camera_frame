@@ -140,8 +140,8 @@ class _TwoSidedAnimatedFrameState extends State<TwoSidedAnimatedFrame>
         final topOffset = 100.0; // フレームを下に移動するオフセット
         final screenHeight = 1.sh(context);
         final frameTotalHeight = widget.frameHeight + AppConstants.bottomFrameContainerHeight;
-        final centerTop = (screenHeight - frameTotalHeight - topOffset) / 2 + topOffset;
-        final centerBottom = (screenHeight - frameTotalHeight - topOffset) / 2;
+        // 上下中央に配置するためのbottom位置を計算
+        final bottomPosition = (screenHeight - frameTotalHeight - topOffset) / 2;
         // 角のボックス位置の微調整オフセット（固定値）
         const cornerBoxOffset = 17.0;
 
@@ -156,7 +156,7 @@ class _TwoSidedAnimatedFrameState extends State<TwoSidedAnimatedFrame>
                     frameWidth: widget.frameWidth,
                     frameMaxHeight: _frameHeight,
                     animatedFrameHeight: animatedFrameHeight,
-                    bottomPosition: centerBottom,
+                    bottomPosition: bottomPosition,
                     borderRadius: widget.outerFrameBorderRadius,
                     context: context,
                   ),
@@ -165,11 +165,11 @@ class _TwoSidedAnimatedFrameState extends State<TwoSidedAnimatedFrame>
 
             /// Border of the document frame
             Positioned(
-              top: centerTop,
-              bottom: centerBottom,
+              bottom: bottomPosition,
               right: (1.sw(context) - widget.frameWidth) / 2,
               child: AnimatedContainer(
                 width: widget.frameWidth,
+                height: animatedFrameHeight,
                 duration: _isFlipping ? Duration.zero : animatedFrameDuration,
                 curve: widget.frameFlipCurve,
                 decoration: BoxDecoration(
@@ -194,8 +194,7 @@ class _TwoSidedAnimatedFrameState extends State<TwoSidedAnimatedFrame>
 
             /// CornerBorderBox of the document frame
             Positioned(
-              top: centerTop + cornerBoxOffset,
-              bottom: centerBottom + cornerBoxOffset,
+              bottom: bottomPosition + cornerBoxOffset,
               left: 0,
               right: 0,
               child: Align(
