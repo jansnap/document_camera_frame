@@ -199,7 +199,7 @@ class _TwoSidedAnimatedFrameState extends State<TwoSidedAnimatedFrame>
               right: 0,
               child: Align(
                 child: AnimatedContainer(
-                  height: animatedCornerHeight,
+                  height: animatedFrameHeight,
                   width:
                       widget.frameWidth -
                       AppConstants.kCornerBorderBoxHorizontalPadding,
@@ -210,26 +210,14 @@ class _TwoSidedAnimatedFrameState extends State<TwoSidedAnimatedFrame>
                           children: [
                             // Top-left corner
                             Positioned(
-                              bottom:
-                                  widget.frameHeight +
-                                  AppConstants.bottomFrameContainerHeight / 2 -
-                                  34 -
-                                  18,
-                              // bottom: widget.frameHeight - (AppConstants.bottomFrameContainerHeight / 2),
+                              top: 0,
                               left: 0,
                               child: _cornerBox(topLeft: true),
                             ),
 
                             // Top-right corner
                             Positioned(
-                              bottom:
-                                  widget.frameHeight +
-                                  AppConstants.bottomFrameContainerHeight / 2 -
-                                  34 -
-                                  18,
-
-                              // bottom: widget.frameHeight -
-                              //     (AppConstants.bottomFrameContainerHeight / 2),
+                              top: 0,
                               right: 0,
                               child: _cornerBox(topRight: true),
                             ),
