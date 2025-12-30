@@ -137,11 +137,10 @@ class _TwoSidedAnimatedFrameState extends State<TwoSidedAnimatedFrame>
       builder: (context, child) {
         final animatedFrameHeight = _getAnimatedFrameHeight();
         final animatedCornerHeight = _getAnimatedCornerHeight();
-        final topOffset = 100.0; // フレームを下に移動するオフセット
         final screenHeight = 1.sh(context);
         final frameTotalHeight = widget.frameHeight + AppConstants.bottomFrameContainerHeight;
-        // 上下中央に配置するためのbottom位置を計算
-        final bottomPosition = (screenHeight - frameTotalHeight - topOffset) / 2 - 100.0; // 白枠を100px下に移動
+        // フレームを画面の中央に配置
+        final bottomPosition = (screenHeight - frameTotalHeight) / 2;
         // 角のボックス位置の微調整オフセット（固定値）
         const cornerBoxOffset = 17.0;
 
@@ -184,8 +183,7 @@ class _TwoSidedAnimatedFrameState extends State<TwoSidedAnimatedFrame>
             /// CornerBorderBox of the document frame
             Positioned(
               // 白枠の中央に角丸の枠を配置（高さが半分なので、白枠の中央から高さの1/4上に配置）
-              // 100px上に移動（bottomの値を増やすと上に移動）
-              bottom: bottomPosition + animatedFrameHeight / 4 + cornerBoxOffset - 100.0 + 100.0,
+              bottom: bottomPosition + animatedFrameHeight / 4 + cornerBoxOffset,
               left: 0,
               right: 0,
               child: Align(

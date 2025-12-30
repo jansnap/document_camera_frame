@@ -562,9 +562,9 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
 
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-    final topOffset = 100.0; // フレームを下に移動するオフセット
     final frameTotalHeight = _updatedFrameHeight + AppConstants.bottomFrameContainerHeight;
-    final bottomPosition = (screenHeight - frameTotalHeight - topOffset) / 2 - 100.0; // 白枠を100px下に移動
+    // フレームを画面の中央に配置
+    final bottomPosition = (screenHeight - frameTotalHeight) / 2;
 
     // Calculate frame position in screen coordinates
     final left = (screenWidth - _updatedFrameWidth) / 2; // x position
