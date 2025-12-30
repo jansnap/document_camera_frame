@@ -26,7 +26,9 @@ class ImageProcessingService {
 
     // Step 2: Calculate the crop area in the same coordinate system as document detection.
     final int cropWidth = (frameWidth / screenWidth * analysisWidth).round();
-    final int cropHeight = (frameHeight / screenHeight * analysisHeight).round();
+    // Increase crop height to include more bottom area (add 20% margin)
+    final int baseCropHeight = (frameHeight / screenHeight * analysisHeight).round();
+    final int cropHeight = (baseCropHeight * 1.2).round();
 
     final int cropX = (analysisWidth - cropWidth) ~/ 2;
     // Shift crop position upward to include more of the top area
