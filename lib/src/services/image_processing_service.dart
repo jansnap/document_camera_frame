@@ -29,7 +29,8 @@ class ImageProcessingService {
     final int cropHeight = (frameHeight / screenHeight * analysisHeight).round();
 
     final int cropX = (analysisWidth - cropWidth) ~/ 2;
-    final int cropY = (analysisHeight - cropHeight) ~/ 2;
+    // Shift crop position upward to include more of the top area
+    final int cropY = (analysisHeight - cropHeight) ~/ 3; // Changed from /2 to /3 to crop more from top
 
     // Step 3: Convert coordinates to original image coordinate system if rotated.
     final int actualCropX;
