@@ -568,7 +568,7 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
 
     // Calculate frame position in screen coordinates
     final left = (screenWidth - _updatedFrameWidth) / 2; // x position
-    final top = screenHeight - bottomPosition - _updatedFrameHeight; // y position
+    final top = screenHeight - bottomPosition - _updatedFrameHeight - 100; // y position
     final right = left + _updatedFrameWidth; // x + width
     final bottom = screenHeight - bottomPosition; // y + height
 
