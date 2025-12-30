@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:camera/camera.dart';
+import 'package:image/image.dart' as img;
 import 'package:path_provider/path_provider.dart';
 
 class CameraService {
@@ -57,9 +58,18 @@ class CameraService {
     final dirPath = '${extDir.path}/Pictures/flutter_test';
     await Directory(dirPath).create(recursive: true);
 
-    final filePath = '$dirPath/${DateTime.now().millisecondsSinceEpoch}.jpg';
+    // Capture image and save as PNG to avoid JPEG compression quality loss
     final picture = await cameraController!.takePicture();
-    await picture.saveTo(filePath);
+    final imageBytes = await picture.readAsBytes();
+
+    // Decode the image (may be JPEG from camera) and save as PNG
+    final decodedImage = img.decodeImage(imageBytes);
+    if (decodedImage == null) {
+      throw Exception('Failed to decode captured image');
+    }
+
+    final filePath = '$dirPath/${DateTime.now().millisecondsSinceEpoch}.png';
+    File(filePath).writeAsBytesSync(img.encodePng(decodedImage));
 
     return filePath;
   }

@@ -28,9 +28,14 @@ class ImageProcessingService {
       height: cropHeight,
     );
 
-    final String croppedFilePath = filePath.replaceAll('.jpg', '_cropped.jpg');
-    // Use maximum quality JPEG encoding (100%) for best image quality
-    File(croppedFilePath).writeAsBytesSync(img.encodeJpg(croppedImage, quality: 100));
+    // Replace file extension with .png for lossless image quality
+    final int lastDotIndex = filePath.lastIndexOf('.');
+    final String basePath = lastDotIndex >= 0
+        ? filePath.substring(0, lastDotIndex)
+        : filePath;
+    final String croppedFilePath = '${basePath}_cropped.png';
+    // Use PNG format for lossless image quality (no compression artifacts)
+    File(croppedFilePath).writeAsBytesSync(img.encodePng(croppedImage));
 
     return croppedFilePath;
   }
