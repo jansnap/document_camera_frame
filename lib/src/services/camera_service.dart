@@ -55,10 +55,7 @@ class CameraService {
     debugPrint('  - focusMode: ${value.focusMode}');
     debugPrint('  - exposurePointSupported: ${value.exposurePointSupported}');
     debugPrint('  - focusPointSupported: ${value.focusPointSupported}');
-    debugPrint('  - isFocusing: ${value.isFocusing}');
-    debugPrint('  - isExposing: ${value.isExposing}');
     debugPrint('  - previewSize: ${value.previewSize}');
-    debugPrint('  - resolutionPreset: ${value.resolutionPreset}');
     debugPrint('  - hasError: ${value.hasError}');
     if (value.hasError) {
       debugPrint('  - errorDescription: ${value.errorDescription}');
