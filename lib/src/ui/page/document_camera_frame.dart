@@ -639,12 +639,16 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
             if (isInitialized && _controller.cameraController != null)
               Positioned.fill(
                 child: GestureDetector(
+                  behavior: HitTestBehavior.opaque,
                   onTapDown: (TapDownDetails details) {
                     // Convert tap position to normalized coordinates (0.0-1.0)
                     final screenSize = MediaQuery.of(context).size;
                     final normalizedX = details.globalPosition.dx / screenSize.width;
                     final normalizedY = details.globalPosition.dy / screenSize.height;
-                    
+
+                    debugPrint('[TouchToFocus] Tapped at screen: (${details.globalPosition.dx}, ${details.globalPosition.dy})');
+                    debugPrint('[TouchToFocus] Normalized coordinates: ($normalizedX, $normalizedY)');
+
                     // Trigger focus at tapped position
                     _controller.triggerAutoFocus(Offset(normalizedX, normalizedY));
                   },
