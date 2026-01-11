@@ -635,10 +635,21 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
           builder: (context, isInitialized, child) => Stack(
             fit: StackFit.expand,
             children: [
-            // Camera preview
+            // Camera preview with touch to focus
             if (isInitialized && _controller.cameraController != null)
               Positioned.fill(
-                child: CameraPreview(_controller.cameraController!),
+                child: GestureDetector(
+                  onTapDown: (TapDownDetails details) {
+                    // Convert tap position to normalized coordinates (0.0-1.0)
+                    final screenSize = MediaQuery.of(context).size;
+                    final normalizedX = details.globalPosition.dx / screenSize.width;
+                    final normalizedY = details.globalPosition.dy / screenSize.height;
+                    
+                    // Trigger focus at tapped position
+                    _controller.triggerAutoFocus(Offset(normalizedX, normalizedY));
+                  },
+                  child: CameraPreview(_controller.cameraController!),
+                ),
               ),
 
             // Captured image preview
