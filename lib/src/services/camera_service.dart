@@ -9,6 +9,11 @@ import 'package:path_provider/path_provider.dart';
 class CameraService {
   CameraController? cameraController;
 
+  // Store initialization settings for logging
+  ResolutionPreset _resolutionPreset = ResolutionPreset.ultraHigh;
+  ImageFormatGroup? _imageFormatGroup;
+  bool _enableAudio = false;
+
   bool get isInitialized =>
       cameraController != null && cameraController!.value.isInitialized;
 
@@ -20,11 +25,16 @@ class CameraService {
       await cameraController!.dispose(); // Dispose only if it's already running
     }
 
+    // Store initialization settings
+    _resolutionPreset = ResolutionPreset.ultraHigh;
+    _imageFormatGroup = imageFormatGroup;
+    _enableAudio = false;
+
     cameraController = CameraController(
       camera,
-      ResolutionPreset.ultraHigh,
-      enableAudio: false,
-      imageFormatGroup: imageFormatGroup,
+      _resolutionPreset,
+      enableAudio: _enableAudio,
+      imageFormatGroup: _imageFormatGroup,
     );
 
     await cameraController!.initialize();
@@ -89,6 +99,17 @@ class CameraService {
       'sensorOrientation': description.sensorOrientation,
     };
 
+    // Add lensType if available (may not exist on all devices)
+    if (description.lensType != null) {
+      properties['lensType'] = description.lensType.toString();
+    }
+
+    // Add initialization settings
+    properties['resolutionPreset'] = _resolutionPreset.toString();
+    properties['enableAudio'] = _enableAudio;
+    if (_imageFormatGroup != null) {
+      properties['imageFormatGroup'] = _imageFormatGroup.toString();
+    }
 
     if (value.hasError) {
       properties['errorDescription'] = value.errorDescription;
