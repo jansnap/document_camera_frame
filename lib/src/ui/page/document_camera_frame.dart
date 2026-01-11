@@ -167,12 +167,22 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
     final maxWidth = screenWidth;
     final maxHeight = 0.45 * screenHeight;
 
+    // Calculate aspect ratio from original dimensions
+    final aspectRatio = widget.frameHeight / widget.frameWidth;
+
+    // Set width to screen width (or original width if smaller)
     _updatedFrameWidth = widget.frameWidth > maxWidth
         ? maxWidth
         : widget.frameWidth;
-    _updatedFrameHeight = widget.frameHeight > maxHeight
-        ? maxHeight
-        : widget.frameHeight;
+
+    // Calculate height based on aspect ratio to maintain proportions
+    _updatedFrameHeight = _updatedFrameWidth * aspectRatio;
+
+    // If calculated height exceeds max height, adjust both dimensions
+    if (_updatedFrameHeight > maxHeight) {
+      _updatedFrameHeight = maxHeight;
+      _updatedFrameWidth = _updatedFrameHeight / aspectRatio;
+    }
   }
 
   bool _hasInitializedFrameDimensions = false;
