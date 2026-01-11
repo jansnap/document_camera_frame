@@ -63,6 +63,13 @@ class DocumentCameraController {
     await _cameraService.triggerAutoFocus(focusPoint);
   }
 
+  /// Sets macro mode for close-up photography (if supported by device)
+  /// Note: Not all devices support manual macro mode. The camera may automatically
+  /// switch to macro mode when focusing on close objects.
+  Future<void> setMacroMode(bool enabled) async {
+    await _cameraService.setMacroMode(enabled);
+  }
+
   bool get isInitialized => _cameraService.isInitialized;
 
   Future<void> takeAndCropPicture(

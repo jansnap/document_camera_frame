@@ -52,6 +52,10 @@ class CameraService {
       debugPrint('[initialize] Error setting focus mode: $e');
     }
 
+    // Note: Macro mode (close-up photography) is typically handled automatically
+    // by the camera hardware when focusing on close objects. Some devices may
+    // support manual macro mode through FocusMode, but this is device-dependent.
+
     try {
       await cameraController!.setExposureMode(ExposureMode.auto);
     } catch (e) {
@@ -117,6 +121,40 @@ class CameraService {
 
     // Display properties in a compact format
     debugPrint('[$context] Camera Properties: ${properties.toString()}');
+  }
+
+  /// Sets macro mode for close-up photography (if supported by device)
+  /// Note: Not all devices support manual macro mode. The camera may automatically
+  /// switch to macro mode when focusing on close objects.
+  Future<void> setMacroMode(bool enabled) async {
+    if (cameraController == null || !cameraController!.value.isInitialized) {
+      debugPrint('[setMacroMode] Camera not initialized');
+      return;
+    }
+
+    try {
+      // Try to set focus mode to locked for macro photography
+      // Some devices may support this, but it's device-dependent
+      if (enabled) {
+        // Attempt to lock focus for close-up photography
+        // This may not work on all devices
+        await cameraController!.setFocusMode(FocusMode.locked);
+        debugPrint('[setMacroMode] Macro mode enabled (if supported)');
+      } else {
+        // Return to auto focus mode
+        await cameraController!.setFocusMode(FocusMode.auto);
+        debugPrint('[setMacroMode] Macro mode disabled, returning to auto focus');
+      }
+    } catch (e) {
+      debugPrint('[setMacroMode] Error setting macro mode: $e');
+      debugPrint('[setMacroMode] Note: Macro mode may not be supported on this device');
+      // Fallback to auto focus
+      try {
+        await cameraController!.setFocusMode(FocusMode.auto);
+      } catch (e2) {
+        debugPrint('[setMacroMode] Error setting auto focus: $e2');
+      }
+    }
   }
 
   /// Triggers auto focus at the specified point (normalized coordinates 0.0-1.0)
