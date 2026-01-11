@@ -117,6 +117,7 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
     with TickerProviderStateMixin {
   Timer? _debounceTimer;
   bool _isDebouncing = false;
+  Timer? _autoFocusTimer;
 
   late DocumentCameraController _controller;
 
@@ -237,11 +238,25 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
     try {
       await _controller.cameraController!.startImageStream(_processCameraImage);
       _isImageStreamActive = true;
+      // Start periodic auto focus
+      _startAutoFocusTimer();
     } catch (e) {
       debugPrint('Failed to start image stream: $e');
       _isImageStreamActive = false;
       widget.onCameraError?.call(e);
     }
+  }
+
+  /// Start periodic auto focus timer
+  void _startAutoFocusTimer() {
+    _autoFocusTimer?.cancel();
+    _autoFocusTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
+      if (mounted && _isImageStreamActive && _controller.cameraController != null) {
+        _controller.triggerAutoFocus();
+      } else {
+        timer.cancel();
+      }
+    });
   }
 
   Future<void> _stopImageStream() async {
@@ -253,6 +268,9 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
     }
 
     try {
+      // Stop auto focus timer
+      _autoFocusTimer?.cancel();
+      _autoFocusTimer = null;
       await controller.stopImageStream();
     } catch (e) {
       debugPrint('Failed to stop image stream: $e');
@@ -796,6 +814,8 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
 
     _debounceTimer?.cancel();
     _debounceTimer = null;
+    _autoFocusTimer?.cancel();
+    _autoFocusTimer = null;
 
     super.dispose();
   }

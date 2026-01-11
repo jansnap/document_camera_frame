@@ -30,6 +30,8 @@ class DocumentCameraController {
         cameras[cameraIndex],
         imageFormatGroup: _imageFormatGroup,
       );
+      // Trigger auto focus after initialization
+      await _cameraService.triggerAutoFocus();
     }
   }
 
@@ -48,7 +50,14 @@ class DocumentCameraController {
       cameras[_currentCameraIndex],
       imageFormatGroup: _imageFormatGroup,
     );
+    // Trigger auto focus after camera switch
+    await _cameraService.triggerAutoFocus();
     await cameraController?.resumePreview(); // Resume after switching
+  }
+
+  /// Triggers auto focus at the center of the frame
+  Future<void> triggerAutoFocus() async {
+    await _cameraService.triggerAutoFocus();
   }
 
   bool get isInitialized => _cameraService.isInitialized;
