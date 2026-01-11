@@ -96,7 +96,6 @@ class CameraService {
       'lockedCaptureOrientation': value.lockedCaptureOrientation?.toString(),
       'recordingOrientation': value.recordingOrientation?.toString(),
       'isPreviewPaused': value.isPreviewPaused,
-      'previewPausedOrientation': value.previewPausedOrientation?.toString(),
       // Camera description properties
       'cameraName': description.name,
       'lensDirection': description.lensDirection.toString(),
