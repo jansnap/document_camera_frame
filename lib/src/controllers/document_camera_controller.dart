@@ -55,9 +55,10 @@ class DocumentCameraController {
     await cameraController?.resumePreview(); // Resume after switching
   }
 
-  /// Triggers auto focus at the center of the frame
-  Future<void> triggerAutoFocus() async {
-    await _cameraService.triggerAutoFocus();
+  /// Triggers auto focus at the specified point (normalized coordinates 0.0-1.0)
+  /// If no point is provided, focuses at the center (0.5, 0.5)
+  Future<void> triggerAutoFocus([Offset? focusPoint]) async {
+    await _cameraService.triggerAutoFocus(focusPoint);
   }
 
   bool get isInitialized => _cameraService.isInitialized;

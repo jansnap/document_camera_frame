@@ -35,15 +35,17 @@ class CameraService {
     await cameraController!.setFocusMode(FocusMode.auto);
   }
 
-  /// Triggers auto focus at the center of the frame
-  Future<void> triggerAutoFocus() async {
+  /// Triggers auto focus at the specified point (normalized coordinates 0.0-1.0)
+  /// If no point is provided, focuses at the center (0.5, 0.5)
+  Future<void> triggerAutoFocus([Offset? focusPoint]) async {
     if (cameraController == null || !cameraController!.value.isInitialized) {
       return;
     }
 
     try {
-      // Focus at the center point (0.5, 0.5)
-      await cameraController!.setFocusPoint(const Offset(0.5, 0.5));
+      // Focus at the specified point or center if not provided
+      final point = focusPoint ?? const Offset(0.5, 0.5);
+      await cameraController!.setFocusPoint(point);
     } catch (e) {
       // Ignore errors if focus point setting is not supported
     }

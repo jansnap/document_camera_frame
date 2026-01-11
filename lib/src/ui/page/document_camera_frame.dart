@@ -218,6 +218,10 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
 
       _isInitializedNotifier.value = true;
 
+      // Trigger auto focus at frame center after initialization
+      final frameCenter = _calculateFrameCenter();
+      _controller.triggerAutoFocus(frameCenter);
+
       if (widget.enableAutoCapture) {
         await _startImageStream();
       }
@@ -247,12 +251,28 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
     }
   }
 
+  /// Calculate frame center position in normalized coordinates (0.0-1.0)
+  Offset _calculateFrameCenter() {
+    final screenWidth = MediaQuery.of(context).size.width;
+    final screenHeight = MediaQuery.of(context).size.height;
+    final frameTotalHeight = _updatedFrameHeight + AppConstants.bottomFrameContainerHeight;
+    final bottomPosition = (screenHeight - frameTotalHeight) / 2;
+
+    final frameLeft = (screenWidth - _updatedFrameWidth) / 2;
+    final frameTop = screenHeight - bottomPosition - _updatedFrameHeight;
+    final frameCenterX = (frameLeft + _updatedFrameWidth / 2) / screenWidth;
+    final frameCenterY = (frameTop + _updatedFrameHeight / 2) / screenHeight;
+
+    return Offset(frameCenterX, frameCenterY);
+  }
+
   /// Start periodic auto focus timer
   void _startAutoFocusTimer() {
     _autoFocusTimer?.cancel();
     _autoFocusTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
       if (mounted && _isImageStreamActive && _controller.cameraController != null) {
-        _controller.triggerAutoFocus();
+        final frameCenter = _calculateFrameCenter();
+        _controller.triggerAutoFocus(frameCenter);
       } else {
         timer.cancel();
       }
@@ -781,6 +801,10 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
 
                   await _controller.switchCamera();
                   _isInitializedNotifier.value = true;
+
+                  // Trigger auto focus at frame center after camera switch
+                  final frameCenter = _calculateFrameCenter();
+                  _controller.triggerAutoFocus(frameCenter);
 
                   if (widget.enableAutoCapture) {
                     await _startImageStream();
