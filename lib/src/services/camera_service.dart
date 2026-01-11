@@ -64,30 +64,54 @@ class CameraService {
 
   /// Triggers auto focus at the specified point (normalized coordinates 0.0-1.0)
   /// If no point is provided, focuses at the center (0.5, 0.5)
+  /// Falls back to continuous auto focus if focus point setting is not supported
   Future<void> triggerAutoFocus([Offset? focusPoint]) async {
     if (cameraController == null || !cameraController!.value.isInitialized) {
       debugPrint('[triggerAutoFocus] Camera not initialized');
       return;
     }
 
+    final value = cameraController!.value;
+    final beforeFocus = value.focusMode;
+    debugPrint('[triggerAutoFocus] Focus mode before: $beforeFocus');
+    debugPrint('[triggerAutoFocus] Focus point supported: ${value.focusPointSupported}');
+
+    // Try to set focus point if supported
+    if (value.focusPointSupported) {
+      try {
+        // Focus at the specified point or center if not provided
+        final point = focusPoint ?? const Offset(0.5, 0.5);
+        debugPrint('[triggerAutoFocus] Setting focus point to: ($point)');
+
+        await cameraController!.setFocusPoint(point);
+
+        // Wait a bit for focus to update
+        await Future.delayed(const Duration(milliseconds: 100));
+
+        _logCameraProperties('After triggerAutoFocus');
+        return;
+      } catch (e) {
+        debugPrint('[triggerAutoFocus] Error setting focus point: $e');
+        debugPrint('[triggerAutoFocus] Falling back to continuous auto focus mode');
+      }
+    } else {
+      debugPrint('[triggerAutoFocus] Focus point not supported, using continuous auto focus');
+    }
+
+    // Fallback: Ensure auto focus mode is set (continuous auto focus)
+    // The camera will automatically focus continuously when in auto mode
     try {
-      // Focus at the specified point or center if not provided
-      final point = focusPoint ?? const Offset(0.5, 0.5);
-      debugPrint('[triggerAutoFocus] Setting focus point to: ($point)');
-
-      final beforeFocus = cameraController!.value.focusMode;
-      debugPrint('[triggerAutoFocus] Focus mode before: $beforeFocus');
-      debugPrint('[triggerAutoFocus] Focus point supported: ${cameraController!.value.focusPointSupported}');
-
-      await cameraController!.setFocusPoint(point);
-
-      // Wait a bit for focus to update
-      await Future.delayed(const Duration(milliseconds: 100));
-
-      _logCameraProperties('After triggerAutoFocus');
+      if (value.focusMode != FocusMode.auto) {
+        debugPrint('[triggerAutoFocus] Setting focus mode to auto');
+        await cameraController!.setFocusMode(FocusMode.auto);
+        await Future.delayed(const Duration(milliseconds: 100));
+        _logCameraProperties('After setting focus mode to auto');
+      } else {
+        debugPrint('[triggerAutoFocus] Focus mode is already auto, camera should auto-focus continuously');
+        _logCameraProperties('Current camera state');
+      }
     } catch (e) {
-      debugPrint('[triggerAutoFocus] Error setting focus point: $e');
-      // Ignore errors if focus point setting is not supported
+      debugPrint('[triggerAutoFocus] Error setting focus mode: $e');
     }
   }
 
