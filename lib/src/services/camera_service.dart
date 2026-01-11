@@ -78,6 +78,11 @@ class CameraService {
       'focusPointSupported': value.focusPointSupported,
       'previewSize': '${value.previewSize?.width}x${value.previewSize?.height}',
       'hasError': value.hasError,
+      'deviceOrientation': value.deviceOrientation.toString(),
+      'lockedCaptureOrientation': value.lockedCaptureOrientation?.toString(),
+      'recordingOrientation': value.recordingOrientation?.toString(),
+      'isPreviewPaused': value.isPreviewPaused,
+      'previewPausedOrientation': value.previewPausedOrientation?.toString(),
       // Camera description properties
       'cameraName': description.name,
       'lensDirection': description.lensDirection.toString(),
