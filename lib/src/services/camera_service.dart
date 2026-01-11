@@ -61,11 +61,16 @@ class CameraService {
     }
 
     final value = cameraController!.value;
+    final description = cameraController!.description;
+
+    // Log CameraValue object completely
+    debugPrint('[$context] CameraValue (complete): $value');
 
     // Log all properties in a compact format
     final properties = <String, dynamic>{
       'isInitialized': value.isInitialized,
       'isRecordingVideo': value.isRecordingVideo,
+      'isStreamingImages': value.isStreamingImages,
       'flashMode': value.flashMode.toString(),
       'exposureMode': value.exposureMode.toString(),
       'focusMode': value.focusMode.toString(),
@@ -73,7 +78,37 @@ class CameraService {
       'focusPointSupported': value.focusPointSupported,
       'previewSize': '${value.previewSize?.width}x${value.previewSize?.height}',
       'hasError': value.hasError,
+      // Camera description properties
+      'cameraName': description.name,
+      'lensDirection': description.lensDirection.toString(),
+      'sensorOrientation': description.sensorOrientation,
     };
+
+    // Try to add additional CameraValue properties if available
+    try {
+      // Check if these properties exist (they may not be available in all versions)
+      if (value.isPaused != null) {
+        properties['isPaused'] = value.isPaused;
+      }
+    } catch (e) {
+      // Property doesn't exist, skip it
+    }
+
+    try {
+      if (value.deviceOrientation != null) {
+        properties['deviceOrientation'] = value.deviceOrientation.toString();
+      }
+    } catch (e) {
+      // Property doesn't exist, skip it
+    }
+
+    try {
+      if (value.lockCaptureOrientation != null) {
+        properties['lockCaptureOrientation'] = value.lockCaptureOrientation.toString();
+      }
+    } catch (e) {
+      // Property doesn't exist, skip it
+    }
 
     if (value.hasError) {
       properties['errorDescription'] = value.errorDescription;
