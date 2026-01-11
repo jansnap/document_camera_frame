@@ -29,17 +29,31 @@ class CameraService {
 
     await cameraController!.initialize();
 
-    // Optional: Set flash mode
-    await cameraController!.setFlashMode(FlashMode.auto);
+    // Set auto modes for optimal image quality
+    try {
+      await cameraController!.setFlashMode(FlashMode.auto);
+    } catch (e) {
+      debugPrint('[initialize] Error setting flash mode: $e');
+    }
 
-    // Set auto focus mode
-    await cameraController!.setFocusMode(FocusMode.auto);
+    try {
+      await cameraController!.setFocusMode(FocusMode.auto);
+    } catch (e) {
+      debugPrint('[initialize] Error setting focus mode: $e');
+    }
+
+    try {
+      await cameraController!.setExposureMode(ExposureMode.auto);
+    } catch (e) {
+      debugPrint('[initialize] Error setting exposure mode: $e');
+    }
 
     // Log camera properties after initialization
     _logCameraProperties('After initialization');
   }
 
   /// Log camera properties for debugging
+  /// Displays all camera properties in a compact format
   void _logCameraProperties(String context) {
     if (cameraController == null) {
       debugPrint('[$context] CameraController is null');
@@ -47,19 +61,26 @@ class CameraService {
     }
 
     final value = cameraController!.value;
-    debugPrint('[$context] Camera Properties:');
-    debugPrint('  - isInitialized: ${value.isInitialized}');
-    debugPrint('  - isRecordingVideo: ${value.isRecordingVideo}');
-    debugPrint('  - flashMode: ${value.flashMode}');
-    debugPrint('  - exposureMode: ${value.exposureMode}');
-    debugPrint('  - focusMode: ${value.focusMode}');
-    debugPrint('  - exposurePointSupported: ${value.exposurePointSupported}');
-    debugPrint('  - focusPointSupported: ${value.focusPointSupported}');
-    debugPrint('  - previewSize: ${value.previewSize}');
-    debugPrint('  - hasError: ${value.hasError}');
+
+    // Log all properties in a compact format
+    final properties = <String, dynamic>{
+      'isInitialized': value.isInitialized,
+      'isRecordingVideo': value.isRecordingVideo,
+      'flashMode': value.flashMode.toString(),
+      'exposureMode': value.exposureMode.toString(),
+      'focusMode': value.focusMode.toString(),
+      'exposurePointSupported': value.exposurePointSupported,
+      'focusPointSupported': value.focusPointSupported,
+      'previewSize': '${value.previewSize?.width}x${value.previewSize?.height}',
+      'hasError': value.hasError,
+    };
+
     if (value.hasError) {
-      debugPrint('  - errorDescription: ${value.errorDescription}');
+      properties['errorDescription'] = value.errorDescription;
     }
+
+    // Display properties in a compact format
+    debugPrint('[$context] Camera Properties: ${properties.toString()}');
   }
 
   /// Triggers auto focus at the specified point (normalized coordinates 0.0-1.0)
