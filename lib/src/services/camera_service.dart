@@ -204,31 +204,29 @@ class CameraService {
     }
 
     // Fallback: Ensure auto focus mode is set (continuous auto focus)
-    // Force re-set focus mode to ensure autofocus is active
+    // Re-set focus mode to auto to ensure autofocus is active
+    // Note: Some devices don't support setFocusMode, so we only try if focus mode is not already auto
     try {
-      // Temporarily set to locked, then back to auto to force autofocus activation
-      debugPrint('[triggerAutoFocus] Forcing autofocus activation');
-      try {
-        await cameraController!.setFocusMode(FocusMode.locked);
-        await Future.delayed(const Duration(milliseconds: 50));
-      } catch (e) {
-        debugPrint('[triggerAutoFocus] Error setting focus mode to locked: $e');
+      if (value.focusMode != FocusMode.auto) {
+        debugPrint('[triggerAutoFocus] Setting focus mode to auto');
+        await cameraController!.setFocusMode(FocusMode.auto);
+        await Future.delayed(const Duration(milliseconds: 100));
+        debugPrint('[triggerAutoFocus] Focus mode set to auto');
+        _logCameraProperties('After setting focus mode to auto');
+      } else {
+        debugPrint('[triggerAutoFocus] Focus mode is already auto - camera should auto-focus continuously');
+        // Even if already auto, try to re-set to ensure it's active
+        try {
+          await cameraController!.setFocusMode(FocusMode.auto);
+          await Future.delayed(const Duration(milliseconds: 100));
+          debugPrint('[triggerAutoFocus] Re-set focus mode to auto to ensure activation');
+        } catch (e) {
+          debugPrint('[triggerAutoFocus] Note: Focus mode re-set failed (may not be supported), but mode is already auto: $e');
+        }
       }
-
-      // Set back to auto focus mode to activate continuous autofocus
-      await cameraController!.setFocusMode(FocusMode.auto);
-      await Future.delayed(const Duration(milliseconds: 100));
-      debugPrint('[triggerAutoFocus] Autofocus mode activated');
-      _logCameraProperties('After activating autofocus');
     } catch (e) {
       debugPrint('[triggerAutoFocus] Error setting focus mode: $e');
-      // Try one more time with just auto mode
-      try {
-        await cameraController!.setFocusMode(FocusMode.auto);
-        debugPrint('[triggerAutoFocus] Fallback: Set focus mode to auto');
-      } catch (e2) {
-        debugPrint('[triggerAutoFocus] Error in fallback focus mode setting: $e2');
-      }
+      debugPrint('[triggerAutoFocus] Note: This device may not support setFocusMode, but FocusMode.auto should still work');
     }
   }
 
