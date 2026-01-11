@@ -2,6 +2,7 @@ import 'dart:io';
 import 'dart:ui';
 
 import 'package:camera/camera.dart';
+import 'package:flutter/foundation.dart';
 import 'package:image/image.dart' as img;
 import 'package:path_provider/path_provider.dart';
 
@@ -33,20 +34,62 @@ class CameraService {
 
     // Set auto focus mode
     await cameraController!.setFocusMode(FocusMode.auto);
+
+    // Log camera properties after initialization
+    _logCameraProperties('After initialization');
+  }
+
+  /// Log camera properties for debugging
+  void _logCameraProperties(String context) {
+    if (cameraController == null) {
+      debugPrint('[$context] CameraController is null');
+      return;
+    }
+
+    final value = cameraController!.value;
+    debugPrint('[$context] Camera Properties:');
+    debugPrint('  - isInitialized: ${value.isInitialized}');
+    debugPrint('  - isRecordingVideo: ${value.isRecordingVideo}');
+    debugPrint('  - flashMode: ${value.flashMode}');
+    debugPrint('  - exposureMode: ${value.exposureMode}');
+    debugPrint('  - focusMode: ${value.focusMode}');
+    debugPrint('  - exposurePointSupported: ${value.exposurePointSupported}');
+    debugPrint('  - focusPointSupported: ${value.focusPointSupported}');
+    debugPrint('  - isFocusing: ${value.isFocusing}');
+    debugPrint('  - isExposing: ${value.isExposing}');
+    debugPrint('  - previewSize: ${value.previewSize}');
+    debugPrint('  - resolutionPreset: ${value.resolutionPreset}');
+    debugPrint('  - hasError: ${value.hasError}');
+    if (value.hasError) {
+      debugPrint('  - errorDescription: ${value.errorDescription}');
+    }
   }
 
   /// Triggers auto focus at the specified point (normalized coordinates 0.0-1.0)
   /// If no point is provided, focuses at the center (0.5, 0.5)
   Future<void> triggerAutoFocus([Offset? focusPoint]) async {
     if (cameraController == null || !cameraController!.value.isInitialized) {
+      debugPrint('[triggerAutoFocus] Camera not initialized');
       return;
     }
 
     try {
       // Focus at the specified point or center if not provided
       final point = focusPoint ?? const Offset(0.5, 0.5);
+      debugPrint('[triggerAutoFocus] Setting focus point to: ($point)');
+
+      final beforeFocus = cameraController!.value.focusMode;
+      debugPrint('[triggerAutoFocus] Focus mode before: $beforeFocus');
+      debugPrint('[triggerAutoFocus] Focus point supported: ${cameraController!.value.focusPointSupported}');
+
       await cameraController!.setFocusPoint(point);
+
+      // Wait a bit for focus to update
+      await Future.delayed(const Duration(milliseconds: 100));
+
+      _logCameraProperties('After triggerAutoFocus');
     } catch (e) {
+      debugPrint('[triggerAutoFocus] Error setting focus point: $e');
       // Ignore errors if focus point setting is not supported
     }
   }
