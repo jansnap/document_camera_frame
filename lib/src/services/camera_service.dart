@@ -84,31 +84,6 @@ class CameraService {
       'sensorOrientation': description.sensorOrientation,
     };
 
-    // Try to add additional CameraValue properties if available
-    try {
-      // Check if these properties exist (they may not be available in all versions)
-      if (value.isPaused != null) {
-        properties['isPaused'] = value.isPaused;
-      }
-    } catch (e) {
-      // Property doesn't exist, skip it
-    }
-
-    try {
-      if (value.deviceOrientation != null) {
-        properties['deviceOrientation'] = value.deviceOrientation.toString();
-      }
-    } catch (e) {
-      // Property doesn't exist, skip it
-    }
-
-    try {
-      if (value.lockCaptureOrientation != null) {
-        properties['lockCaptureOrientation'] = value.lockCaptureOrientation.toString();
-      }
-    } catch (e) {
-      // Property doesn't exist, skip it
-    }
 
     if (value.hasError) {
       properties['errorDescription'] = value.errorDescription;
