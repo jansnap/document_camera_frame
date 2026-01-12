@@ -70,15 +70,22 @@ InputImage? cameraImageToInputImage(
   // Create the metadata for ML Kit.
   // InputImageMetadata no longer takes 'planeData'.
   // 'bytesPerRow' is typically from the first plane for YUV formats.
+  // Ensure bytesPerRow is not null - use image width as fallback if needed
+  int bytesPerRow;
+  if (image.planes.isNotEmpty && image.planes[0].bytesPerRow != null) {
+    bytesPerRow = image.planes[0].bytesPerRow!;
+  } else {
+    // Fallback: use image width as bytesPerRow (may need adjustment based on format)
+    // For NV21/YUV420, bytesPerRow is typically equal to width for Y plane
+    bytesPerRow = image.width;
+    debugPrint('Warning: bytesPerRow is null, using image width ($bytesPerRow) as fallback');
+  }
+
   final inputImageData = InputImageMetadata(
     size: imageSize,
     rotation: rotation,
     format: inputImageFormat,
-    // Provide bytesPerRow. It should be an int, not nullable.
-    // Ensure image.planes[0].bytesPerRow is not null if it's coming from the camera plugin.
-    bytesPerRow: image
-        .planes[0]
-        .bytesPerRow, // This assumes planes[0] is always available for relevant formats.
+    bytesPerRow: bytesPerRow,
   );
 
   // Create and return the InputImage
