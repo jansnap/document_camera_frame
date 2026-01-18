@@ -141,8 +141,10 @@ class _TwoSidedAnimatedFrameState extends State<TwoSidedAnimatedFrame>
         final frameTotalHeight = widget.frameHeight + AppConstants.bottomFrameContainerHeight;
         // フレームを画面の中央に配置
         final bottomPosition = (screenHeight - frameTotalHeight) / 2;
-        // 角のボックス位置の微調整オフセット（固定値）
-        const cornerBoxOffset = 17.0;
+        // 画像領域のbottom位置（bottomFrameContainerHeight分上に配置）
+        final imageAreaBottom = bottomPosition + AppConstants.bottomFrameContainerHeight;
+        // 角の枠線の高さ（画像領域の高さに合わせる）
+        final cornerBoxHeight = widget.frameHeight;
 
         return Stack(
           children: [
@@ -182,13 +184,13 @@ class _TwoSidedAnimatedFrameState extends State<TwoSidedAnimatedFrame>
 
             /// CornerBorderBox of the document frame
             Positioned(
-              // 白枠の中央に角丸の枠を配置（高さが半分なので、白枠の中央から高さの1/4上に配置）
-              bottom: bottomPosition - animatedFrameHeight / 4 - cornerBoxOffset,
+              // 画像領域の中央に角丸の枠を配置
+              bottom: imageAreaBottom + (widget.frameHeight - cornerBoxHeight) / 2,
               left: 0,
               right: 0,
               child: Align(
                 child: AnimatedContainer(
-                  height: animatedFrameHeight / 2, // 角丸の枠の高さを半分に
+                  height: cornerBoxHeight,
                   width:
                       widget.frameWidth -
                       AppConstants.kCornerBorderBoxHorizontalPadding,
