@@ -388,21 +388,27 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
 
     _isLoadingNotifier.value = true;
 
+    debugPrint('[captureAndHandleImageUnified] Starting capture process(キャプチャ処理を開始します)');
+    debugPrint('[captureAndHandleImageUnified] Frame: ${frameWidth}x${frameHeight}, Screen: ${screenWidth}x${screenHeight}(フレーム: ${frameWidth}x${frameHeight}, 画面: ${screenWidth}x${screenHeight})');
+
     try {
       // Stop image stream before capture to prevent conflicts
       if (widget.enableAutoCapture && _isImageStreamActive) {
         await _stopImageStream();
       }
 
+      debugPrint('[captureAndHandleImageUnified] Capturing and cropping image(画像をキャプチャしてクロップします)');
       await _controller.takeAndCropPicture(
         frameWidth,
         frameHeight,
         screenWidth,
         screenHeight,
       );
+      debugPrint('[captureAndHandleImageUnified] Image captured and cropped successfully(画像のキャプチャとクロップが正常に完了しました)');
 
       _capturedImageNotifier.value = _controller.imagePath;
       _handleCapture(_controller.imagePath);
+      debugPrint('[captureAndHandleImageUnified] Capture handling completed(キャプチャ処理が完了しました)');
 
       // 撮影成功時にフレームのバウンディングボックスを通知（1回だけ）
       if (mounted && widget.onCaptureSuccess != null) {
@@ -413,8 +419,9 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
       // Release camera after successful capture
       debugPrint('[captureAndHandleImageUnified] Releasing camera after successful capture(撮影成功後にカメラを解放します)');
       await _controller.releaseCamera();
+      debugPrint('[captureAndHandleImageUnified] Capture process completed successfully(キャプチャ処理が正常に完了しました)');
     } catch (e) {
-      debugPrint('Capture failed: $e');
+      debugPrint('[captureAndHandleImageUnified] Capture failed: $e(キャプチャに失敗しました: $e)');
       widget.onCameraError?.call(e);
 
       // Release camera even on capture failure

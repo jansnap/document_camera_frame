@@ -277,24 +277,39 @@ class CameraService {
       throw Exception('Camera not initialized(カメラが初期化されていません)');
     }
 
-    final extDir = await getApplicationDocumentsDirectory();
-    final dirPath = '${extDir.path}/Pictures/flutter_test';
-    await Directory(dirPath).create(recursive: true);
+    debugPrint('[captureImage] Starting image capture(画像キャプチャを開始します)');
 
-    // Capture image and save as PNG to avoid JPEG compression quality loss
-    final picture = await cameraController!.takePicture();
-    final imageBytes = await picture.readAsBytes();
+    try {
+      final extDir = await getApplicationDocumentsDirectory();
+      final dirPath = '${extDir.path}/Pictures/flutter_test';
+      await Directory(dirPath).create(recursive: true);
 
-    // Decode the image (may be JPEG from camera) and save as PNG
-    final decodedImage = img.decodeImage(imageBytes);
-    if (decodedImage == null) {
-      throw Exception('Failed to decode captured image');
+      debugPrint('[captureImage] Taking picture from camera(カメラから写真を撮影します)');
+      // Capture image and save as PNG to avoid JPEG compression quality loss
+      final picture = await cameraController!.takePicture();
+      debugPrint('[captureImage] Picture taken, reading bytes(写真を撮影しました。バイトを読み取ります)');
+
+      final imageBytes = await picture.readAsBytes();
+      debugPrint('[captureImage] Image bytes read: ${imageBytes.length} bytes(画像バイトを読み取りました: ${imageBytes.length}バイト)');
+
+      // Decode the image (may be JPEG from camera) and save as PNG
+      debugPrint('[captureImage] Decoding image(画像をデコードします)');
+      final decodedImage = img.decodeImage(imageBytes);
+      if (decodedImage == null) {
+        throw Exception('Failed to decode captured image');
+      }
+      debugPrint('[captureImage] Image decoded: ${decodedImage.width}x${decodedImage.height}(画像をデコードしました: ${decodedImage.width}x${decodedImage.height})');
+
+      final filePath = '$dirPath/${DateTime.now().millisecondsSinceEpoch}.png';
+      debugPrint('[captureImage] Saving image to: $filePath(画像を保存します: $filePath)');
+      File(filePath).writeAsBytesSync(img.encodePng(decodedImage));
+      debugPrint('[captureImage] Image capture completed successfully(画像キャプチャが正常に完了しました)');
+
+      return filePath;
+    } catch (e) {
+      debugPrint('[captureImage] Error during image capture: $e(画像キャプチャ中にエラーが発生しました: $e)');
+      rethrow;
     }
-
-    final filePath = '$dirPath/${DateTime.now().millisecondsSinceEpoch}.png';
-    File(filePath).writeAsBytesSync(img.encodePng(decodedImage));
-
-    return filePath;
   }
 
   /// Release camera resources (pause preview and stop image stream)

@@ -1,6 +1,7 @@
 import 'dart:ui';
 
 import 'package:camera/camera.dart';
+import 'package:flutter/foundation.dart';
 
 import '../services/camera_service.dart';
 import '../services/image_processing_service.dart';
@@ -78,9 +79,17 @@ class DocumentCameraController {
     int screenWidth,
     int screenHeight,
   ) async {
-    if (!_cameraService.isInitialized) return;
+    if (!_cameraService.isInitialized) {
+      debugPrint('[takeAndCropPicture] Camera service not initialized(カメラサービスが初期化されていません)');
+      return;
+    }
+
+    debugPrint('[takeAndCropPicture] Starting capture and crop(キャプチャとクロップを開始します)');
+    debugPrint('[takeAndCropPicture] Frame: ${frameWidth}x${frameHeight}, Screen: ${screenWidth}x${screenHeight}(フレーム: ${frameWidth}x${frameHeight}, 画面: ${screenWidth}x${screenHeight})');
+
     try {
       final filePath = await _cameraService.captureImage();
+      debugPrint('[takeAndCropPicture] Image captured, starting crop(画像をキャプチャしました。クロップを開始します)');
 
       _imagePath = _imageProcessingService.cropImageToFrame(
         filePath,
@@ -89,7 +98,9 @@ class DocumentCameraController {
         screenWidth,
         screenHeight,
       );
+      debugPrint('[takeAndCropPicture] Image cropped successfully(画像のクロップが正常に完了しました)');
     } catch (e) {
+      debugPrint('[takeAndCropPicture] Error during capture and crop: $e(キャプチャとクロップ中にエラーが発生しました: $e)');
       rethrow;
     }
   }
