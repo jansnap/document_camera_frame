@@ -74,9 +74,9 @@ class CameraService {
     }
 
     try {
-      // Set zoom level to 2.5x
-      await cameraController!.setZoomLevel(2.5);
-      debugPrint('[initialize] Zoom level set to 2.5x(ズームレベルを2.5倍に設定)');
+      // Set zoom level to 2x
+      await cameraController!.setZoomLevel(2.0);
+      debugPrint('[initialize] Zoom level set to 2.0x(ズームレベルを2.0倍に設定)');
     } catch (e) {
       debugPrint('[initialize] Error setting zoom level: $e(ズームレベルの設定に失敗しました)');
     }
@@ -110,6 +110,9 @@ class CameraService {
       'exposurePointSupported': value.exposurePointSupported,
       'focusPointSupported': value.focusPointSupported,
       'previewSize': '${value.previewSize?.width}x${value.previewSize?.height}',
+      'minZoomLevel': value.minZoomLevel,
+      'maxZoomLevel': value.maxZoomLevel,
+      'zoomLevel': value.zoomLevel,
       'hasError': value.hasError,
       'deviceOrientation': value.deviceOrientation.toString(),
       'lockedCaptureOrientation': value.lockedCaptureOrientation?.toString(),
@@ -139,6 +142,11 @@ class CameraService {
 
     // Display properties in a compact format
     debugPrint('[$context] Camera Properties: ${properties.toString()}');
+
+    // Log zoom level specifically for front camera (selfie camera)
+    if (description.lensDirection == LensDirection.front) {
+      debugPrint('[$context] Front Camera (Selfie) Zoom Level: ${value.zoomLevel} (min: ${value.minZoomLevel}, max: ${value.maxZoomLevel})(セルフィーカメラのズームレベル: ${value.zoomLevel} (最小: ${value.minZoomLevel}, 最大: ${value.maxZoomLevel}))');
+    }
   }
 
   /// Sets macro mode for close-up photography (if supported by device)
