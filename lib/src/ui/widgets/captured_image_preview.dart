@@ -42,9 +42,10 @@ class CapturedImagePreview extends StatelessWidget {
                     height:
                         frameHeight + AppConstants.bottomFrameContainerHeight,
                     decoration: BoxDecoration(
+                      color: Colors.white,
                       image: DecorationImage(
                         image: FileImage(File(imagePath)),
-                        fit: BoxFit.fill,
+                        fit: BoxFit.contain,
                       ),
                     ),
                   ),
