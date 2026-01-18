@@ -116,6 +116,35 @@ class DocumentDetectionService {
       debugPrint('[processImage]   Size aligned: $sizeAligned, Position aligned: $positionAligned(サイズが合っている: $sizeAligned, 位置が合っている: $positionAligned)');
       debugPrint('[processImage]   Result: ${isAligned ? "ALIGNED" : "NOT ALIGNED"}(結果: ${isAligned ? "位置が合っている" : "位置が合っていない"})');
 
+      // Log adjustment directions if position is not aligned
+      if (!positionAligned) {
+        final List<String> adjustments = [];
+        if (boundingBox.left < cropX) {
+          adjustments.add('もっと右に');
+        }
+        if (boundingBox.top < relaxedFrameTop) {
+          adjustments.add('もっと下に');
+        }
+        if (boundingBox.right > (cropX + cropWidth)) {
+          adjustments.add('もっと左に');
+        }
+        if (boundingBox.bottom > (cropY + cropHeight)) {
+          adjustments.add('もっと上に');
+        }
+        if (adjustments.isNotEmpty) {
+          debugPrint('[processImage]   Adjustment needed(調整が必要): ${adjustments.join(', ')}');
+        }
+      }
+
+      // Log size adjustment directions if size is not aligned
+      if (!sizeAligned) {
+        if (objectArea < (0.70 * frameArea)) {
+          debugPrint('[processImage]   Size adjustment needed(サイズ調整が必要): もっと近づけて');
+        } else if (objectArea > (0.98 * frameArea)) {
+          debugPrint('[processImage]   Size adjustment needed(サイズ調整が必要): もっと遠ざけて');
+        }
+      }
+
       return isAligned;
     } catch (e) {
       onError?.call(e);
