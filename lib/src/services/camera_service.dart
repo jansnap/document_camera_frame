@@ -14,6 +14,9 @@ class CameraService {
   ImageFormatGroup? _imageFormatGroup;
   bool _enableAudio = false;
 
+  // Track if focus point setting failed previously to avoid repeated attempts
+  bool _focusPointSettingFailed = false;
+
   bool get isInitialized =>
       cameraController != null && cameraController!.value.isInitialized;
 
@@ -29,6 +32,8 @@ class CameraService {
     _resolutionPreset = ResolutionPreset.ultraHigh;
     _imageFormatGroup = imageFormatGroup;
     _enableAudio = false;
+    // Reset focus point setting failure flag on re-initialization
+    _focusPointSettingFailed = false;
 
     cameraController = CameraController(
       camera,
@@ -202,8 +207,8 @@ class CameraService {
     debugPrint('[triggerAutoFocus] Focus mode before: $beforeFocus(焦点モードの前)');
     debugPrint('[triggerAutoFocus] Focus point supported: ${value.focusPointSupported}(焦点ポイントがサポートされています)');
 
-    // Try to set focus point if supported
-    if (value.focusPointSupported) {
+    // Try to set focus point if supported and not previously failed
+    if (value.focusPointSupported && !_focusPointSettingFailed) {
       try {
         // Focus at the specified point or center if not provided
         final point = focusPoint ?? const Offset(0.5, 0.5);
@@ -217,11 +222,18 @@ class CameraService {
         _logCameraProperties('After triggerAutoFocus(トリガー自動焦点の後)');
         return;
       } catch (e) {
+        // Mark that focus point setting failed to avoid repeated attempts
+        _focusPointSettingFailed = true;
         debugPrint('[triggerAutoFocus] Error setting focus point: $e(焦点ポイントの設定に失敗しました)');
+        debugPrint('[triggerAutoFocus] Focus point setting will be skipped in future attempts(今後の試行では焦点ポイント設定をスキップします)');
         debugPrint('[triggerAutoFocus] Falling back to continuous auto focus mode(連続自動焦点モードに戻る)');
       }
     } else {
-      debugPrint('[triggerAutoFocus] Focus point not supported, using continuous auto focus(焦点ポイントがサポートされていないため、連続自動焦点モードを使用します)');
+      if (_focusPointSettingFailed) {
+        debugPrint('[triggerAutoFocus] Focus point setting previously failed, skipping attempt(焦点ポイント設定が以前に失敗したため、試行をスキップします)');
+      } else {
+        debugPrint('[triggerAutoFocus] Focus point not supported, using continuous auto focus(焦点ポイントがサポートされていないため、連続自動焦点モードを使用します)');
+      }
     }
 
     // Fallback: Ensure auto focus mode is set (continuous auto focus)
@@ -295,6 +307,8 @@ class CameraService {
         } catch (e) {
           debugPrint('[releaseCamera] Error stopping image stream: $e(画像ストリームの停止中にエラーが発生しました: $e)');
         }
+      } else {
+        debugPrint('[releaseCamera] Image stream is not active, skipping stop(画像ストリームはアクティブではないため、停止をスキップします)');
       }
 
       // Pause preview if active
@@ -305,6 +319,8 @@ class CameraService {
         } catch (e) {
           debugPrint('[releaseCamera] Error pausing preview: $e(プレビューの一時停止中にエラーが発生しました: $e)');
         }
+      } else {
+        debugPrint('[releaseCamera] Preview is already paused, skipping(プレビューは既に一時停止されているため、スキップします)');
       }
 
       debugPrint('[releaseCamera] Camera released successfully(カメラの解放が正常に完了しました)');
