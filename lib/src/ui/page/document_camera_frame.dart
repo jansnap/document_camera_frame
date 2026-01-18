@@ -340,6 +340,16 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
 
       if (!mounted) return;
 
+      // Log document detection state changes
+      final previousAlignedState = _isDocumentAlignedNotifier.value;
+      if (previousAlignedState != isAligned) {
+        if (isAligned) {
+          debugPrint('[processCameraImage] Document detected - frame color changed to green(ドキュメントが検出されました - 枠の色が緑色に変わりました)');
+        } else {
+          debugPrint('[processCameraImage] Document position not aligned with frame - frame color changed to white(ドキュメントの位置が合っていません - 枠の色が白色に変わりました)');
+        }
+      }
+
       _isDocumentAlignedNotifier.value = isAligned;
 
       if (isAligned) {
