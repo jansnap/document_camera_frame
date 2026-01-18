@@ -100,5 +100,11 @@ class DocumentCameraController {
 
   void resetImage() => _imagePath = '';
 
+  /// Release camera resources (pause preview and stop image stream)
+  /// This can be called after capture completion or when camera is no longer needed
+  Future<void> releaseCamera() async {
+    await _cameraService.releaseCamera();
+  }
+
   void dispose() => _cameraService.dispose();
 }

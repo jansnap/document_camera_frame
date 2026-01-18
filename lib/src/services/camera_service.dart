@@ -276,8 +276,47 @@ class CameraService {
     return filePath;
   }
 
+  /// Release camera resources (pause preview and stop image stream)
+  /// This can be called after capture completion or when camera is no longer needed
+  Future<void> releaseCamera() async {
+    if (cameraController == null) {
+      debugPrint('[releaseCamera] CameraController is already null(カメラコントローラーは既にnullです)');
+      return;
+    }
+
+    try {
+      debugPrint('[releaseCamera] Starting camera release(カメラの解放を開始します)');
+
+      // Stop image stream if active
+      if (cameraController!.value.isStreamingImages) {
+        try {
+          await cameraController!.stopImageStream();
+          debugPrint('[releaseCamera] Image stream stopped(画像ストリームを停止しました)');
+        } catch (e) {
+          debugPrint('[releaseCamera] Error stopping image stream: $e(画像ストリームの停止中にエラーが発生しました: $e)');
+        }
+      }
+
+      // Pause preview if active
+      if (!cameraController!.value.isPreviewPaused) {
+        try {
+          await cameraController!.pausePreview();
+          debugPrint('[releaseCamera] Preview paused(プレビューを一時停止しました)');
+        } catch (e) {
+          debugPrint('[releaseCamera] Error pausing preview: $e(プレビューの一時停止中にエラーが発生しました: $e)');
+        }
+      }
+
+      debugPrint('[releaseCamera] Camera released successfully(カメラの解放が正常に完了しました)');
+    } catch (e) {
+      debugPrint('[releaseCamera] Error releasing camera: $e(カメラの解放中にエラーが発生しました: $e)');
+    }
+  }
+
   void dispose() {
+    debugPrint('[dispose] Disposing camera controller(カメラコントローラーを破棄します)');
     cameraController?.dispose();
     cameraController = null;
+    debugPrint('[dispose] Camera controller disposed(カメラコントローラーを破棄しました)');
   }
 }

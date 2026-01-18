@@ -406,9 +406,21 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
         final frameBounds = _calculateFrameBounds(context);
         widget.onCaptureSuccess!(frameBounds);
       }
+
+      // Release camera after successful capture
+      debugPrint('[captureAndHandleImageUnified] Releasing camera after successful capture(撮影成功後にカメラを解放します)');
+      await _controller.releaseCamera();
     } catch (e) {
       debugPrint('Capture failed: $e');
       widget.onCameraError?.call(e);
+
+      // Release camera even on capture failure
+      debugPrint('[captureAndHandleImageUnified] Releasing camera after capture failure(撮影失敗後にカメラを解放します)');
+      try {
+        await _controller.releaseCamera();
+      } catch (releaseError) {
+        debugPrint('[captureAndHandleImageUnified] Error releasing camera after failure: $releaseError(撮影失敗後のカメラ解放中にエラーが発生しました: $releaseError)');
+      }
     } finally {
       if (mounted) {
         _isLoadingNotifier.value = false;
@@ -876,8 +888,20 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
   }
 
   Future<void> _disposeAsync() async {
-    if (widget.enableAutoCapture) {
-      await _stopImageStream();
+    debugPrint('[disposeAsync] Starting async disposal(非同期破棄を開始します)');
+
+    try {
+      // Stop image stream if active
+      if (widget.enableAutoCapture) {
+        await _stopImageStream();
+      }
+
+      // Release camera resources
+      debugPrint('[disposeAsync] Releasing camera resources(カメラリソースを解放します)');
+      await _controller.releaseCamera();
+      debugPrint('[disposeAsync] Camera resources released(カメラリソースを解放しました)');
+    } catch (e) {
+      debugPrint('[disposeAsync] Error during async disposal: $e(非同期破棄中にエラーが発生しました: $e)');
     }
   }
 }
