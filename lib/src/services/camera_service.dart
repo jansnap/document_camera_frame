@@ -15,7 +15,8 @@ class CameraService {
   bool _enableAudio = false;
 
   // Track if focus point setting failed previously to avoid repeated attempts
-  bool _focusPointSettingFailed = false;
+  // Note: Disabled because focus point setting is not used
+  // bool _focusPointSettingFailed = false;
 
   bool get isInitialized =>
       cameraController != null && cameraController!.value.isInitialized;
@@ -33,7 +34,8 @@ class CameraService {
     _imageFormatGroup = imageFormatGroup;
     _enableAudio = false;
     // Reset focus point setting failure flag on re-initialization
-    _focusPointSettingFailed = false;
+    // Note: Disabled because focus point setting is not used
+    // _focusPointSettingFailed = false;
 
     cameraController = CameraController(
       camera,
@@ -207,6 +209,10 @@ class CameraService {
     debugPrint('[triggerAutoFocus] Focus mode before: $beforeFocus(焦点モードの前)');
     debugPrint('[triggerAutoFocus] Focus point supported: ${value.focusPointSupported}(焦点ポイントがサポートされています)');
 
+    // Note: Focus point setting is disabled because many devices report support
+    // but actually don't support metering points (AF/AE/AWB MeteringPoints).
+    // Using continuous auto focus mode instead.
+    /*
     // Try to set focus point if supported and not previously failed
     if (value.focusPointSupported && !_focusPointSettingFailed) {
       try {
@@ -235,6 +241,9 @@ class CameraService {
         debugPrint('[triggerAutoFocus] Focus point not supported, using continuous auto focus(焦点ポイントがサポートされていないため、連続自動焦点モードを使用します)');
       }
     }
+    */
+
+    debugPrint('[triggerAutoFocus] Using continuous auto focus mode(連続自動焦点モードを使用します)');
 
     // Fallback: Ensure auto focus mode is set (continuous auto focus)
     // Re-set focus mode to auto to ensure autofocus is active
