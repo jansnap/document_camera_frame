@@ -73,6 +73,14 @@ class CameraService {
       debugPrint('[initialize] Error setting exposure mode: $e');
     }
 
+    try {
+      // Set zoom level to 2x
+      await cameraController!.setZoomLevel(2.0);
+      debugPrint('[initialize] Zoom level set to 2.0x(ズームレベルを2.0倍に設定)');
+    } catch (e) {
+      debugPrint('[initialize] Error setting zoom level: $e(ズームレベルの設定に失敗しました)');
+    }
+
     // Log camera properties after initialization
     _logCameraProperties('After initialization');
   }
@@ -149,20 +157,21 @@ class CameraService {
         // Attempt to lock focus for close-up photography
         // This may not work on all devices
         await cameraController!.setFocusMode(FocusMode.locked);
-        debugPrint('[setMacroMode] Macro mode enabled (if supported)');
+        debugPrint('[setMacroMode] Macro mode enabled(有効) (if supported)');
       } else {
         // Return to auto focus mode
         await cameraController!.setFocusMode(FocusMode.auto);
-        debugPrint('[setMacroMode] Macro mode disabled, returning to auto focus');
+        debugPrint('[setMacroMode] Macro mode disabled(無効), returning to auto focus(自動焦点に戻る)');
       }
     } catch (e) {
-      debugPrint('[setMacroMode] Error setting macro mode: $e');
-      debugPrint('[setMacroMode] Note: Macro mode may not be supported on this device');
+      debugPrint('[setMacroMode] Error setting macro mode: $e(マクロモードの設定に失敗しました)');
+      debugPrint('[setMacroMode] Note: Macro mode may not be supported on this device(このデバイスではマクロモードがサポートされていない可能性があります: $e)');
       // Fallback to auto focus
       try {
         await cameraController!.setFocusMode(FocusMode.auto);
+        debugPrint('[setMacroMode] Auto focus mode set(自動焦点モードに設定)');
       } catch (e2) {
-        debugPrint('[setMacroMode] Error setting auto focus: $e2');
+        debugPrint('[setMacroMode] Error setting auto focus: $e2(自動焦点モードの設定に失敗しました)');
       }
     }
   }
@@ -178,29 +187,29 @@ class CameraService {
 
     final value = cameraController!.value;
     final beforeFocus = value.focusMode;
-    debugPrint('[triggerAutoFocus] Focus mode before: $beforeFocus');
-    debugPrint('[triggerAutoFocus] Focus point supported: ${value.focusPointSupported}');
+    debugPrint('[triggerAutoFocus] Focus mode before: $beforeFocus(焦点モードの前)');
+    debugPrint('[triggerAutoFocus] Focus point supported: ${value.focusPointSupported}(焦点ポイントがサポートされています)');
 
     // Try to set focus point if supported
     if (value.focusPointSupported) {
       try {
         // Focus at the specified point or center if not provided
         final point = focusPoint ?? const Offset(0.5, 0.5);
-        debugPrint('[triggerAutoFocus] Setting focus point to: ($point)');
+        debugPrint('[triggerAutoFocus] Setting focus point to: ($point)(焦点ポイントを設定: $point)');
 
         await cameraController!.setFocusPoint(point);
 
         // Wait a bit for focus to update
         await Future.delayed(const Duration(milliseconds: 100));
 
-        _logCameraProperties('After triggerAutoFocus');
+        _logCameraProperties('After triggerAutoFocus(トリガー自動焦点の後)');
         return;
       } catch (e) {
-        debugPrint('[triggerAutoFocus] Error setting focus point: $e');
-        debugPrint('[triggerAutoFocus] Falling back to continuous auto focus mode');
+        debugPrint('[triggerAutoFocus] Error setting focus point: $e(焦点ポイントの設定に失敗しました)');
+        debugPrint('[triggerAutoFocus] Falling back to continuous auto focus mode(連続自動焦点モードに戻る)');
       }
     } else {
-      debugPrint('[triggerAutoFocus] Focus point not supported, using continuous auto focus');
+      debugPrint('[triggerAutoFocus] Focus point not supported, using continuous auto focus(焦点ポイントがサポートされていないため、連続自動焦点モードを使用します)');
     }
 
     // Fallback: Ensure auto focus mode is set (continuous auto focus)
@@ -208,31 +217,31 @@ class CameraService {
     // Note: Some devices don't support setFocusMode, so we only try if focus mode is not already auto
     try {
       if (value.focusMode != FocusMode.auto) {
-        debugPrint('[triggerAutoFocus] Setting focus mode to auto');
+        debugPrint('[triggerAutoFocus] Setting focus mode to auto(焦点モードを自動に設定)');
         await cameraController!.setFocusMode(FocusMode.auto);
         await Future.delayed(const Duration(milliseconds: 100));
-        debugPrint('[triggerAutoFocus] Focus mode set to auto');
-        _logCameraProperties('After setting focus mode to auto');
+        debugPrint('[triggerAutoFocus] Focus mode set to auto(焦点モードを自動に設定)');
+        _logCameraProperties('After setting focus mode to auto(焦点モードを自動に設定の後)');
       } else {
-        debugPrint('[triggerAutoFocus] Focus mode is already auto - camera should auto-focus continuously');
+        debugPrint('[triggerAutoFocus] Focus mode is already auto - camera should auto-focus continuously(焦点モードはすでに自動であり、カメラは連続的に自動焦点を行う必要があります)');
         // Even if already auto, try to re-set to ensure it's active
         try {
           await cameraController!.setFocusMode(FocusMode.auto);
           await Future.delayed(const Duration(milliseconds: 100));
-          debugPrint('[triggerAutoFocus] Re-set focus mode to auto to ensure activation');
+          debugPrint('[triggerAutoFocus] Re-set focus mode to auto to ensure activation(焦点モードを自動に再設定してアクティベーションを確実にする)');
         } catch (e) {
-          debugPrint('[triggerAutoFocus] Note: Focus mode re-set failed (may not be supported), but mode is already auto: $e');
+          debugPrint('[triggerAutoFocus] Note: Focus mode re-set failed (may not be supported), but mode is already auto: $e(焦点モードの再設定に失敗しました(サポートされていない可能性があります)、ただしモードはすでに自動です: $e)');
         }
       }
     } catch (e) {
-      debugPrint('[triggerAutoFocus] Error setting focus mode: $e');
-      debugPrint('[triggerAutoFocus] Note: This device may not support setFocusMode, but FocusMode.auto should still work');
+      debugPrint('[triggerAutoFocus] Error setting focus mode: $e(焦点モードの設定に失敗しました)');
+      debugPrint('[triggerAutoFocus] Note: This device may not support setFocusMode, but FocusMode.auto should still work(このデバイスではsetFocusModeがサポートされていない可能性がありますが、FocusMode.autoは依然として動作する必要があります)');
     }
   }
 
   Future<String> captureImage() async {
     if (cameraController == null || !cameraController!.value.isInitialized) {
-      throw Exception('Camera not initialized');
+      throw Exception('Camera not initialized(カメラが初期化されていません)');
     }
 
     final extDir = await getApplicationDocumentsDirectory();
