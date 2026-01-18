@@ -74,9 +74,9 @@ class CameraService {
     }
 
     try {
-      // Set zoom level to 2x
-      await cameraController!.setZoomLevel(2.0);
-      debugPrint('[initialize] Zoom level set to 2.0x(ズームレベルを2.0倍に設定)');
+      // Set zoom level to 2.5x
+      await cameraController!.setZoomLevel(2.5);
+      debugPrint('[initialize] Zoom level set to 2.5x(ズームレベルを2.5倍に設定)');
     } catch (e) {
       debugPrint('[initialize] Error setting zoom level: $e(ズームレベルの設定に失敗しました)');
     }
