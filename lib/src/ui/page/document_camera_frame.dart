@@ -294,16 +294,19 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
     if (!_isImageStreamActive ||
         controller == null ||
         !controller.value.isStreamingImages) {
+      debugPrint('[stopImageStream] Image stream is not active, skipping stop(画像ストリームはアクティブではないため、停止をスキップします)');
       return;
     }
 
     try {
+      debugPrint('[stopImageStream] Stopping image stream(画像ストリームを停止します)');
       // Stop auto focus timer
       _autoFocusTimer?.cancel();
       _autoFocusTimer = null;
       await controller.stopImageStream();
+      debugPrint('[stopImageStream] Image stream stopped successfully(画像ストリームを正常に停止しました)');
     } catch (e) {
-      debugPrint('Failed to stop image stream: $e');
+      debugPrint('[stopImageStream] Failed to stop image stream: $e(画像ストリームの停止に失敗しました: $e)');
       widget.onCameraError?.call(e);
     } finally {
       _isImageStreamActive = false;
