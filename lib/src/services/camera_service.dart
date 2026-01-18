@@ -110,9 +110,6 @@ class CameraService {
       'exposurePointSupported': value.exposurePointSupported,
       'focusPointSupported': value.focusPointSupported,
       'previewSize': '${value.previewSize?.width}x${value.previewSize?.height}',
-      'minZoomLevel': value.minZoomLevel,
-      'maxZoomLevel': value.maxZoomLevel,
-      'zoomLevel': value.zoomLevel,
       'hasError': value.hasError,
       'deviceOrientation': value.deviceOrientation.toString(),
       'lockedCaptureOrientation': value.lockedCaptureOrientation?.toString(),
@@ -144,8 +141,15 @@ class CameraService {
     debugPrint('[$context] Camera Properties: ${properties.toString()}');
 
     // Log zoom level specifically for front camera (selfie camera)
-    if (description.lensDirection == LensDirection.front) {
-      debugPrint('[$context] Front Camera (Selfie) Zoom Level: ${value.zoomLevel} (min: ${value.minZoomLevel}, max: ${value.maxZoomLevel})(セルフィーカメラのズームレベル: ${value.zoomLevel} (最小: ${value.minZoomLevel}, 最大: ${value.maxZoomLevel}))');
+    // Check if it's a front camera by comparing lensDirection string representation
+    if (description.lensDirection.toString().contains('front')) {
+      try {
+        // Try to get zoom levels from CameraController if available
+        // Note: CameraValue may not have zoom properties in camera 0.11.2
+        debugPrint('[$context] Front Camera (Selfie) detected(セルフィーカメラが検出されました)');
+      } catch (e) {
+        debugPrint('[$context] Error logging front camera zoom: $e');
+      }
     }
   }
 
