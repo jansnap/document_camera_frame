@@ -119,7 +119,6 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
   bool _isDebouncing = false;
   Timer? _autoFocusTimer;
   Size? _layoutSize;
-  bool _hasController = false;
 
   late DocumentCameraController _controller;
 
@@ -173,33 +172,16 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
     // Calculate aspect ratio from original dimensions
     final aspectRatio = widget.frameHeight / widget.frameWidth;
 
-    // Set width to screen width (or original width if smaller)
-    _updatedFrameWidth = widget.frameWidth > maxWidth
-        ? maxWidth
-        : widget.frameWidth;
-
-    // Calculate height based on aspect ratio to maintain proportions
+    // Set width to parent width and keep aspect ratio
+    _updatedFrameWidth = maxWidth;
     _updatedFrameHeight = _updatedFrameWidth * aspectRatio;
-
-    // Zoom is applied to the camera, so scale the guide frame accordingly
-    final zoomLevel = _hasController ? _controller.zoomLevel : 1.0;
-    final zoomScale = zoomLevel > 0 ? 1 / zoomLevel : 1.0;
-    _updatedFrameWidth = _updatedFrameWidth * zoomScale;
-    _updatedFrameHeight = _updatedFrameHeight * zoomScale;
-
-    // If calculated height exceeds max height, cap the height only
-    // This keeps the width unchanged and only clips the excess height
-    if (_updatedFrameHeight > maxHeight) {
-      _updatedFrameHeight = maxHeight;
-    }
 
     debugPrint(
       '[FrameDimensions] input=${widget.frameWidth.toStringAsFixed(1)}x'
       '${widget.frameHeight.toStringAsFixed(1)} '
       'max=${maxWidth.toStringAsFixed(1)}x${maxHeight.toStringAsFixed(1)} '
       'updated=${_updatedFrameWidth.toStringAsFixed(1)}x'
-      '${_updatedFrameHeight.toStringAsFixed(1)} '
-      'zoom=${zoomLevel.toStringAsFixed(2)}',
+      '${_updatedFrameHeight.toStringAsFixed(1)}',
     );
   }
 
@@ -237,7 +219,6 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
   Future<void> _initializeCamera() async {
     try {
       _controller = DocumentCameraController();
-      _hasController = true;
       await _controller.initialize(
         widget.cameraIndex ?? 0,
         imageFormatGroup: ImageFormatGroup.nv21,
