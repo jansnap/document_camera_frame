@@ -118,6 +118,8 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
   Timer? _debounceTimer;
   bool _isDebouncing = false;
   Timer? _autoFocusTimer;
+  Size? _layoutSize;
+  bool _hasController = false;
 
   late DocumentCameraController _controller;
 
@@ -162,12 +164,11 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
     }
   }
 
-  void _calculateFrameDimensions() {
-    final screenWidth = MediaQuery.of(context).size.width;
-    final screenHeight = MediaQuery.of(context).size.height;
+  void _calculateFrameDimensions({Size? maxSize}) {
+    final size = maxSize ?? _layoutSize ?? MediaQuery.of(context).size;
 
-    final maxWidth = screenWidth;
-    final maxHeight = screenHeight;
+    final maxWidth = size.width;
+    final maxHeight = size.height;
 
     // Calculate aspect ratio from original dimensions
     final aspectRatio = widget.frameHeight / widget.frameWidth;
@@ -181,7 +182,7 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
     _updatedFrameHeight = _updatedFrameWidth * aspectRatio;
 
     // Zoom is applied to the camera, so scale the guide frame accordingly
-    final zoomLevel = _controller.zoomLevel;
+    final zoomLevel = _hasController ? _controller.zoomLevel : 1.0;
     final zoomScale = zoomLevel > 0 ? 1 / zoomLevel : 1.0;
     _updatedFrameWidth = _updatedFrameWidth * zoomScale;
     _updatedFrameHeight = _updatedFrameHeight * zoomScale;
@@ -191,6 +192,15 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
     if (_updatedFrameHeight > maxHeight) {
       _updatedFrameHeight = maxHeight;
     }
+
+    debugPrint(
+      '[FrameDimensions] input=${widget.frameWidth.toStringAsFixed(1)}x'
+      '${widget.frameHeight.toStringAsFixed(1)} '
+      'max=${maxWidth.toStringAsFixed(1)}x${maxHeight.toStringAsFixed(1)} '
+      'updated=${_updatedFrameWidth.toStringAsFixed(1)}x'
+      '${_updatedFrameHeight.toStringAsFixed(1)} '
+      'zoom=${zoomLevel.toStringAsFixed(2)}',
+    );
   }
 
   bool _hasInitializedFrameDimensions = false;
@@ -227,6 +237,7 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
   Future<void> _initializeCamera() async {
     try {
       _controller = DocumentCameraController();
+      _hasController = true;
       await _controller.initialize(
         widget.cameraIndex ?? 0,
         imageFormatGroup: ImageFormatGroup.nv21,
@@ -732,6 +743,18 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
     return Rect.fromLTRB(left, top, right, bottom);
   }
 
+  void _syncLayoutSize(Size size) {
+    if (_layoutSize == size) return;
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      if (!mounted) return;
+      setState(() {
+        _layoutSize = size;
+        _calculateFrameDimensions(maxSize: size);
+        _hasInitializedFrameDimensions = true;
+      });
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
@@ -749,71 +772,74 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
       body: MediaQuery.removePadding(
         context: context,
         removeTop: true,
-        child: ValueListenableBuilder<bool>(
-          valueListenable: _isInitializedNotifier,
-          builder: (context, isInitialized, child) => Stack(
-            fit: StackFit.expand,
-            children: [
-              // Camera preview
-              if (isInitialized && _controller.cameraController != null)
-                LayoutBuilder(
-                  builder: (context, constraints) {
-                    final cameraValue = _controller.cameraController!.value;
-                    final previewSize = cameraValue.previewSize;
-                    double aspectRatio = 3264 / 2448; // Fallback aspect ratio
+        child: LayoutBuilder(
+          builder: (context, constraints) {
+            _syncLayoutSize(constraints.biggest);
+            return ValueListenableBuilder<bool>(
+              valueListenable: _isInitializedNotifier,
+              builder: (context, isInitialized, child) => Stack(
+                fit: StackFit.expand,
+                children: [
+                  // Camera preview
+                  if (isInitialized && _controller.cameraController != null)
+                    LayoutBuilder(
+                      builder: (context, constraints) {
+                        final cameraValue = _controller.cameraController!.value;
+                        final previewSize = cameraValue.previewSize;
+                        double aspectRatio = 3264 / 2448; // Fallback aspect ratio
 
-                    if (previewSize != null) {
-                      // Use actual preview size from camera stream
-                      aspectRatio = previewSize.height / previewSize.width;
-                      debugPrint(
-                        '[CameraPreview] Actual preview size: ${previewSize.width}x${previewSize.height}, '
-                        'aspect ratio: $aspectRatio',
-                      );
-                    }
+                        if (previewSize != null) {
+                          // Use actual preview size from camera stream
+                          aspectRatio = previewSize.height / previewSize.width;
+                          debugPrint(
+                            '[CameraPreview] Actual preview size: ${previewSize.width}x${previewSize.height}, '
+                            'aspect ratio: $aspectRatio',
+                          );
+                        }
 
-                    final maxWidth = constraints.maxWidth;
-                    final maxHeight = constraints.maxHeight;
-                    final fittedWidth = maxWidth;
-                    final fittedHeight = maxWidth / aspectRatio;
+                        final maxWidth = constraints.maxWidth;
+                        final maxHeight = constraints.maxHeight;
+                        final fittedWidth = maxWidth;
+                        final fittedHeight = maxWidth / aspectRatio;
 
-                    final heightGap = (maxHeight - fittedHeight).abs();
-                    const epsilon = 0.5;
-                    String letterbox;
-                    if (fittedHeight > maxHeight + epsilon) {
-                      letterbox = '上下をトリミング';
-                    } else if (fittedHeight < maxHeight - epsilon) {
-                      letterbox = '上下に黒帯';
-                    } else {
-                      letterbox = '黒帯なし';
-                    }
+                        final heightGap = (maxHeight - fittedHeight).abs();
+                        const epsilon = 0.5;
+                        String letterbox;
+                        if (fittedHeight > maxHeight + epsilon) {
+                          letterbox = '上下をトリミング';
+                        } else if (fittedHeight < maxHeight - epsilon) {
+                          letterbox = '上下に黒帯';
+                        } else {
+                          letterbox = '黒帯なし';
+                        }
 
-                    debugPrint('═══════════════════════════════════════');
-                    debugPrint(
-                      '[CameraPreview] Fit: '
-                      'container=${maxWidth.toStringAsFixed(1)}x${maxHeight.toStringAsFixed(1)}, '
-                      'preview=${fittedWidth.toStringAsFixed(1)}x${fittedHeight.toStringAsFixed(1)}, '
-                      'gapH=${heightGap.toStringAsFixed(1)}, result=$letterbox',
-                    );
-                    debugPrint('═══════════════════════════════════════');
+                        debugPrint('═══════════════════════════════════════');
+                        debugPrint(
+                          '[CameraPreview] Fit: '
+                          'container=${maxWidth.toStringAsFixed(1)}x${maxHeight.toStringAsFixed(1)}, '
+                          'preview=${fittedWidth.toStringAsFixed(1)}x${fittedHeight.toStringAsFixed(1)}, '
+                          'gapH=${heightGap.toStringAsFixed(1)}, result=$letterbox',
+                        );
+                        debugPrint('═══════════════════════════════════════');
 
-                    return SizedBox(
-                      width: maxWidth,
-                      height: maxHeight,
-                      child: ClipRect(
-                        child: Align(
-                          alignment: Alignment.center,
-                          child: SizedBox(
-                            width: fittedWidth,
-                            height: fittedHeight,
-                            child: CameraPreview(
-                              _controller.cameraController!,
+                        return SizedBox(
+                          width: maxWidth,
+                          height: maxHeight,
+                          child: ClipRect(
+                            child: Align(
+                              alignment: Alignment.center,
+                              child: SizedBox(
+                                width: fittedWidth,
+                                height: fittedHeight,
+                                child: CameraPreview(
+                                  _controller.cameraController!,
+                                ),
+                              ),
                             ),
                           ),
-                        ),
-                      ),
-                    );
-                  },
-                ),
+                        );
+                      },
+                    ),
 
               // Captured image preview
               if (false)
@@ -1045,7 +1071,9 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
                   ),
                 ),
             ],
-          ),
+              ),
+            );
+          },
         ),
       ),
     );
