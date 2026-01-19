@@ -39,6 +39,7 @@ class DocumentDetectionService {
     required double frameHeight,
     required int screenWidth,
     required int screenHeight,
+    ValueChanged<String>? onStatusUpdated,
   }) async {
     if (!_isDetectorInitialized) {
       return false;
@@ -57,6 +58,7 @@ class DocumentDetectionService {
       );
 
       if (objects.isEmpty) {
+        onStatusUpdated?.call('ドキュメントが見つかりません');
         return false;
       }
 
@@ -158,6 +160,14 @@ class DocumentDetectionService {
         if (adjustments.isNotEmpty) {
           debugPrint('[processImage]   Adjustment needed(調整が必要): ${adjustments.join(', ')}');
         }
+        _updateDetectionStatus(
+          onStatusUpdated,
+          isAligned: isAligned,
+          adjustments: adjustments,
+          sizeAligned: sizeAligned,
+          objectArea: objectArea,
+          frameArea: frameArea,
+        );
       }
 
       // Log size adjustment directions if size is not aligned
@@ -167,6 +177,17 @@ class DocumentDetectionService {
         } else if (objectArea > (0.98 * frameArea)) {
           debugPrint('[processImage]   Size adjustment needed(サイズ調整が必要): もっと遠ざけて');
         }
+      }
+
+      if (positionAligned) {
+        _updateDetectionStatus(
+          onStatusUpdated,
+          isAligned: isAligned,
+          adjustments: const [],
+          sizeAligned: sizeAligned,
+          objectArea: objectArea,
+          frameArea: frameArea,
+        );
       }
 
       return isAligned;
@@ -183,4 +204,39 @@ class DocumentDetectionService {
       _isDetectorInitialized = false;
     }
   }
+}
+
+void _updateDetectionStatus(
+  ValueChanged<String>? onStatusUpdated, {
+  required bool isAligned,
+  required List<String> adjustments,
+  required bool sizeAligned,
+  required double objectArea,
+  required double frameArea,
+}) {
+  if (onStatusUpdated == null) return;
+
+  if (isAligned) {
+    onStatusUpdated('位置が合っています');
+    return;
+  }
+
+  String? sizeMessage;
+  if (!sizeAligned) {
+    if (objectArea < (0.70 * frameArea)) {
+      sizeMessage = 'もっと近づけて';
+    } else if (objectArea > (0.98 * frameArea)) {
+      sizeMessage = 'もっと遠ざけて';
+    }
+  }
+
+  final List<String> parts = [];
+  if (adjustments.isNotEmpty) {
+    parts.add('位置: ${adjustments.join('、')}');
+  }
+  if (sizeMessage != null) {
+    parts.add('サイズ: $sizeMessage');
+  }
+
+  onStatusUpdated(parts.isEmpty ? '位置を調整してください' : parts.join(' / '));
 }

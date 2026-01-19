@@ -131,6 +131,8 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
   final ValueNotifier<DocumentCaptureData> _documentDataNotifier =
       ValueNotifier(DocumentCaptureData());
   final ValueNotifier<bool> _isDocumentAlignedNotifier = ValueNotifier(false);
+  final ValueNotifier<String> _detectionStatusNotifier =
+      ValueNotifier('ドキュメントを検出中...');
 
   // Animation controllers
   AnimationController? _progressAnimationController;
@@ -342,6 +344,9 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
       if (_isDocumentAlignedNotifier.value) {
         _isDocumentAlignedNotifier.value = false;
       }
+      if (_detectionStatusNotifier.value.isNotEmpty) {
+        _detectionStatusNotifier.value = '';
+      }
       return;
     }
 
@@ -356,6 +361,11 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
         frameHeight: _updatedFrameHeight,
         screenWidth: MediaQuery.of(context).size.width.toInt(),
         screenHeight: MediaQuery.of(context).size.height.toInt(),
+        onStatusUpdated: (status) {
+          if (mounted) {
+            _detectionStatusNotifier.value = status;
+          }
+        },
       );
 
       if (!mounted) return;
@@ -661,6 +671,26 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
     );
   }
 
+  Widget _buildStatusText() {
+    return ValueListenableBuilder<String>(
+      valueListenable: _detectionStatusNotifier,
+      builder: (context, status, child) {
+        if (status.isEmpty) {
+          return const SizedBox.shrink();
+        }
+        return Text(
+          status,
+          textAlign: TextAlign.center,
+          style: widget.instructionStyle.instructionTextStyle ??
+              const TextStyle(
+                color: Colors.white,
+                fontSize: 14,
+              ),
+        );
+      },
+    );
+  }
+
   Widget _buildCurrentTitle() {
     return ValueListenableBuilder<DocumentSide>(
       valueListenable: _currentSideNotifier,
@@ -870,6 +900,14 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
                 child: _buildInstructionText(),
               ),
 
+              // Status text
+              Positioned(
+                bottom: MediaQuery.of(context).padding.bottom + 40,
+                left: 0,
+                right: 0,
+                child: _buildStatusText(),
+              ),
+
               // Screen title
               if (false)
                 if (widget.titleStyle.title != null ||
@@ -1029,6 +1067,7 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
     _currentSideNotifier.dispose();
     _documentDataNotifier.dispose();
     _isDocumentAlignedNotifier.dispose();
+    _detectionStatusNotifier.dispose();
 
     _debounceTimer?.cancel();
     _debounceTimer = null;
