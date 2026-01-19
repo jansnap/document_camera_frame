@@ -26,17 +26,27 @@ class CapturedImagePreview extends StatelessWidget {
         if (imagePath.isEmpty) {
           return const SizedBox.shrink();
         }
+
+        final previewHeight =
+            detectionFrameHeight + AppConstants.bottomFrameContainerHeight;
+        debugPrint(
+          '[CapturedImagePreview] Widget size: ${detectionFrameWidth.toStringAsFixed(0)} x ${previewHeight.toStringAsFixed(0)}',
+        );
+        debugPrint(
+          '[CapturedImagePreview] Preview size: ${detectionFrameWidth.toStringAsFixed(0)} x ${detectionFrameHeight.toStringAsFixed(0)}',
+        );
+
         return Align(
           alignment: Alignment.center,
           child: SizedBox(
             width: detectionFrameWidth,
-            height: detectionFrameHeight + AppConstants.bottomFrameContainerHeight,
+            height: previewHeight,
             child: Stack(
               children: [
                 // Black background for padding
                 Container(
                   width: detectionFrameWidth,
-                  height: detectionFrameHeight + AppConstants.bottomFrameContainerHeight,
+                  height: previewHeight,
                   color: Colors.black,
                 ),
                 // Image with centered alignment
@@ -47,8 +57,7 @@ class CapturedImagePreview extends StatelessWidget {
                   child: Center(
                     child: Container(
                       width: detectionFrameWidth,
-                      height:
-                          detectionFrameHeight + AppConstants.bottomFrameContainerHeight,
+                      height: detectionFrameHeight,
                       decoration: BoxDecoration(
                         image: DecorationImage(
                           image: FileImage(File(imagePath)),
