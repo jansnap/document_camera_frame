@@ -806,14 +806,15 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
                 valueListenable: _isDocumentAlignedNotifier,
                 builder: (context, isAligned, child) {
                   return TwoSidedAnimatedFrame(
-                    frameHeight: _updatedFrameHeight,
-                    frameWidth: _updatedFrameWidth,
-                    outerFrameBorderRadius:
+                    detectionFrameHeight: _updatedFrameHeight,
+                    detectionFrameWidth: _updatedFrameWidth,
+                    detectionFrameOuterBorderRadius:
                         widget.frameStyle.outerFrameBorderRadius,
-                    innerCornerBroderRadius:
+                    detectionFrameInnerCornerBorderRadius:
                         widget.frameStyle.innerCornerBroderRadius,
-                    frameFlipDuration: widget.animationStyle.frameFlipDuration,
-                    frameFlipCurve: widget.animationStyle.frameFlipCurve,
+                    detectionFrameFlipDuration:
+                        widget.animationStyle.frameFlipDuration,
+                    detectionFrameFlipCurve: widget.animationStyle.frameFlipCurve,
                     border: widget.frameStyle.frameBorder,
                     currentSideNotifier: _currentSideNotifier,
                     isDocumentAligned: isAligned,

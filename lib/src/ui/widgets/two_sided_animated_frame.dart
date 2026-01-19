@@ -3,24 +3,24 @@ import 'package:flutter/material.dart';
 import '../../core/app_constants.dart';
 
 class TwoSidedAnimatedFrame extends StatefulWidget {
-  final double frameHeight;
-  final double frameWidth;
-  final double outerFrameBorderRadius;
-  final double innerCornerBroderRadius;
-  final Duration frameFlipDuration;
-  final Curve frameFlipCurve;
+  final double detectionFrameHeight;
+  final double detectionFrameWidth;
+  final double detectionFrameOuterBorderRadius;
+  final double detectionFrameInnerCornerBorderRadius;
+  final Duration detectionFrameFlipDuration;
+  final Curve detectionFrameFlipCurve;
   final BoxBorder? border;
   final ValueNotifier<DocumentSide>? currentSideNotifier;
   final bool isDocumentAligned;
 
   const TwoSidedAnimatedFrame({
     super.key,
-    required this.frameHeight,
-    required this.frameWidth,
-    required this.outerFrameBorderRadius,
-    required this.innerCornerBroderRadius,
-    required this.frameFlipDuration,
-    required this.frameFlipCurve,
+    required this.detectionFrameHeight,
+    required this.detectionFrameWidth,
+    required this.detectionFrameOuterBorderRadius,
+    required this.detectionFrameInnerCornerBorderRadius,
+    required this.detectionFrameFlipDuration,
+    required this.detectionFrameFlipCurve,
     this.border,
     this.currentSideNotifier,
     required this.isDocumentAligned,
@@ -32,7 +32,7 @@ class TwoSidedAnimatedFrame extends StatefulWidget {
 
 class _TwoSidedAnimatedFrameState extends State<TwoSidedAnimatedFrame>
     with TickerProviderStateMixin {
-  double _frameHeight = 0;
+  double _detectionFrameHeight = 0;
   double _cornerBorderBoxHeight = 0;
 
   late AnimationController _flipAnimationController;
@@ -46,14 +46,14 @@ class _TwoSidedAnimatedFrameState extends State<TwoSidedAnimatedFrame>
     super.initState();
 
     _flipAnimationController = AnimationController(
-      duration: widget.frameFlipDuration,
+      duration: widget.detectionFrameFlipDuration,
       vsync: this,
     );
 
     _flipAnimation = Tween<double>(begin: 0.0, end: 1.0).animate(
       CurvedAnimation(
         parent: _flipAnimationController,
-        curve: widget.frameFlipCurve,
+        curve: widget.detectionFrameFlipCurve,
       ),
     );
 
@@ -92,10 +92,12 @@ class _TwoSidedAnimatedFrameState extends State<TwoSidedAnimatedFrame>
 
   void _openFrame() {
     setState(() {
-      _frameHeight =
-          widget.frameHeight + AppConstants.bottomFrameContainerHeight;
+      _detectionFrameHeight =
+          widget.detectionFrameHeight + AppConstants.bottomFrameContainerHeight;
       _cornerBorderBoxHeight =
-          widget.frameHeight + AppConstants.bottomFrameContainerHeight / 2 - 34;
+          widget.detectionFrameHeight +
+          AppConstants.bottomFrameContainerHeight / 2 -
+          34;
     });
   }
 
@@ -107,12 +109,12 @@ class _TwoSidedAnimatedFrameState extends State<TwoSidedAnimatedFrame>
   // }
 
   double _getAnimatedFrameHeight() {
-    if (!_isFlipping) return _frameHeight;
+    if (!_isFlipping) return _detectionFrameHeight;
 
     if (_flipAnimation.value <= 0.5) {
-      return _frameHeight * (1 - (_flipAnimation.value * 2));
+      return _detectionFrameHeight * (1 - (_flipAnimation.value * 2));
     } else {
-      return _frameHeight * ((_flipAnimation.value - 0.5) * 2);
+      return _detectionFrameHeight * ((_flipAnimation.value - 0.5) * 2);
     }
   }
 
@@ -127,7 +129,7 @@ class _TwoSidedAnimatedFrameState extends State<TwoSidedAnimatedFrame>
   }
 
   Duration get animatedFrameDuration => Duration(
-    milliseconds: (widget.frameFlipDuration.inMilliseconds / 2).round(),
+    milliseconds: (widget.detectionFrameFlipDuration.inMilliseconds / 2).round(),
   );
 
   @override
@@ -138,13 +140,13 @@ class _TwoSidedAnimatedFrameState extends State<TwoSidedAnimatedFrame>
         final animatedFrameHeight = _getAnimatedFrameHeight();
         final animatedCornerHeight = _getAnimatedCornerHeight();
         final screenHeight = 1.sh(context);
-        final frameTotalHeight = widget.frameHeight + AppConstants.bottomFrameContainerHeight;
+        final detectionFrameTotalHeight = widget.detectionFrameHeight;
         // フレームを画面の中央に配置
-        final bottomPosition = (screenHeight - frameTotalHeight) / 2;
-        // 画像領域のbottom位置（bottomFrameContainerHeight分上に配置）
-        final imageAreaBottom = bottomPosition + AppConstants.bottomFrameContainerHeight;
+        final bottomPosition = (screenHeight - detectionFrameTotalHeight) / 2;
+        // 画像領域のbottom位置（ガイド枠を中央に配置）
+        final imageAreaBottom = bottomPosition;
         // 角の枠線の高さ（画像領域の高さに合わせる）
-        final cornerBoxHeight = widget.frameHeight;
+        final cornerBoxHeight = widget.detectionFrameHeight;
 
         return Stack(
           children: [
@@ -154,11 +156,11 @@ class _TwoSidedAnimatedFrameState extends State<TwoSidedAnimatedFrame>
                 child: CustomPaint(
                   painter: AnimatedDocumentCameraFramePainter(
                     isFlipping: _isFlipping,
-                    frameWidth: widget.frameWidth,
-                    frameMaxHeight: _frameHeight,
-                    animatedFrameHeight: animatedFrameHeight,
+                    detectionFrameWidth: widget.detectionFrameWidth,
+                    detectionFrameMaxHeight: _detectionFrameHeight,
+                    animatedDetectionFrameHeight: animatedFrameHeight,
                     bottomPosition: bottomPosition,
-                    borderRadius: widget.outerFrameBorderRadius,
+                    borderRadius: widget.detectionFrameOuterBorderRadius,
                     context: context,
                   ),
                 ),
@@ -167,16 +169,16 @@ class _TwoSidedAnimatedFrameState extends State<TwoSidedAnimatedFrame>
             /// Border of the document frame
             Positioned(
               bottom: bottomPosition,
-              right: (1.sw(context) - widget.frameWidth) / 2,
+              right: (1.sw(context) - widget.detectionFrameWidth) / 2,
               child: AnimatedContainer(
-                width: widget.frameWidth,
+                width: widget.detectionFrameWidth,
                 height: animatedFrameHeight,
                 duration: _isFlipping ? Duration.zero : animatedFrameDuration,
-                curve: widget.frameFlipCurve,
+                curve: widget.detectionFrameFlipCurve,
                 decoration: BoxDecoration(
                   // 外側の枠線は削除（角丸の枠のみ表示）
                   borderRadius: BorderRadius.circular(
-                    widget.innerCornerBroderRadius,
+                    widget.detectionFrameInnerCornerBorderRadius,
                   ),
                 ),
               ),
@@ -185,17 +187,18 @@ class _TwoSidedAnimatedFrameState extends State<TwoSidedAnimatedFrame>
             /// CornerBorderBox of the document frame
             Positioned(
               // 画像領域の中央に角丸の枠を配置
-              bottom: imageAreaBottom + (widget.frameHeight - cornerBoxHeight) / 2,
+              bottom: imageAreaBottom +
+                  (widget.detectionFrameHeight - cornerBoxHeight) / 2,
               left: 0,
               right: 0,
               child: Align(
                 child: AnimatedContainer(
                   height: cornerBoxHeight,
                   width:
-                      widget.frameWidth -
+                      widget.detectionFrameWidth -
                       AppConstants.kCornerBorderBoxHorizontalPadding,
                   duration: _isFlipping ? Duration.zero : animatedFrameDuration,
-                  curve: widget.frameFlipCurve,
+                  curve: widget.detectionFrameFlipCurve,
                   child: animatedCornerHeight > 0
                       ? Stack(
                           children: [
@@ -267,16 +270,16 @@ class _TwoSidedAnimatedFrameState extends State<TwoSidedAnimatedFrame>
         ),
         borderRadius: BorderRadius.only(
           topLeft: topLeft
-              ? Radius.circular(widget.innerCornerBroderRadius)
+              ? Radius.circular(widget.detectionFrameInnerCornerBorderRadius)
               : Radius.zero,
           topRight: topRight
-              ? Radius.circular(widget.innerCornerBroderRadius)
+              ? Radius.circular(widget.detectionFrameInnerCornerBorderRadius)
               : Radius.zero,
           bottomLeft: bottomLeft
-              ? Radius.circular(widget.innerCornerBroderRadius)
+              ? Radius.circular(widget.detectionFrameInnerCornerBorderRadius)
               : Radius.zero,
           bottomRight: bottomRight
-              ? Radius.circular(widget.innerCornerBroderRadius)
+              ? Radius.circular(widget.detectionFrameInnerCornerBorderRadius)
               : Radius.zero,
         ),
       ),
@@ -292,9 +295,9 @@ class _TwoSidedAnimatedFrameState extends State<TwoSidedAnimatedFrame>
 }
 
 class AnimatedDocumentCameraFramePainter extends CustomPainter {
-  final double frameWidth;
-  final double frameMaxHeight;
-  final double animatedFrameHeight;
+  final double detectionFrameWidth;
+  final double detectionFrameMaxHeight;
+  final double animatedDetectionFrameHeight;
   final double bottomPosition;
   final double borderRadius;
   final BuildContext context;
@@ -302,9 +305,9 @@ class AnimatedDocumentCameraFramePainter extends CustomPainter {
 
   AnimatedDocumentCameraFramePainter({
     required this.isFlipping,
-    required this.frameWidth,
-    required this.frameMaxHeight,
-    required this.animatedFrameHeight,
+    required this.detectionFrameWidth,
+    required this.detectionFrameMaxHeight,
+    required this.animatedDetectionFrameHeight,
     required this.bottomPosition,
     required this.borderRadius,
     required this.context,
@@ -316,16 +319,17 @@ class AnimatedDocumentCameraFramePainter extends CustomPainter {
       ..color = Colors.black
       ..style = PaintingStyle.fill;
 
-    if (animatedFrameHeight > 0) {
+    if (animatedDetectionFrameHeight > 0) {
       final double top =
-          bottomPosition + (frameMaxHeight - animatedFrameHeight);
+          bottomPosition +
+          (detectionFrameMaxHeight - animatedDetectionFrameHeight);
 
       final clearRect = RRect.fromRectAndRadius(
         Rect.fromLTWH(
-          (size.width - frameWidth) / 2,
+          (size.width - detectionFrameWidth) / 2,
           top,
-          frameWidth,
-          animatedFrameHeight,
+          detectionFrameWidth,
+          animatedDetectionFrameHeight,
         ),
         Radius.circular(borderRadius),
       );
@@ -344,10 +348,11 @@ class AnimatedDocumentCameraFramePainter extends CustomPainter {
   @override
   bool shouldRepaint(covariant CustomPainter oldDelegate) {
     if (oldDelegate is AnimatedDocumentCameraFramePainter) {
-      return oldDelegate.frameWidth != frameWidth ||
+      return oldDelegate.detectionFrameWidth != detectionFrameWidth ||
           oldDelegate.bottomPosition != bottomPosition ||
-          oldDelegate.animatedFrameHeight != animatedFrameHeight ||
-          oldDelegate.frameMaxHeight != frameMaxHeight ||
+          oldDelegate.animatedDetectionFrameHeight !=
+              animatedDetectionFrameHeight ||
+          oldDelegate.detectionFrameMaxHeight != detectionFrameMaxHeight ||
           oldDelegate.borderRadius != borderRadius;
     }
     return true;
