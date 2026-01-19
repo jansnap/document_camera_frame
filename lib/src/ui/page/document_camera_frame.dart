@@ -717,8 +717,8 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
                   builder: (context, constraints) {
                     final cameraValue = _controller.cameraController!.value;
                     final previewSize = cameraValue.previewSize;
-                    // Force the display aspect ratio to match 2448x3264 (portrait)
-                    double aspectRatio = 3264 / 2448;
+                    // Force the display aspect ratio to match 2448x3264 (landscape)
+                    double aspectRatio = 2448 / 3264;
 
                     if (previewSize != null) {
                       debugPrint(
