@@ -157,9 +157,11 @@ class DocumentDetectionService {
         if (!isOverTop && isOverBottom) {
           adjustments.add('もっと上に');
         }
-        if (adjustments.isNotEmpty) {
-          debugPrint('[processImage]   Adjustment needed(調整が必要): ${adjustments.join(', ')}');
-        }
+        // if (adjustments.isNotEmpty) {
+        //   debugPrint(
+        //     '[processImage]   Adjustment needed(調整が必要): ${adjustments.join(', ')}',
+        //   );
+        // }
         _updateDetectionStatus(
           onStatusUpdated,
           isAligned: isAligned,
