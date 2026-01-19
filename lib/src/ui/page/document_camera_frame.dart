@@ -178,6 +178,12 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
     // Calculate height based on aspect ratio to maintain proportions
     _updatedFrameHeight = _updatedFrameWidth * aspectRatio;
 
+    // Zoom is applied to the camera, so scale the guide frame accordingly
+    final zoomLevel = _controller.zoomLevel;
+    final zoomScale = zoomLevel > 0 ? 1 / zoomLevel : 1.0;
+    _updatedFrameWidth = _updatedFrameWidth * zoomScale;
+    _updatedFrameHeight = _updatedFrameHeight * zoomScale;
+
     // If calculated height exceeds max height, cap the height only
     // This keeps the width unchanged and only clips the excess height
     if (_updatedFrameHeight > maxHeight) {

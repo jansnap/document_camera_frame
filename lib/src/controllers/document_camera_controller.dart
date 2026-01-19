@@ -16,6 +16,7 @@ class DocumentCameraController {
   int _currentCameraIndex = 0; // Track the current camera
 
   CameraController? get cameraController => _cameraService.cameraController;
+  double get zoomLevel => _cameraService.zoomLevel;
   List<CameraDescription> cameras = [];
 
   ImageFormatGroup? _imageFormatGroup;

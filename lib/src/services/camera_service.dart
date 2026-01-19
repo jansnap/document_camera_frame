@@ -9,6 +9,8 @@ import 'package:path_provider/path_provider.dart';
 
 class CameraService {
   CameraController? cameraController;
+  double _zoomLevel = 1.0;
+  double get zoomLevel => _zoomLevel;
 
   // Store initialization settings for logging
   ResolutionPreset _resolutionPreset = ResolutionPreset.max;
@@ -93,7 +95,9 @@ class CameraService {
 
     try {
       // Set zoom level to 2x
-      await cameraController!.setZoomLevel(2.0);
+      const zoomLevel = 2.0;
+      await cameraController!.setZoomLevel(zoomLevel);
+      _zoomLevel = zoomLevel;
       debugPrint('[initialize] Zoom level set to 2.0x(ズームレベルを2.0倍に設定)');
     } catch (e) {
       debugPrint('[initialize] Error setting zoom level: $e(ズームレベルの設定に失敗しました)');
@@ -139,8 +143,8 @@ class CameraService {
       'sensorOrientation': description.sensorOrientation,
     };
 
-    // Add lensType if available (may not exist on all devices)
-    if (description.lensType != null) {
+    // Add lensType if available (may be unknown on some devices)
+    if (description.lensType != CameraLensType.unknown) {
       properties['lensType'] = description.lensType.toString();
     }
 
