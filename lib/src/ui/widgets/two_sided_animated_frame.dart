@@ -148,6 +148,19 @@ class _TwoSidedAnimatedFrameState extends State<TwoSidedAnimatedFrame>
         // 角の枠線の高さ（画像領域の高さに合わせる）
         final cornerBoxHeight = widget.detectionFrameHeight;
 
+        debugPrint('------------------------------');
+        debugPrint(
+          '[DetectionFrame] screenH=${screenHeight.toStringAsFixed(1)} '
+          'frameW=${widget.detectionFrameWidth.toStringAsFixed(1)} '
+          'frameH=${widget.detectionFrameHeight.toStringAsFixed(1)} '
+          'animFrameH=${animatedFrameHeight.toStringAsFixed(1)} '
+          'cornerH=${cornerBoxHeight.toStringAsFixed(1)} '
+          'bottom=${bottomPosition.toStringAsFixed(1)} '
+          'imageAreaBottom=${imageAreaBottom.toStringAsFixed(1)} '
+          'right=${((1.sw(context) - widget.detectionFrameWidth) / 2).toStringAsFixed(1)}',
+        );
+        debugPrint('------------------------------');
+
         return SizedBox.expand(
           child: Stack(
             children: [
