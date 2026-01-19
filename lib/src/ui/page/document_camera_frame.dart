@@ -716,8 +716,8 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
                 Center(
                   child: AspectRatio(
                     aspectRatio:
-                        3264 /
-                        2448, // Moto G05 front camera (2448x3264) aspect ratio (height / width)
+                        2448 /
+                        3264, // Moto G05 front camera (2448x3264) aspect ratio (width / height)
                     child: CameraPreview(_controller.cameraController!),
                   ),
                 ),
