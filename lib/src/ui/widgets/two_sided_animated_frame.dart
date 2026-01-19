@@ -144,23 +144,25 @@ class _TwoSidedAnimatedFrameState extends State<TwoSidedAnimatedFrame>
             final parentHeight = constraints.maxHeight;
             final parentWidth = constraints.maxWidth;
             final detectionFrameTotalHeight = widget.detectionFrameHeight;
+            const double guideScale = 0.85;
+            final double guideWidth = widget.detectionFrameWidth * guideScale;
+            final double guideHeight = detectionFrameTotalHeight * guideScale;
+            final double guideAnimatedHeight = animatedFrameHeight * guideScale;
             // フレームを親ウィジェットの中央に配置
-            final bottomPosition =
-                (parentHeight - detectionFrameTotalHeight) / 2;
+            final bottomPosition = (parentHeight - guideHeight) / 2;
             // 画像領域のbottom位置（ガイド枠を中央に配置）
             final imageAreaBottom = bottomPosition;
             // 角の枠線の高さ（画像領域の高さに合わせる）
-            final cornerBoxHeight = widget.detectionFrameHeight;
-            final rightPosition =
-                (parentWidth - widget.detectionFrameWidth) / 2;
+            final cornerBoxHeight = guideHeight;
+            final rightPosition = (parentWidth - guideWidth) / 2;
 
             debugPrint('------------------------------');
             debugPrint(
               '[DetectionFrame] parentW=${parentWidth.toStringAsFixed(1)} '
               'parentH=${parentHeight.toStringAsFixed(1)} '
-              'frameW=${widget.detectionFrameWidth.toStringAsFixed(1)} '
-              'frameH=${widget.detectionFrameHeight.toStringAsFixed(1)} '
-              'animFrameH=${animatedFrameHeight.toStringAsFixed(1)} '
+              'frameW=${guideWidth.toStringAsFixed(1)} '
+              'frameH=${guideHeight.toStringAsFixed(1)} '
+              'animFrameH=${guideAnimatedHeight.toStringAsFixed(1)} '
               'cornerH=${cornerBoxHeight.toStringAsFixed(1)} '
               'bottom=${bottomPosition.toStringAsFixed(1)} '
               'imageAreaBottom=${imageAreaBottom.toStringAsFixed(1)} '
@@ -192,8 +194,8 @@ class _TwoSidedAnimatedFrameState extends State<TwoSidedAnimatedFrame>
                     bottom: bottomPosition,
                     right: rightPosition,
                     child: AnimatedContainer(
-                      width: widget.detectionFrameWidth,
-                      height: animatedFrameHeight,
+                      width: guideWidth,
+                      height: guideAnimatedHeight,
                       duration:
                           _isFlipping ? Duration.zero : animatedFrameDuration,
                       curve: widget.detectionFrameFlipCurve,
@@ -221,7 +223,7 @@ class _TwoSidedAnimatedFrameState extends State<TwoSidedAnimatedFrame>
                       child: AnimatedContainer(
                         height: cornerBoxHeight,
                         width:
-                            widget.detectionFrameWidth -
+                            guideWidth -
                             AppConstants.kCornerBorderBoxHorizontalPadding,
                         duration:
                             _isFlipping ? Duration.zero : animatedFrameDuration,
