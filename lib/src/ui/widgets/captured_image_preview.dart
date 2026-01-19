@@ -29,12 +29,14 @@ class CapturedImagePreview extends StatelessWidget {
 
         final previewHeight =
             detectionFrameHeight + AppConstants.bottomFrameContainerHeight;
+        debugPrint('----------------------------------');
         debugPrint(
           '[CapturedImagePreview] Widget size: ${detectionFrameWidth.toStringAsFixed(0)} x ${previewHeight.toStringAsFixed(0)}',
         );
         debugPrint(
           '[CapturedImagePreview] Preview size: ${detectionFrameWidth.toStringAsFixed(0)} x ${detectionFrameHeight.toStringAsFixed(0)}',
         );
+        debugPrint('----------------------------------');
 
         return Align(
           alignment: Alignment.center,
