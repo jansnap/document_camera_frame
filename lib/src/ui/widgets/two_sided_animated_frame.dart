@@ -198,9 +198,13 @@ class _TwoSidedAnimatedFrameState extends State<TwoSidedAnimatedFrame>
                           _isFlipping ? Duration.zero : animatedFrameDuration,
                       curve: widget.detectionFrameFlipCurve,
                       decoration: BoxDecoration(
-                        // 外側の枠線は削除（角丸の枠のみ表示）
+                        // 外側の枠線を表示（角丸の枠も表示）
                         borderRadius: BorderRadius.circular(
                           widget.detectionFrameInnerCornerBorderRadius,
+                        ),
+                        border: Border.all(
+                          color: Colors.white,
+                          width: 2,
                         ),
                       ),
                     ),
