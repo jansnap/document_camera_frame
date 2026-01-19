@@ -6,15 +6,15 @@ import '../../core/app_constants.dart';
 
 class CapturedImagePreview extends StatelessWidget {
   final ValueNotifier<String> capturedImageNotifier;
-  final double frameWidth;
-  final double frameHeight;
+  final double detectionFrameWidth;
+  final double detectionFrameHeight;
 
   final double borderRadius;
   const CapturedImagePreview({
     super.key,
     required this.capturedImageNotifier,
-    required this.frameWidth,
-    required this.frameHeight,
+    required this.detectionFrameWidth,
+    required this.detectionFrameHeight,
     required this.borderRadius,
   });
 
@@ -29,14 +29,14 @@ class CapturedImagePreview extends StatelessWidget {
         return Align(
           alignment: Alignment.center,
           child: SizedBox(
-            width: frameWidth,
-            height: frameHeight + AppConstants.bottomFrameContainerHeight,
+            width: detectionFrameWidth,
+            height: detectionFrameHeight + AppConstants.bottomFrameContainerHeight,
             child: Stack(
               children: [
                 // Black background for padding
                 Container(
-                  width: frameWidth,
-                  height: frameHeight + AppConstants.bottomFrameContainerHeight,
+                  width: detectionFrameWidth,
+                  height: detectionFrameHeight + AppConstants.bottomFrameContainerHeight,
                   color: Colors.black,
                 ),
                 // Image with centered alignment
@@ -46,9 +46,9 @@ class CapturedImagePreview extends StatelessWidget {
                   right: 3,
                   child: Center(
                     child: Container(
-                      width: frameWidth,
+                      width: detectionFrameWidth,
                       height:
-                          frameHeight + AppConstants.bottomFrameContainerHeight,
+                          detectionFrameHeight + AppConstants.bottomFrameContainerHeight,
                       decoration: BoxDecoration(
                         image: DecorationImage(
                           image: FileImage(File(imagePath)),

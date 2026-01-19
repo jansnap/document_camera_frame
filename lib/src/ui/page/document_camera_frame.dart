@@ -712,8 +712,8 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
                 if (isInitialized)
                   CapturedImagePreview(
                     capturedImageNotifier: _capturedImageNotifier,
-                    frameWidth: _updatedFrameWidth,
-                    frameHeight: _updatedFrameHeight,
+                    detectionFrameWidth: _updatedFrameWidth,
+                    detectionFrameHeight: _updatedFrameHeight,
                     borderRadius: widget.frameStyle.outerFrameBorderRadius,
                   ),
 
