@@ -165,7 +165,7 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
     final screenHeight = MediaQuery.of(context).size.height;
 
     final maxWidth = screenWidth;
-    final maxHeight = 0.45 * screenHeight;
+    final maxHeight = screenHeight;
 
     // Calculate aspect ratio from original dimensions
     final aspectRatio = widget.frameHeight / widget.frameWidth;
@@ -178,10 +178,10 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
     // Calculate height based on aspect ratio to maintain proportions
     _updatedFrameHeight = _updatedFrameWidth * aspectRatio;
 
-    // If calculated height exceeds max height, adjust both dimensions
+    // If calculated height exceeds max height, cap the height only
+    // This keeps the width unchanged and only clips the excess height
     if (_updatedFrameHeight > maxHeight) {
       _updatedFrameHeight = maxHeight;
-      _updatedFrameWidth = _updatedFrameHeight / aspectRatio;
     }
   }
 
@@ -265,7 +265,8 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
   Offset _calculateFrameCenter() {
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-    final frameTotalHeight = _updatedFrameHeight + AppConstants.bottomFrameContainerHeight;
+    final frameTotalHeight =
+        _updatedFrameHeight + AppConstants.bottomFrameContainerHeight;
     final bottomPosition = (screenHeight - frameTotalHeight) / 2;
 
     final frameLeft = (screenWidth - _updatedFrameWidth) / 2;
@@ -280,7 +281,9 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
   void _startAutoFocusTimer() {
     _autoFocusTimer?.cancel();
     _autoFocusTimer = Timer.periodic(const Duration(seconds: 3), (timer) {
-      if (mounted && _isImageStreamActive && _controller.cameraController != null) {
+      if (mounted &&
+          _isImageStreamActive &&
+          _controller.cameraController != null) {
         final frameCenter = _calculateFrameCenter();
         _controller.triggerAutoFocus(frameCenter);
       } else {
@@ -294,7 +297,9 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
     if (!_isImageStreamActive ||
         controller == null ||
         !controller.value.isStreamingImages) {
-      debugPrint('[stopImageStream] Image stream is not active, skipping stop(画像ストリームはアクティブではないため、停止をスキップします)');
+      debugPrint(
+        '[stopImageStream] Image stream is not active, skipping stop(画像ストリームはアクティブではないため、停止をスキップします)',
+      );
       return;
     }
 
@@ -304,9 +309,13 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
       _autoFocusTimer?.cancel();
       _autoFocusTimer = null;
       await controller.stopImageStream();
-      debugPrint('[stopImageStream] Image stream stopped successfully(画像ストリームを正常に停止しました)');
+      debugPrint(
+        '[stopImageStream] Image stream stopped successfully(画像ストリームを正常に停止しました)',
+      );
     } catch (e) {
-      debugPrint('[stopImageStream] Failed to stop image stream: $e(画像ストリームの停止に失敗しました: $e)');
+      debugPrint(
+        '[stopImageStream] Failed to stop image stream: $e(画像ストリームの停止に失敗しました: $e)',
+      );
       widget.onCameraError?.call(e);
     } finally {
       _isImageStreamActive = false;
@@ -344,9 +353,13 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
       final previousAlignedState = _isDocumentAlignedNotifier.value;
       if (previousAlignedState != isAligned) {
         if (isAligned) {
-          debugPrint('[processCameraImage] Document detected - frame color changed to green(ドキュメントが検出されました - 枠の色が緑色に変わりました)');
+          debugPrint(
+            '[processCameraImage] Document detected - frame color changed to green(ドキュメントが検出されました - 枠の色が緑色に変わりました)',
+          );
         } else {
-          debugPrint('[processCameraImage] Document position not aligned with frame - frame color changed to white(ドキュメントの位置が合っていません - 枠の色が白色に変わりました)');
+          debugPrint(
+            '[processCameraImage] Document position not aligned with frame - frame color changed to white(ドキュメントの位置が合っていません - 枠の色が白色に変わりました)',
+          );
         }
       }
 
@@ -398,8 +411,12 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
 
     _isLoadingNotifier.value = true;
 
-    debugPrint('[captureAndHandleImageUnified] Starting capture process(キャプチャ処理を開始します)');
-    debugPrint('[captureAndHandleImageUnified] Frame: ${frameWidth}x${frameHeight}, Screen: ${screenWidth}x${screenHeight}(フレーム: ${frameWidth}x${frameHeight}, 画面: ${screenWidth}x${screenHeight})');
+    debugPrint(
+      '[captureAndHandleImageUnified] Starting capture process(キャプチャ処理を開始します)',
+    );
+    debugPrint(
+      '[captureAndHandleImageUnified] Frame: ${frameWidth}x${frameHeight}, Screen: ${screenWidth}x${screenHeight}(フレーム: ${frameWidth}x${frameHeight}, 画面: ${screenWidth}x${screenHeight})',
+    );
 
     try {
       // Stop image stream before capture to prevent conflicts
@@ -407,18 +424,24 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
         await _stopImageStream();
       }
 
-      debugPrint('[captureAndHandleImageUnified] Capturing and cropping image(画像をキャプチャしてクロップします)');
+      debugPrint(
+        '[captureAndHandleImageUnified] Capturing and cropping image(画像をキャプチャしてクロップします)',
+      );
       await _controller.takeAndCropPicture(
         frameWidth,
         frameHeight,
         screenWidth,
         screenHeight,
       );
-      debugPrint('[captureAndHandleImageUnified] Image captured and cropped successfully(画像のキャプチャとクロップが正常に完了しました)');
+      debugPrint(
+        '[captureAndHandleImageUnified] Image captured and cropped successfully(画像のキャプチャとクロップが正常に完了しました)',
+      );
 
       _capturedImageNotifier.value = _controller.imagePath;
       _handleCapture(_controller.imagePath);
-      debugPrint('[captureAndHandleImageUnified] Capture handling completed(キャプチャ処理が完了しました)');
+      debugPrint(
+        '[captureAndHandleImageUnified] Capture handling completed(キャプチャ処理が完了しました)',
+      );
 
       // 撮影成功時にフレームのバウンディングボックスを通知（1回だけ）
       if (mounted && widget.onCaptureSuccess != null) {
@@ -427,19 +450,29 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
       }
 
       // Release camera after successful capture
-      debugPrint('[captureAndHandleImageUnified] Releasing camera after successful capture(撮影成功後にカメラを解放します)');
+      debugPrint(
+        '[captureAndHandleImageUnified] Releasing camera after successful capture(撮影成功後にカメラを解放します)',
+      );
       await _controller.releaseCamera();
-      debugPrint('[captureAndHandleImageUnified] Capture process completed successfully(キャプチャ処理が正常に完了しました)');
+      debugPrint(
+        '[captureAndHandleImageUnified] Capture process completed successfully(キャプチャ処理が正常に完了しました)',
+      );
     } catch (e) {
-      debugPrint('[captureAndHandleImageUnified] Capture failed: $e(キャプチャに失敗しました: $e)');
+      debugPrint(
+        '[captureAndHandleImageUnified] Capture failed: $e(キャプチャに失敗しました: $e)',
+      );
       widget.onCameraError?.call(e);
 
       // Release camera even on capture failure
-      debugPrint('[captureAndHandleImageUnified] Releasing camera after capture failure(撮影失敗後にカメラを解放します)');
+      debugPrint(
+        '[captureAndHandleImageUnified] Releasing camera after capture failure(撮影失敗後にカメラを解放します)',
+      );
       try {
         await _controller.releaseCamera();
       } catch (releaseError) {
-        debugPrint('[captureAndHandleImageUnified] Error releasing camera after failure: $releaseError(撮影失敗後のカメラ解放中にエラーが発生しました: $releaseError)');
+        debugPrint(
+          '[captureAndHandleImageUnified] Error releasing camera after failure: $releaseError(撮影失敗後のカメラ解放中にエラーが発生しました: $releaseError)',
+        );
       }
     } finally {
       if (mounted) {
@@ -639,16 +672,17 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
   /// Calculates and returns the bounding box of the document frame in screen coordinates.
   /// Returns a Rect with: left (x), top (y), right (x + width), bottom (y + height)
   Rect _calculateFrameBounds(BuildContext context) {
-
     final screenWidth = MediaQuery.of(context).size.width;
     final screenHeight = MediaQuery.of(context).size.height;
-    final frameTotalHeight = _updatedFrameHeight + AppConstants.bottomFrameContainerHeight;
+    final frameTotalHeight =
+        _updatedFrameHeight + AppConstants.bottomFrameContainerHeight;
     // フレームを画面の中央に配置
     final bottomPosition = (screenHeight - frameTotalHeight) / 2;
 
     // Calculate frame position in screen coordinates
     final left = (screenWidth - _updatedFrameWidth) / 2; // x position
-    final top = screenHeight - bottomPosition - _updatedFrameHeight; // y position
+    final top =
+        screenHeight - bottomPosition - _updatedFrameHeight; // y position
     final right = left + _updatedFrameWidth; // x + width
     final bottom = screenHeight - bottomPosition; // y + height
 
@@ -667,218 +701,237 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
           builder: (context, isInitialized, child) => Stack(
             fit: StackFit.expand,
             children: [
-            // Camera preview
-            if (isInitialized && _controller.cameraController != null)
-              Positioned.fill(
-                child: CameraPreview(_controller.cameraController!),
-              ),
-
-            // Captured image preview
-            if (false)
-              if (isInitialized)
-                CapturedImagePreview(
-                  capturedImageNotifier: _capturedImageNotifier,
-                  frameWidth: _updatedFrameWidth,
-                  frameHeight: _updatedFrameHeight,
-                  borderRadius: widget.frameStyle.outerFrameBorderRadius,
+              // Camera preview
+              if (isInitialized && _controller.cameraController != null)
+                Positioned.fill(
+                  child: CameraPreview(_controller.cameraController!),
                 ),
 
-            // Frame capture animation
-            if (false)
-              if (isInitialized)
-                ValueListenableBuilder<bool>(
-                  valueListenable: _isLoadingNotifier,
-                  child: FrameCaptureAnimation(
+              // Captured image preview
+              if (false)
+                if (isInitialized)
+                  CapturedImagePreview(
+                    capturedImageNotifier: _capturedImageNotifier,
                     frameWidth: _updatedFrameWidth,
                     frameHeight: _updatedFrameHeight,
-                    animationDuration:
-                        widget.animationStyle.capturingAnimationDuration,
-                    animationColor: widget.animationStyle.capturingAnimationColor,
-                    curve: widget.animationStyle.capturingAnimationCurve,
+                    borderRadius: widget.frameStyle.outerFrameBorderRadius,
                   ),
-                  builder: (context, isLoading, child) {
-                    return isLoading ? child! : const SizedBox.shrink();
-                  },
-                ),
 
-            // Document frame
-            ValueListenableBuilder<bool>(
-              valueListenable: _isDocumentAlignedNotifier,
-              builder: (context, isAligned, child) {
-                return TwoSidedAnimatedFrame(
-                  frameHeight: _updatedFrameHeight,
-                  frameWidth: _updatedFrameWidth,
-                  outerFrameBorderRadius:
-                      widget.frameStyle.outerFrameBorderRadius,
-                  innerCornerBroderRadius:
-                      widget.frameStyle.innerCornerBroderRadius,
-                  frameFlipDuration: widget.animationStyle.frameFlipDuration,
-                  frameFlipCurve: widget.animationStyle.frameFlipCurve,
-                  border: widget.frameStyle.frameBorder,
-                  currentSideNotifier: _currentSideNotifier,
-                  isDocumentAligned: isAligned,
-                );
-              },
-            ),
+              // Frame capture animation
+              if (false)
+                if (isInitialized)
+                  ValueListenableBuilder<bool>(
+                    valueListenable: _isLoadingNotifier,
+                    child: FrameCaptureAnimation(
+                      frameWidth: _updatedFrameWidth,
+                      frameHeight: _updatedFrameHeight,
+                      animationDuration:
+                          widget.animationStyle.capturingAnimationDuration,
+                      animationColor:
+                          widget.animationStyle.capturingAnimationColor,
+                      curve: widget.animationStyle.capturingAnimationCurve,
+                    ),
+                    builder: (context, isLoading, child) {
+                      return isLoading ? child! : const SizedBox.shrink();
+                    },
+                  ),
 
-            // Bottom frame container
-            if (false)
-              TwoSidedBottomFrameContainer(
-                width: _updatedFrameWidth,
-                height: _updatedFrameHeight,
-                borderRadius: widget.frameStyle.outerFrameBorderRadius,
-                currentSideNotifier: _currentSideNotifier,
-                documentDataNotifier: _documentDataNotifier,
-                bottomHintText: widget.bottomHintText,
-                sideInfoOverlay: widget.sideInfoOverlay,
+              // Document frame
+              ValueListenableBuilder<bool>(
+                valueListenable: _isDocumentAlignedNotifier,
+                builder: (context, isAligned, child) {
+                  return TwoSidedAnimatedFrame(
+                    frameHeight: _updatedFrameHeight,
+                    frameWidth: _updatedFrameWidth,
+                    outerFrameBorderRadius:
+                        widget.frameStyle.outerFrameBorderRadius,
+                    innerCornerBroderRadius:
+                        widget.frameStyle.innerCornerBroderRadius,
+                    frameFlipDuration: widget.animationStyle.frameFlipDuration,
+                    frameFlipCurve: widget.animationStyle.frameFlipCurve,
+                    border: widget.frameStyle.frameBorder,
+                    currentSideNotifier: _currentSideNotifier,
+                    isDocumentAligned: isAligned,
+                  );
+                },
               ),
 
-            // Progress indicator
-            if (false)
-              if (widget.requireBothSides &&
-                  widget.sideIndicatorStyle.showSideIndicator)
-                Positioned(
-                  top: MediaQuery.of(context).padding.top + 60,
-                  left: 0,
-                  right: 0,
-                  child: _buildProgressIndicator(),
-                ),
-
-            // Instruction text
-            if (false)
-              Positioned(
-                top:
-                    widget.requireBothSides &&
-                        widget.sideIndicatorStyle.showSideIndicator
-                    ? MediaQuery.of(context).padding.top + 120
-                    : MediaQuery.of(context).padding.top + 60,
-                left: 0,
-                right: 0,
-                child: _buildInstructionText(),
-              ),
-
-            // Screen title
-            if (false)
-              if (widget.titleStyle.title != null ||
-                  widget.titleStyle.frontSideTitle != null ||
-                  widget.titleStyle.backSideTitle != null ||
-                  widget.showCloseButton)
-                ScreenTitle(
-                  title: _buildCurrentTitle(),
-                  showCloseButton: widget.showCloseButton,
-                  screenTitleAlignment: widget.titleStyle.screenTitleAlignment,
-                  screenTitlePadding: widget.titleStyle.screenTitlePadding,
-                ),
-
-            // Side indicator
-            if (false)
-              if (widget.requireBothSides &&
-                  widget.sideIndicatorStyle.showSideIndicator)
-                SideIndicator(
+              // Bottom frame container
+              if (false)
+                TwoSidedBottomFrameContainer(
+                  width: _updatedFrameWidth,
+                  height: _updatedFrameHeight,
+                  borderRadius: widget.frameStyle.outerFrameBorderRadius,
                   currentSideNotifier: _currentSideNotifier,
                   documentDataNotifier: _documentDataNotifier,
-                  rightPosition: 20,
-                  backgroundColor:
-                      widget.sideIndicatorStyle.sideIndicatorBackgroundColor ??
-                      Colors.black.withAlpha((0.8 * 255).toInt()),
-                  borderColor: widget.sideIndicatorStyle.sideIndicatorBorderColor,
-                  activeColor:
-                      widget.sideIndicatorStyle.sideIndicatorActiveColor ??
-                      Colors.blue,
-                  inactiveColor:
-                      widget.sideIndicatorStyle.sideIndicatorInactiveColor ??
-                      Colors.grey,
-                  completedColor:
-                      widget.sideIndicatorStyle.sideIndicatorCompletedColor ??
-                      Colors.green,
-                  textStyle: widget.sideIndicatorStyle.sideIndicatorTextStyle,
+                  bottomHintText: widget.bottomHintText,
+                  sideInfoOverlay: widget.sideInfoOverlay,
                 ),
 
-            // Action buttons
-            if (false)
-              TwoSidedActionButtons(
-                captureOuterCircleRadius:
-                    widget.buttonStyle.captureOuterCircleRadius,
-                captureInnerCircleRadius:
-                    widget.buttonStyle.captureInnerCircleRadius,
-                captureButtonAlignment: widget.buttonStyle.captureButtonAlignment,
-                captureButtonPadding: widget.buttonStyle.captureButtonPadding,
-                captureButtonText: widget.buttonStyle.captureButtonText,
-                captureFrontButtonText: widget.buttonStyle.captureFrontButtonText,
-                captureBackButtonText: widget.buttonStyle.captureBackButtonText,
-                saveButtonText: widget.buttonStyle.saveButtonText,
-                nextButtonText: widget.buttonStyle.nextButtonText,
-                previousButtonText: widget.buttonStyle.previousButtonText,
-                retakeButtonText: widget.buttonStyle.retakeButtonText,
-                captureButtonTextStyle: widget.buttonStyle.captureButtonTextStyle,
-                actionButtonTextStyle: widget.buttonStyle.actionButtonTextStyle,
-                retakeButtonTextStyle: widget.buttonStyle.retakeButtonTextStyle,
-                captureButtonStyle: widget.buttonStyle.captureButtonStyle,
-                actionButtonStyle: widget.buttonStyle.actionButtonStyle,
-                retakeButtonStyle: widget.buttonStyle.retakeButtonStyle,
-                actionButtonPadding: widget.buttonStyle.actionButtonPadding,
-                actionButtonWidth: widget.buttonStyle.actionButtonWidth,
-                actionButtonHeight: widget.buttonStyle.actionButtonHeight,
-                captureButtonWidth: widget.buttonStyle.captureButtonWidth,
-                captureButtonHeight: widget.buttonStyle.captureButtonHeight,
-                capturedImageNotifier: _capturedImageNotifier,
-                isLoadingNotifier: _isLoadingNotifier,
-                currentSideNotifier: _currentSideNotifier,
-                documentDataNotifier: _documentDataNotifier,
-                frameWidth: _updatedFrameWidth,
-                frameHeight: _updatedFrameHeight,
-                bottomFrameContainerHeight:
-                    AppConstants.bottomFrameContainerHeight,
-                controller: _controller,
-                onManualCapture: _captureAndHandleImageUnified,
-                onSave: _handleSave,
-                onRetake: _handleRetake,
-                onNext: _switchToBackSide,
-                onPrevious: _switchToFrontSide,
-                onCameraSwitched: () async {
-                  _isInitializedNotifier.value = false;
-                  if (widget.enableAutoCapture) {
-                    await _stopImageStream();
-                  }
+              // Progress indicator
+              if (false)
+                if (widget.requireBothSides &&
+                    widget.sideIndicatorStyle.showSideIndicator)
+                  Positioned(
+                    top: MediaQuery.of(context).padding.top + 60,
+                    left: 0,
+                    right: 0,
+                    child: _buildProgressIndicator(),
+                  ),
 
-                  await _controller.switchCamera();
-                  _isInitializedNotifier.value = true;
+              // Instruction text
+              if (false)
+                Positioned(
+                  top:
+                      widget.requireBothSides &&
+                          widget.sideIndicatorStyle.showSideIndicator
+                      ? MediaQuery.of(context).padding.top + 120
+                      : MediaQuery.of(context).padding.top + 60,
+                  left: 0,
+                  right: 0,
+                  child: _buildInstructionText(),
+                ),
 
-                  // Trigger auto focus at frame center after camera switch
-                  final frameCenter = _calculateFrameCenter();
-                  _controller.triggerAutoFocus(frameCenter);
+              // Screen title
+              if (false)
+                if (widget.titleStyle.title != null ||
+                    widget.titleStyle.frontSideTitle != null ||
+                    widget.titleStyle.backSideTitle != null ||
+                    widget.showCloseButton)
+                  ScreenTitle(
+                    title: _buildCurrentTitle(),
+                    showCloseButton: widget.showCloseButton,
+                    screenTitleAlignment:
+                        widget.titleStyle.screenTitleAlignment,
+                    screenTitlePadding: widget.titleStyle.screenTitlePadding,
+                  ),
 
-                  if (widget.enableAutoCapture) {
-                    await _startImageStream();
-                  }
-                },
-                requireBothSides: widget.requireBothSides,
-              ),
+              // Side indicator
+              if (false)
+                if (widget.requireBothSides &&
+                    widget.sideIndicatorStyle.showSideIndicator)
+                  SideIndicator(
+                    currentSideNotifier: _currentSideNotifier,
+                    documentDataNotifier: _documentDataNotifier,
+                    rightPosition: 20,
+                    backgroundColor:
+                        widget
+                            .sideIndicatorStyle
+                            .sideIndicatorBackgroundColor ??
+                        Colors.black.withAlpha((0.8 * 255).toInt()),
+                    borderColor:
+                        widget.sideIndicatorStyle.sideIndicatorBorderColor,
+                    activeColor:
+                        widget.sideIndicatorStyle.sideIndicatorActiveColor ??
+                        Colors.blue,
+                    inactiveColor:
+                        widget.sideIndicatorStyle.sideIndicatorInactiveColor ??
+                        Colors.grey,
+                    completedColor:
+                        widget.sideIndicatorStyle.sideIndicatorCompletedColor ??
+                        Colors.green,
+                    textStyle: widget.sideIndicatorStyle.sideIndicatorTextStyle,
+                  ),
 
-            // Touch to focus detector (placed at the top to capture all touch events)
-            if (isInitialized && _controller.cameraController != null)
-              Positioned.fill(
-                child: GestureDetector(
-                  behavior: HitTestBehavior.translucent,
-                  onTapDown: (TapDownDetails details) {
-                    // Convert tap position to normalized coordinates (0.0-1.0)
-                    final screenSize = MediaQuery.of(context).size;
-                    final normalizedX = details.globalPosition.dx / screenSize.width;
-                    final normalizedY = details.globalPosition.dy / screenSize.height;
+              // Action buttons
+              if (false)
+                TwoSidedActionButtons(
+                  captureOuterCircleRadius:
+                      widget.buttonStyle.captureOuterCircleRadius,
+                  captureInnerCircleRadius:
+                      widget.buttonStyle.captureInnerCircleRadius,
+                  captureButtonAlignment:
+                      widget.buttonStyle.captureButtonAlignment,
+                  captureButtonPadding: widget.buttonStyle.captureButtonPadding,
+                  captureButtonText: widget.buttonStyle.captureButtonText,
+                  captureFrontButtonText:
+                      widget.buttonStyle.captureFrontButtonText,
+                  captureBackButtonText:
+                      widget.buttonStyle.captureBackButtonText,
+                  saveButtonText: widget.buttonStyle.saveButtonText,
+                  nextButtonText: widget.buttonStyle.nextButtonText,
+                  previousButtonText: widget.buttonStyle.previousButtonText,
+                  retakeButtonText: widget.buttonStyle.retakeButtonText,
+                  captureButtonTextStyle:
+                      widget.buttonStyle.captureButtonTextStyle,
+                  actionButtonTextStyle:
+                      widget.buttonStyle.actionButtonTextStyle,
+                  retakeButtonTextStyle:
+                      widget.buttonStyle.retakeButtonTextStyle,
+                  captureButtonStyle: widget.buttonStyle.captureButtonStyle,
+                  actionButtonStyle: widget.buttonStyle.actionButtonStyle,
+                  retakeButtonStyle: widget.buttonStyle.retakeButtonStyle,
+                  actionButtonPadding: widget.buttonStyle.actionButtonPadding,
+                  actionButtonWidth: widget.buttonStyle.actionButtonWidth,
+                  actionButtonHeight: widget.buttonStyle.actionButtonHeight,
+                  captureButtonWidth: widget.buttonStyle.captureButtonWidth,
+                  captureButtonHeight: widget.buttonStyle.captureButtonHeight,
+                  capturedImageNotifier: _capturedImageNotifier,
+                  isLoadingNotifier: _isLoadingNotifier,
+                  currentSideNotifier: _currentSideNotifier,
+                  documentDataNotifier: _documentDataNotifier,
+                  frameWidth: _updatedFrameWidth,
+                  frameHeight: _updatedFrameHeight,
+                  bottomFrameContainerHeight:
+                      AppConstants.bottomFrameContainerHeight,
+                  controller: _controller,
+                  onManualCapture: _captureAndHandleImageUnified,
+                  onSave: _handleSave,
+                  onRetake: _handleRetake,
+                  onNext: _switchToBackSide,
+                  onPrevious: _switchToFrontSide,
+                  onCameraSwitched: () async {
+                    _isInitializedNotifier.value = false;
+                    if (widget.enableAutoCapture) {
+                      await _stopImageStream();
+                    }
 
-                    debugPrint('[TouchToFocus] Tapped at screen: (${details.globalPosition.dx}, ${details.globalPosition.dy})');
-                    debugPrint('[TouchToFocus] Normalized coordinates: ($normalizedX, $normalizedY)');
+                    await _controller.switchCamera();
+                    _isInitializedNotifier.value = true;
 
-                    // Trigger focus at tapped position
-                    _controller.triggerAutoFocus(Offset(normalizedX, normalizedY));
+                    // Trigger auto focus at frame center after camera switch
+                    final frameCenter = _calculateFrameCenter();
+                    _controller.triggerAutoFocus(frameCenter);
+
+                    if (widget.enableAutoCapture) {
+                      await _startImageStream();
+                    }
                   },
-                  child: Container(color: Colors.transparent),
+                  requireBothSides: widget.requireBothSides,
                 ),
-              ),
-          ],
+
+              // Touch to focus detector (placed at the top to capture all touch events)
+              if (isInitialized && _controller.cameraController != null)
+                Positioned.fill(
+                  child: GestureDetector(
+                    behavior: HitTestBehavior.translucent,
+                    onTapDown: (TapDownDetails details) {
+                      // Convert tap position to normalized coordinates (0.0-1.0)
+                      final screenSize = MediaQuery.of(context).size;
+                      final normalizedX =
+                          details.globalPosition.dx / screenSize.width;
+                      final normalizedY =
+                          details.globalPosition.dy / screenSize.height;
+
+                      debugPrint(
+                        '[TouchToFocus] Tapped at screen: (${details.globalPosition.dx}, ${details.globalPosition.dy})',
+                      );
+                      debugPrint(
+                        '[TouchToFocus] Normalized coordinates: ($normalizedX, $normalizedY)',
+                      );
+
+                      // Trigger focus at tapped position
+                      _controller.triggerAutoFocus(
+                        Offset(normalizedX, normalizedY),
+                      );
+                    },
+                    child: Container(color: Colors.transparent),
+                  ),
+                ),
+            ],
+          ),
         ),
       ),
-        ),
     );
   }
 
@@ -921,7 +974,9 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
       await _controller.releaseCamera();
       debugPrint('[disposeAsync] Camera resources released(カメラリソースを解放しました)');
     } catch (e) {
-      debugPrint('[disposeAsync] Error during async disposal: $e(非同期破棄中にエラーが発生しました: $e)');
+      debugPrint(
+        '[disposeAsync] Error during async disposal: $e(非同期破棄中にエラーが発生しました: $e)',
+      );
     }
   }
 }
