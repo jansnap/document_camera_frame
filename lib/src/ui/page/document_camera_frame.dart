@@ -717,13 +717,13 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
                   builder: (context, constraints) {
                     final cameraValue = _controller.cameraController!.value;
                     final previewSize = cameraValue.previewSize;
-                    double aspectRatio = 3264 / 2448; // Default aspect ratio
+                    // Force the display aspect ratio to match 2448x3264 (portrait)
+                    double aspectRatio = 3264 / 2448;
 
                     if (previewSize != null) {
-                      // Use actual preview size from camera
-                      aspectRatio = previewSize.height / previewSize.width;
                       debugPrint(
-                        '[CameraPreview] Actual preview size: ${previewSize.width}x${previewSize.height}, aspect ratio: $aspectRatio',
+                        '[CameraPreview] Actual preview size: ${previewSize.width}x${previewSize.height}, '
+                        'forced aspect ratio: $aspectRatio',
                       );
                     }
 
