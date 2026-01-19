@@ -148,8 +148,9 @@ class _TwoSidedAnimatedFrameState extends State<TwoSidedAnimatedFrame>
         // 角の枠線の高さ（画像領域の高さに合わせる）
         final cornerBoxHeight = widget.detectionFrameHeight;
 
-        return Stack(
-          children: [
+        return SizedBox.expand(
+          child: Stack(
+            children: [
             /// Animated Camera Frame Overlay
             if (false)
               Positioned.fill(
@@ -235,7 +236,8 @@ class _TwoSidedAnimatedFrameState extends State<TwoSidedAnimatedFrame>
                 ),
               ),
             ),
-          ],
+            ],
+          ),
         );
       },
     );
