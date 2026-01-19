@@ -713,8 +713,13 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
             children: [
               // Camera preview
               if (isInitialized && _controller.cameraController != null)
-                Positioned.fill(
-                  child: CameraPreview(_controller.cameraController!),
+                Center(
+                  child: AspectRatio(
+                    aspectRatio:
+                        3264 /
+                        2448, // Moto G05 front camera (2448x3264) aspect ratio (height / width)
+                    child: CameraPreview(_controller.cameraController!),
+                  ),
                 ),
 
               // Captured image preview
