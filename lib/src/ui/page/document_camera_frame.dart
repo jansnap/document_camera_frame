@@ -729,25 +729,18 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
 
                     final maxWidth = constraints.maxWidth;
                     final maxHeight = constraints.maxHeight;
-                    var fittedWidth = maxWidth;
-                    var fittedHeight = maxWidth / aspectRatio;
-                    if (fittedHeight > maxHeight) {
-                      fittedHeight = maxHeight;
-                      fittedWidth = maxHeight * aspectRatio;
-                    }
+                    final fittedWidth = maxWidth;
+                    final fittedHeight = maxWidth / aspectRatio;
 
-                    final widthGap = (maxWidth - fittedWidth).abs();
                     final heightGap = (maxHeight - fittedHeight).abs();
                     const epsilon = 0.5;
                     String letterbox;
-                    if (widthGap > epsilon && heightGap <= epsilon) {
-                      letterbox = '左右に黒帯';
-                    } else if (heightGap > epsilon && widthGap <= epsilon) {
+                    if (fittedHeight > maxHeight + epsilon) {
+                      letterbox = '上下をトリミング';
+                    } else if (fittedHeight < maxHeight - epsilon) {
                       letterbox = '上下に黒帯';
-                    } else if (widthGap <= epsilon && heightGap <= epsilon) {
-                      letterbox = '黒帯なし';
                     } else {
-                      letterbox = '両方向に黒帯/計算要確認';
+                      letterbox = '黒帯なし';
                     }
 
                     debugPrint('═══════════════════════════════════════');
@@ -755,15 +748,24 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
                       '[CameraPreview] Fit: '
                       'container=${maxWidth.toStringAsFixed(1)}x${maxHeight.toStringAsFixed(1)}, '
                       'preview=${fittedWidth.toStringAsFixed(1)}x${fittedHeight.toStringAsFixed(1)}, '
-                      'gapW=${widthGap.toStringAsFixed(1)}, gapH=${heightGap.toStringAsFixed(1)}, '
-                      'result=$letterbox',
+                      'gapH=${heightGap.toStringAsFixed(1)}, result=$letterbox',
                     );
                     debugPrint('═══════════════════════════════════════');
 
-                    return Center(
-                      child: AspectRatio(
-                        aspectRatio: aspectRatio,
-                        child: CameraPreview(_controller.cameraController!),
+                    return SizedBox(
+                      width: maxWidth,
+                      height: maxHeight,
+                      child: ClipRect(
+                        child: Align(
+                          alignment: Alignment.center,
+                          child: SizedBox(
+                            width: fittedWidth,
+                            height: fittedHeight,
+                            child: CameraPreview(
+                              _controller.cameraController!,
+                            ),
+                          ),
+                        ),
                       ),
                     );
                   },
