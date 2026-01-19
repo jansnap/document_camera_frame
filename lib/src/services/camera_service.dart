@@ -3,6 +3,7 @@ import 'dart:ui';
 
 import 'package:camera/camera.dart';
 import 'package:flutter/foundation.dart';
+import 'package:flutter/services.dart';
 import 'package:image/image.dart' as img;
 import 'package:path_provider/path_provider.dart';
 
@@ -10,7 +11,7 @@ class CameraService {
   CameraController? cameraController;
 
   // Store initialization settings for logging
-  ResolutionPreset _resolutionPreset = ResolutionPreset.ultraHigh;
+  ResolutionPreset _resolutionPreset = ResolutionPreset.max;
   ImageFormatGroup? _imageFormatGroup;
   bool _enableAudio = false;
 
@@ -30,7 +31,8 @@ class CameraService {
     }
 
     // Store initialization settings
-    _resolutionPreset = ResolutionPreset.ultraHigh;
+    // Prefer the largest available resolution to better match portrait aspect
+    _resolutionPreset = ResolutionPreset.max;
     _imageFormatGroup = imageFormatGroup;
     _enableAudio = false;
     // Reset focus point setting failure flag on re-initialization
@@ -45,6 +47,15 @@ class CameraService {
     );
 
     await cameraController!.initialize();
+
+    // Lock capture orientation to portrait to align preview with portrait layout
+    try {
+      await cameraController!
+          .lockCaptureOrientation(DeviceOrientation.portraitUp);
+      debugPrint('[initialize] Capture orientation locked to portrait');
+    } catch (e) {
+      debugPrint('[initialize] Error locking capture orientation: $e');
+    }
 
     // Set auto modes for optimal image quality
     try {
