@@ -691,6 +691,16 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
 
   @override
   Widget build(BuildContext context) {
+    final screenSize = MediaQuery.of(context).size;
+    debugPrint('═══════════════════════════════════════');
+    debugPrint(
+      '[CameraPreview] Widget size: ${screenSize.width.toStringAsFixed(0)} x ${screenSize.height.toStringAsFixed(0)}',
+    );
+    debugPrint(
+      '[CameraPreview] Preview size: ${screenSize.width.toStringAsFixed(0)} x ${screenSize.height.toStringAsFixed(0)}',
+    );
+    debugPrint('═══════════════════════════════════════');
+
     return Scaffold(
       backgroundColor: Colors.black,
       body: MediaQuery.removePadding(
