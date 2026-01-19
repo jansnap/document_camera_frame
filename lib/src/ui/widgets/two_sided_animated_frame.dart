@@ -134,123 +134,134 @@ class _TwoSidedAnimatedFrameState extends State<TwoSidedAnimatedFrame>
 
   @override
   Widget build(BuildContext context) {
-    return AnimatedBuilder(
-      animation: _flipAnimation,
-      builder: (context, child) {
-        final animatedFrameHeight = _getAnimatedFrameHeight();
-        final animatedCornerHeight = _getAnimatedCornerHeight();
-        final screenHeight = 1.sh(context);
-        final detectionFrameTotalHeight = widget.detectionFrameHeight;
-        // フレームを画面の中央に配置
-        final bottomPosition = (screenHeight - detectionFrameTotalHeight) / 2;
-        // 画像領域のbottom位置（ガイド枠を中央に配置）
-        final imageAreaBottom = bottomPosition;
-        // 角の枠線の高さ（画像領域の高さに合わせる）
-        final cornerBoxHeight = widget.detectionFrameHeight;
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        return AnimatedBuilder(
+          animation: _flipAnimation,
+          builder: (context, child) {
+            final animatedFrameHeight = _getAnimatedFrameHeight();
+            final animatedCornerHeight = _getAnimatedCornerHeight();
+            final parentHeight = constraints.maxHeight;
+            final parentWidth = constraints.maxWidth;
+            final detectionFrameTotalHeight = widget.detectionFrameHeight;
+            // フレームを親ウィジェットの中央に配置
+            final bottomPosition =
+                (parentHeight - detectionFrameTotalHeight) / 2;
+            // 画像領域のbottom位置（ガイド枠を中央に配置）
+            final imageAreaBottom = bottomPosition;
+            // 角の枠線の高さ（画像領域の高さに合わせる）
+            final cornerBoxHeight = widget.detectionFrameHeight;
+            final rightPosition =
+                (parentWidth - widget.detectionFrameWidth) / 2;
 
-        debugPrint('------------------------------');
-        debugPrint(
-          '[DetectionFrame] screenH=${screenHeight.toStringAsFixed(1)} '
-          'frameW=${widget.detectionFrameWidth.toStringAsFixed(1)} '
-          'frameH=${widget.detectionFrameHeight.toStringAsFixed(1)} '
-          'animFrameH=${animatedFrameHeight.toStringAsFixed(1)} '
-          'cornerH=${cornerBoxHeight.toStringAsFixed(1)} '
-          'bottom=${bottomPosition.toStringAsFixed(1)} '
-          'imageAreaBottom=${imageAreaBottom.toStringAsFixed(1)} '
-          'right=${((1.sw(context) - widget.detectionFrameWidth) / 2).toStringAsFixed(1)}',
-        );
-        debugPrint('------------------------------');
+            debugPrint('------------------------------');
+            debugPrint(
+              '[DetectionFrame] parentW=${parentWidth.toStringAsFixed(1)} '
+              'parentH=${parentHeight.toStringAsFixed(1)} '
+              'frameW=${widget.detectionFrameWidth.toStringAsFixed(1)} '
+              'frameH=${widget.detectionFrameHeight.toStringAsFixed(1)} '
+              'animFrameH=${animatedFrameHeight.toStringAsFixed(1)} '
+              'cornerH=${cornerBoxHeight.toStringAsFixed(1)} '
+              'bottom=${bottomPosition.toStringAsFixed(1)} '
+              'imageAreaBottom=${imageAreaBottom.toStringAsFixed(1)} '
+              'right=${rightPosition.toStringAsFixed(1)}',
+            );
+            debugPrint('------------------------------');
 
-        return SizedBox.expand(
-          child: Stack(
-            children: [
-            /// Animated Camera Frame Overlay
-            if (false)
-              Positioned.fill(
-                child: CustomPaint(
-                  painter: AnimatedDocumentCameraFramePainter(
-                    isFlipping: _isFlipping,
-                    detectionFrameWidth: widget.detectionFrameWidth,
-                    detectionFrameMaxHeight: _detectionFrameHeight,
-                    animatedDetectionFrameHeight: animatedFrameHeight,
-                    bottomPosition: bottomPosition,
-                    borderRadius: widget.detectionFrameOuterBorderRadius,
-                    context: context,
+            return SizedBox.expand(
+              child: Stack(
+                children: [
+                  /// Animated Camera Frame Overlay
+                  if (false)
+                    Positioned.fill(
+                      child: CustomPaint(
+                        painter: AnimatedDocumentCameraFramePainter(
+                          isFlipping: _isFlipping,
+                          detectionFrameWidth: widget.detectionFrameWidth,
+                          detectionFrameMaxHeight: _detectionFrameHeight,
+                          animatedDetectionFrameHeight: animatedFrameHeight,
+                          bottomPosition: bottomPosition,
+                          borderRadius: widget.detectionFrameOuterBorderRadius,
+                          context: context,
+                        ),
+                      ),
+                    ),
+
+                  /// Border of the document frame
+                  Positioned(
+                    bottom: bottomPosition,
+                    right: rightPosition,
+                    child: AnimatedContainer(
+                      width: widget.detectionFrameWidth,
+                      height: animatedFrameHeight,
+                      duration:
+                          _isFlipping ? Duration.zero : animatedFrameDuration,
+                      curve: widget.detectionFrameFlipCurve,
+                      decoration: BoxDecoration(
+                        // 外側の枠線は削除（角丸の枠のみ表示）
+                        borderRadius: BorderRadius.circular(
+                          widget.detectionFrameInnerCornerBorderRadius,
+                        ),
+                      ),
+                    ),
                   ),
-                ),
-              ),
 
-            /// Border of the document frame
-            Positioned(
-              bottom: bottomPosition,
-              right: (1.sw(context) - widget.detectionFrameWidth) / 2,
-              child: AnimatedContainer(
-                width: widget.detectionFrameWidth,
-                height: animatedFrameHeight,
-                duration: _isFlipping ? Duration.zero : animatedFrameDuration,
-                curve: widget.detectionFrameFlipCurve,
-                decoration: BoxDecoration(
-                  // 外側の枠線は削除（角丸の枠のみ表示）
-                  borderRadius: BorderRadius.circular(
-                    widget.detectionFrameInnerCornerBorderRadius,
+                  /// CornerBorderBox of the document frame
+                  Positioned(
+                    // 画像領域の中央に角丸の枠を配置
+                    bottom: imageAreaBottom +
+                        (widget.detectionFrameHeight - cornerBoxHeight) / 2,
+                    left: 0,
+                    right: 0,
+                    child: Align(
+                      child: AnimatedContainer(
+                        height: cornerBoxHeight,
+                        width:
+                            widget.detectionFrameWidth -
+                            AppConstants.kCornerBorderBoxHorizontalPadding,
+                        duration:
+                            _isFlipping ? Duration.zero : animatedFrameDuration,
+                        curve: widget.detectionFrameFlipCurve,
+                        child: animatedCornerHeight > 0
+                            ? Stack(
+                                children: [
+                                  // Top-left corner
+                                  Positioned(
+                                    top: 0,
+                                    left: 0,
+                                    child: _cornerBox(topLeft: true),
+                                  ),
+
+                                  // Top-right corner
+                                  Positioned(
+                                    top: 0,
+                                    right: 0,
+                                    child: _cornerBox(topRight: true),
+                                  ),
+
+                                  // Bottom-left corner
+                                  Positioned(
+                                    bottom: 0,
+                                    left: 0,
+                                    child: _cornerBox(bottomLeft: true),
+                                  ),
+
+                                  // Bottom-right corner
+                                  Positioned(
+                                    bottom: 0,
+                                    right: 0,
+                                    child: _cornerBox(bottomRight: true),
+                                  ),
+                                ],
+                              )
+                            : const SizedBox.shrink(),
+                      ),
+                    ),
                   ),
-                ),
+                ],
               ),
-            ),
-
-            /// CornerBorderBox of the document frame
-            Positioned(
-              // 画像領域の中央に角丸の枠を配置
-              bottom: imageAreaBottom +
-                  (widget.detectionFrameHeight - cornerBoxHeight) / 2,
-              left: 0,
-              right: 0,
-              child: Align(
-                child: AnimatedContainer(
-                  height: cornerBoxHeight,
-                  width:
-                      widget.detectionFrameWidth -
-                      AppConstants.kCornerBorderBoxHorizontalPadding,
-                  duration: _isFlipping ? Duration.zero : animatedFrameDuration,
-                  curve: widget.detectionFrameFlipCurve,
-                  child: animatedCornerHeight > 0
-                      ? Stack(
-                          children: [
-                            // Top-left corner
-                            Positioned(
-                              top: 0,
-                              left: 0,
-                              child: _cornerBox(topLeft: true),
-                            ),
-
-                            // Top-right corner
-                            Positioned(
-                              top: 0,
-                              right: 0,
-                              child: _cornerBox(topRight: true),
-                            ),
-
-                            // Bottom-left corner
-                            Positioned(
-                              bottom: 0,
-                              left: 0,
-                              child: _cornerBox(bottomLeft: true),
-                            ),
-
-                            // Bottom-right corner
-                            Positioned(
-                              bottom: 0,
-                              right: 0,
-                              child: _cornerBox(bottomRight: true),
-                            ),
-                          ],
-                        )
-                      : const SizedBox.shrink(),
-                ),
-              ),
-            ),
-            ],
-          ),
+            );
+          },
         );
       },
     );
