@@ -122,13 +122,17 @@ class DocumentDetectionService {
         if (boundingBox.left < cropX) {
           adjustments.add('もっと右に');
         }
-        if (boundingBox.top < relaxedFrameTop) {
-          adjustments.add('もっと下に');
-        }
         if (boundingBox.right > (cropX + cropWidth)) {
           adjustments.add('もっと左に');
         }
-        if (boundingBox.bottom > (cropY + cropHeight)) {
+        final bool isOverTop = boundingBox.top < relaxedFrameTop;
+        final bool isOverBottom = boundingBox.bottom > (cropY + cropHeight);
+        if (isOverTop && isOverBottom) {
+          adjustments.add('上下どちらにもはみ出し');
+        } else if (isOverTop) {
+          adjustments.add('もっと下に');
+        }
+        if (!isOverTop && isOverBottom) {
           adjustments.add('もっと上に');
         }
         if (adjustments.isNotEmpty) {
