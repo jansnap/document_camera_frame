@@ -713,8 +713,8 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
             children: [
               // Camera preview
               if (isInitialized && _controller.cameraController != null)
-                Builder(
-                  builder: (context) {
+                LayoutBuilder(
+                  builder: (context, constraints) {
                     final cameraValue = _controller.cameraController!.value;
                     final previewSize = cameraValue.previewSize;
                     double aspectRatio = 3264 / 2448; // Default aspect ratio
@@ -727,9 +727,18 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
                       );
                     }
 
+                    // Use parent widget width
+                    final parentWidth = constraints.maxWidth;
+                    final calculatedHeight = parentWidth / aspectRatio;
+
+                    debugPrint(
+                      '[CameraPreview] Parent width: $parentWidth, calculated height: $calculatedHeight',
+                    );
+
                     return Center(
-                      child: AspectRatio(
-                        aspectRatio: aspectRatio,
+                      child: SizedBox(
+                        width: parentWidth,
+                        height: calculatedHeight,
                         child: CameraPreview(_controller.cameraController!),
                       ),
                     );
