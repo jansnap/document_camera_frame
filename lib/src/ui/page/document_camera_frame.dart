@@ -713,8 +713,8 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
             children: [
               // Camera preview
               if (isInitialized && _controller.cameraController != null)
-                Builder(
-                  builder: (context) {
+                LayoutBuilder(
+                  builder: (context, constraints) {
                     final cameraValue = _controller.cameraController!.value;
                     final previewSize = cameraValue.previewSize;
                     double aspectRatio = 3264 / 2448; // Default aspect ratio
@@ -726,6 +726,37 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
                         '[CameraPreview] Actual preview size: ${previewSize.width}x${previewSize.height}, aspect ratio: $aspectRatio',
                       );
                     }
+
+                    final maxWidth = constraints.maxWidth;
+                    final maxHeight = constraints.maxHeight;
+                    var fittedWidth = maxWidth;
+                    var fittedHeight = maxWidth / aspectRatio;
+                    if (fittedHeight > maxHeight) {
+                      fittedHeight = maxHeight;
+                      fittedWidth = maxHeight * aspectRatio;
+                    }
+
+                    final widthGap = (maxWidth - fittedWidth).abs();
+                    final heightGap = (maxHeight - fittedHeight).abs();
+                    const epsilon = 0.5;
+                    String letterbox;
+                    if (widthGap > epsilon && heightGap <= epsilon) {
+                      letterbox = '左右に黒帯';
+                    } else if (heightGap > epsilon && widthGap <= epsilon) {
+                      letterbox = '上下に黒帯';
+                    } else if (widthGap <= epsilon && heightGap <= epsilon) {
+                      letterbox = '黒帯なし';
+                    } else {
+                      letterbox = '両方向に黒帯/計算要確認';
+                    }
+
+                    debugPrint(
+                      '[CameraPreview] Fit: '
+                      'container=${maxWidth.toStringAsFixed(1)}x${maxHeight.toStringAsFixed(1)}, '
+                      'preview=${fittedWidth.toStringAsFixed(1)}x${fittedHeight.toStringAsFixed(1)}, '
+                      'gapW=${widthGap.toStringAsFixed(1)}, gapH=${heightGap.toStringAsFixed(1)}, '
+                      'result=$letterbox',
+                    );
 
                     return Center(
                       child: AspectRatio(
