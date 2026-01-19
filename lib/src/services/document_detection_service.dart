@@ -108,12 +108,32 @@ class DocumentDetectionService {
 
       // Log detection details
       final double sizeRatio = (objectArea / frameArea * 100);
+      final double expectedLeft = cropX.toDouble();
+      final double expectedTop = cropY.toDouble();
+      final double expectedRight = (cropX + cropWidth).toDouble();
+      final double expectedBottom = (cropY + cropHeight).toDouble();
       // debugPrint('[processImage] Document detection details(ドキュメント検出の詳細):');
       // debugPrint('[processImage]   Position: left=${boundingBox.left.toStringAsFixed(1)}, top=${boundingBox.top.toStringAsFixed(1)}, right=${boundingBox.right.toStringAsFixed(1)}, bottom=${boundingBox.bottom.toStringAsFixed(1)}(位置: left=${boundingBox.left.toStringAsFixed(1)}, top=${boundingBox.top.toStringAsFixed(1)}, right=${boundingBox.right.toStringAsFixed(1)}, bottom=${boundingBox.bottom.toStringAsFixed(1)})');
       debugPrint('[processImage]   Size: boundingBox.width=${boundingBox.width.toStringAsFixed(1)}, height=${boundingBox.height.toStringAsFixed(1)}, area=${objectArea.toStringAsFixed(1)}(サイズ: width=${boundingBox.width.toStringAsFixed(1)}, height=${boundingBox.height.toStringAsFixed(1)}, area=${objectArea.toStringAsFixed(1)})');
       // debugPrint('[processImage]   Frame: x=$cropX, y=$cropY, width=$cropWidth, height=$cropHeight, area=${frameArea.toStringAsFixed(1)}(フレーム: x=$cropX, y=$cropY, width=$cropWidth, height=$cropHeight, area=${frameArea.toStringAsFixed(1)})');
       debugPrint('[processImage]   Size ratio: ${sizeRatio.toStringAsFixed(1)}% (threshold: 70-98%)(サイズ比率: ${sizeRatio.toStringAsFixed(1)}% (閾値: 70-98%))');
       debugPrint('[processImage]   Size aligned: $sizeAligned, Position aligned: $positionAligned(サイズが合っている: $sizeAligned, 位置が合っている: $positionAligned)');
+      debugPrint(
+        '[processImage]   Expected position: '
+        'left=${expectedLeft.toStringAsFixed(1)}, '
+        'top=${expectedTop.toStringAsFixed(1)}, '
+        'right=${expectedRight.toStringAsFixed(1)}, '
+        'bottom=${expectedBottom.toStringAsFixed(1)}'
+        '(期待位置)',
+      );
+      debugPrint(
+        '[processImage]   Actual position: '
+        'left=${boundingBox.left.toStringAsFixed(1)}, '
+        'top=${boundingBox.top.toStringAsFixed(1)}, '
+        'right=${boundingBox.right.toStringAsFixed(1)}, '
+        'bottom=${boundingBox.bottom.toStringAsFixed(1)}'
+        '(実際位置)',
+      );
       // debugPrint('[processImage]   Result: ${isAligned ? "ALIGNED" : "NOT ALIGNED"}(結果: ${isAligned ? "位置が合っている" : "位置が合っていない"})');
 
       // Log adjustment directions if position is not aligned
