@@ -632,9 +632,11 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
       builder: (context, currentSide, child) {
         final instruction = currentSide == DocumentSide.front
             ? (widget.instructionStyle.frontSideInstruction ??
-                  "Position the front side of your document within the frame")
+                  "Position the front side of your document within the frame\n"
+                  "表面を枠内に合わせてください")
             : (widget.instructionStyle.backSideInstruction ??
-                  "Now position the back side of your document within the frame");
+                  "Now position the back side of your document within the frame\n"
+                  "裏面を枠内に合わせてください");
 
         return Container(
           margin: const EdgeInsets.symmetric(horizontal: 20, vertical: 10),
