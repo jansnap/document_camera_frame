@@ -750,6 +750,7 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
                       letterbox = '両方向に黒帯/計算要確認';
                     }
 
+                    debugPrint('═══════════════════════════════════════');
                     debugPrint(
                       '[CameraPreview] Fit: '
                       'container=${maxWidth.toStringAsFixed(1)}x${maxHeight.toStringAsFixed(1)}, '
@@ -757,6 +758,7 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
                       'gapW=${widthGap.toStringAsFixed(1)}, gapH=${heightGap.toStringAsFixed(1)}, '
                       'result=$letterbox',
                     );
+                    debugPrint('═══════════════════════════════════════');
 
                     return Center(
                       child: AspectRatio(
