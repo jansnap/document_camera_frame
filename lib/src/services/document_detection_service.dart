@@ -98,13 +98,14 @@ class DocumentDetectionService {
       final double frameTolerance = 0.05;
 
       final double relaxedFrameTop = cropY * (1 - frameTolerance);
+      final double relaxedFrameBottom = (cropY + cropHeight) * (1 + frameTolerance);
 
       // Position Alignment Check
       final bool positionAligned =
           boundingBox.left >= cropX &&
           boundingBox.top >= relaxedFrameTop &&
           boundingBox.right <= (cropX + cropWidth) &&
-          boundingBox.bottom <= (cropY + cropHeight);
+          boundingBox.bottom <= relaxedFrameBottom;
 
       final bool isAligned = sizeAligned && positionAligned;
 
