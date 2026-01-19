@@ -232,6 +232,11 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
 
       if (!mounted) return;
 
+      setState(() {
+        _calculateFrameDimensions();
+        _hasInitializedFrameDimensions = true;
+      });
+
       _isInitializedNotifier.value = true;
 
       // Trigger auto focus at frame center after initialization
