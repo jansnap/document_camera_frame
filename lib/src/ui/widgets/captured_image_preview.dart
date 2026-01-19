@@ -33,19 +33,27 @@ class CapturedImagePreview extends StatelessWidget {
             height: frameHeight + AppConstants.bottomFrameContainerHeight,
             child: Stack(
               children: [
+                // Black background for padding
+                Container(
+                  width: frameWidth,
+                  height: frameHeight + AppConstants.bottomFrameContainerHeight,
+                  color: Colors.black,
+                ),
+                // Image with centered alignment
                 Positioned(
                   top: 3,
                   left: 3,
                   right: 3,
-                  child: Container(
-                    width: frameWidth,
-                    height:
-                        frameHeight + AppConstants.bottomFrameContainerHeight,
-                    decoration: BoxDecoration(
-                      color: Colors.white,
-                      image: DecorationImage(
-                        image: FileImage(File(imagePath)),
-                        fit: BoxFit.contain,
+                  child: Center(
+                    child: Container(
+                      width: frameWidth,
+                      height:
+                          frameHeight + AppConstants.bottomFrameContainerHeight,
+                      decoration: BoxDecoration(
+                        image: DecorationImage(
+                          image: FileImage(File(imagePath)),
+                          fit: BoxFit.contain,
+                        ),
                       ),
                     ),
                   ),
