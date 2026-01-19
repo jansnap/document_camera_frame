@@ -713,13 +713,27 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
             children: [
               // Camera preview
               if (isInitialized && _controller.cameraController != null)
-                Center(
-                  child: AspectRatio(
-                    aspectRatio:
-                        2448 /
-                        3264, // Moto G05 front camera (2448x3264) aspect ratio (width / height)
-                    child: CameraPreview(_controller.cameraController!),
-                  ),
+                Builder(
+                  builder: (context) {
+                    final cameraValue = _controller.cameraController!.value;
+                    final previewSize = cameraValue.previewSize;
+                    double aspectRatio = 2448 / 3264; // Default aspect ratio
+
+                    if (previewSize != null) {
+                      // Use actual preview size from camera
+                      aspectRatio = previewSize.width / previewSize.height;
+                      debugPrint(
+                        '[CameraPreview] Actual preview size: ${previewSize.width}x${previewSize.height}, aspect ratio: $aspectRatio',
+                      );
+                    }
+
+                    return Center(
+                      child: AspectRatio(
+                        aspectRatio: aspectRatio,
+                        child: CameraPreview(_controller.cameraController!),
+                      ),
+                    );
+                  },
                 ),
 
               // Captured image preview
