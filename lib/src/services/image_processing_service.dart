@@ -80,7 +80,17 @@ class ImageProcessingService {
     final double frameTopOnPreview = frameTopOnScreen + verticalOffset;
     final int cropY = ((frameTopOnPreview / fittedPreviewHeight) * analysisHeight).round();
 
-    debugPrint('[cropImageToFrame] Crop area (analysis coords): x=$cropX, y=$cropY, w=$finalCropWidth, h=$finalCropHeight(クロップ領域(分析座標): x=$cropX, y=$cropY, w=$finalCropWidth, h=$finalCropHeight)');
+    // Expand crop area upward by 10% of its height.
+    const double topExpandFactor = 0.10;
+    final int extraTopPixels = (finalCropHeight * topExpandFactor).round();
+    final int expandedCropHeight = (finalCropHeight + extraTopPixels) > maxCropHeight
+        ? maxCropHeight
+        : (finalCropHeight + extraTopPixels);
+    final int expandedCropY = (cropY - extraTopPixels) < 0
+        ? 0
+        : (cropY - extraTopPixels);
+
+    debugPrint('[cropImageToFrame] Crop area (analysis coords): x=$cropX, y=$expandedCropY, w=$finalCropWidth, h=$expandedCropHeight(クロップ領域(分析座標): x=$cropX, y=$expandedCropY, w=$finalCropWidth, h=$expandedCropHeight)');
 
     // Step 3: Convert coordinates from analysis coordinate system to original image coordinate system.
     // ML Kit returns bounding boxes in the rotated coordinate system (analysis coordinates).
@@ -109,32 +119,32 @@ class ImageProcessingService {
         // Original image: pixel data is not rotated
         // Analysis (cropX, cropY) -> Original (cropY, analysisHeight - cropX - finalCropWidth)
         // Note: analysisHeight = originalImage.width when rotated
-        actualCropX = cropY;
+        actualCropX = expandedCropY;
         actualCropY = originalImage.height - cropX - finalCropWidth;
-        actualCropWidth = finalCropHeight;
+        actualCropWidth = expandedCropHeight;
         actualCropHeight = finalCropWidth;
       } else if (sensorOrientation == 270) {
         // 270-degree counter-clockwise rotation
         // Analysis (cropX, cropY) -> Original (analysisWidth - cropY - finalCropHeight, cropX)
         // Note: analysisWidth = originalImage.height when rotated
-        actualCropX = originalImage.width - cropY - finalCropHeight;
+        actualCropX = originalImage.width - expandedCropY - expandedCropHeight;
         actualCropY = cropX;
-        actualCropWidth = finalCropHeight;
+        actualCropWidth = expandedCropHeight;
         actualCropHeight = finalCropWidth;
       } else {
         // Default: assume 90-degree rotation (most common)
         // Use analysis dimensions for coordinate conversion
-        actualCropX = cropY;
+        actualCropX = expandedCropY;
         actualCropY = originalImage.height - cropX - finalCropWidth;
-        actualCropWidth = finalCropHeight;
+        actualCropWidth = expandedCropHeight;
         actualCropHeight = finalCropWidth;
       }
     } else {
       // No rotation: coordinates are the same
       actualCropX = cropX;
-      actualCropY = cropY;
+      actualCropY = expandedCropY;
       actualCropWidth = finalCropWidth;
-      actualCropHeight = finalCropHeight;
+      actualCropHeight = expandedCropHeight;
     }
 
     debugPrint('[cropImageToFrame] Crop area (original coords): x=$actualCropX, y=$actualCropY, w=$actualCropWidth, h=$actualCropHeight(クロップ領域(元の座標): x=$actualCropX, y=$actualCropY, w=$actualCropWidth, h=$actualCropHeight)');
