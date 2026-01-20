@@ -78,8 +78,9 @@ class DocumentCameraController {
     double frameWidth,
     double frameHeight,
     int screenWidth,
-    int screenHeight,
-  ) async {
+    int screenHeight, {
+    void Function(String message)? onStatusUpdate,
+  }) async {
     if (!_cameraService.isInitialized) {
       debugPrint('[takeAndCropPicture] Camera service not initialized(カメラサービスが初期化されていません)');
       return;
@@ -89,9 +90,11 @@ class DocumentCameraController {
     debugPrint('[takeAndCropPicture] Frame: ${frameWidth}x${frameHeight}, Screen: ${screenWidth}x${screenHeight}(フレーム: ${frameWidth}x${frameHeight}, 画面: ${screenWidth}x${screenHeight})');
 
     try {
+      onStatusUpdate?.call('画像を撮影しています...');
       final filePath = await _cameraService.captureImage();
       debugPrint('[takeAndCropPicture] Image captured, starting crop(画像をキャプチャしました。クロップを開始します)');
 
+      onStatusUpdate?.call('検出したドキュメントを切り出しています...');
       _imagePath = _imageProcessingService.cropImageToFrame(
         filePath,
         frameWidth,

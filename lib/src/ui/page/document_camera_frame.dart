@@ -423,6 +423,9 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
     }
 
     _isLoadingNotifier.value = true;
+    if (mounted) {
+      _detectionStatusNotifier.value = '撮影中です。そのままお待ちください';
+    }
 
     debugPrint(
       '[captureAndHandleImageUnified] Starting capture process(キャプチャ処理を開始します)',
@@ -445,7 +448,13 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
         frameHeight,
         screenWidth,
         screenHeight,
+        onStatusUpdate: (message) {
+          if (mounted) {
+            _detectionStatusNotifier.value = message;
+          }
+        },
       );
+
       debugPrint(
         '[captureAndHandleImageUnified] Image captured and cropped successfully(画像のキャプチャとクロップが正常に完了しました)',
       );
@@ -490,6 +499,7 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
     } finally {
       if (mounted) {
         _isLoadingNotifier.value = false;
+        _detectionStatusNotifier.value = '';
       }
     }
   }
@@ -664,20 +674,30 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
   }
 
   Widget _buildStatusText() {
-    return ValueListenableBuilder<String>(
-      valueListenable: _detectionStatusNotifier,
-      builder: (context, status, child) {
-        if (status.isEmpty) {
-          return const SizedBox.shrink();
-        }
-        return Text(
-          status,
-          textAlign: TextAlign.center,
-          style: widget.instructionStyle.instructionTextStyle ??
-              const TextStyle(
-                color: Colors.white,
-                fontSize: 14,
-              ),
+    return ValueListenableBuilder<bool>(
+      valueListenable: _isLoadingNotifier,
+      builder: (context, isLoading, child) {
+        return ValueListenableBuilder<String>(
+          valueListenable: _detectionStatusNotifier,
+          builder: (context, status, child) {
+            String displayText;
+            if (status.isNotEmpty) {
+              displayText = status;
+            } else if (isLoading) {
+              displayText = '撮影中です。そのままお待ちください';
+            } else {
+              return const SizedBox.shrink();
+            }
+            return Text(
+              displayText,
+              textAlign: TextAlign.center,
+              style: widget.instructionStyle.instructionTextStyle ??
+                  const TextStyle(
+                    color: Colors.white,
+                    fontSize: 14,
+                  ),
+            );
+          },
         );
       },
     );
