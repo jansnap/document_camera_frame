@@ -103,9 +103,11 @@ class DocumentDetectionService {
           .toDouble(); // Use the calculated crop area
 
       // Size Alignment Check
-      // Thresholds: lower bound 70% (was 60%), upper bound 98% (was 95%)
-      final bool sizeAligned =
-          objectArea > (0.70 * frameArea) && objectArea < (0.98 * frameArea);
+      // Thresholds: lower bound 50% (allow farther card), upper bound 98%
+      const double minSizeRatio = 0.50;
+      const double maxSizeRatio = 0.98;
+      final bool sizeAligned = objectArea > (minSizeRatio * frameArea) &&
+          objectArea < (maxSizeRatio * frameArea);
 
       // Optional: give 5-10% tolerance
       final double frameTolerance = 0.05;
@@ -132,7 +134,7 @@ class DocumentDetectionService {
       // debugPrint('[processImage]   Position: left=${boundingBox.left.toStringAsFixed(1)}, top=${boundingBox.top.toStringAsFixed(1)}, right=${boundingBox.right.toStringAsFixed(1)}, bottom=${boundingBox.bottom.toStringAsFixed(1)}(位置: left=${boundingBox.left.toStringAsFixed(1)}, top=${boundingBox.top.toStringAsFixed(1)}, right=${boundingBox.right.toStringAsFixed(1)}, bottom=${boundingBox.bottom.toStringAsFixed(1)})');
       debugPrint('[processImage]   Size: boundingBox.width=${boundingBox.width.toStringAsFixed(1)}, height=${boundingBox.height.toStringAsFixed(1)}, area=${objectArea.toStringAsFixed(1)}(サイズ: width=${boundingBox.width.toStringAsFixed(1)}, height=${boundingBox.height.toStringAsFixed(1)}, area=${objectArea.toStringAsFixed(1)})');
       // debugPrint('[processImage]   Frame: x=$cropX, y=$cropY, width=$cropWidth, height=$cropHeight, area=${frameArea.toStringAsFixed(1)}(フレーム: x=$cropX, y=$cropY, width=$cropWidth, height=$cropHeight, area=${frameArea.toStringAsFixed(1)})');
-      debugPrint('[processImage]   Size ratio: ${sizeRatio.toStringAsFixed(1)}% (threshold: 70-98%)(サイズ比率: ${sizeRatio.toStringAsFixed(1)}% (閾値: 70-98%))');
+      debugPrint('[processImage]   Size ratio: ${sizeRatio.toStringAsFixed(1)}% (threshold: 50-98%)(サイズ比率: ${sizeRatio.toStringAsFixed(1)}% (閾値: 50-98%))');
       debugPrint('[processImage]   Size aligned: $sizeAligned, Position aligned: $positionAligned(サイズが合っている: $sizeAligned, 位置が合っている: $positionAligned)');
       debugPrint(
         '[processImage]   Expected position: '
@@ -188,9 +190,9 @@ class DocumentDetectionService {
 
       // Log size adjustment directions if size is not aligned
       if (!sizeAligned) {
-        if (objectArea < (0.70 * frameArea)) {
+        if (objectArea < (minSizeRatio * frameArea)) {
           debugPrint('[processImage]   Size adjustment needed(サイズ調整が必要): もっと近づけて');
-        } else if (objectArea > (0.98 * frameArea)) {
+        } else if (objectArea > (maxSizeRatio * frameArea)) {
           debugPrint('[processImage]   Size adjustment needed(サイズ調整が必要): もっと遠ざけて');
         }
       }
@@ -239,9 +241,11 @@ void _updateDetectionStatus(
 
   String? sizeMessage;
   if (!sizeAligned) {
-    if (objectArea < (0.70 * frameArea)) {
+    const double minSizeRatio = 0.50;
+    const double maxSizeRatio = 0.98;
+    if (objectArea < (minSizeRatio * frameArea)) {
       sizeMessage = 'もっと近づけて';
-    } else if (objectArea > (0.98 * frameArea)) {
+    } else if (objectArea > (maxSizeRatio * frameArea)) {
       sizeMessage = 'もっと遠ざけて';
     }
   }
