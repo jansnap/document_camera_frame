@@ -172,8 +172,8 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
     // Calculate aspect ratio from original dimensions
     final aspectRatio = widget.frameHeight / widget.frameWidth;
 
-    // Set width to parent width and keep aspect ratio
-    _updatedFrameWidth = maxWidth;
+    // Use provided frame width and keep aspect ratio
+    _updatedFrameWidth = widget.frameWidth;
     _updatedFrameHeight = _updatedFrameWidth * aspectRatio;
 
     debugPrint(
