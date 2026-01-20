@@ -58,40 +58,41 @@ class ImageProcessingService {
     final int actualCropHeight;
 
     if (isImageRotated) {
-      // For rotated images (90 or 270 degrees), convert analysis coordinates to original image coordinates.
-      // Analysis coordinate system: (0,0) at top-left of rotated view
-      // Original image: rotated 90 degrees clockwise (sensor orientation 90) or counter-clockwise (270)
+      // For rotated images, convert analysis coordinates to original image coordinates.
+      // ML Kit returns bounding boxes in the rotated coordinate system (analysis coordinates).
+      // The saved image file has pixel data in the original orientation (not rotated).
       //
-      // For 90-degree rotation (sensorOrientation 90):
-      // - Analysis X -> Original Y (from top)
-      // - Analysis Y -> Original X (from right, inverted)
-      // - Analysis width -> Original height
-      // - Analysis height -> Original width
+      // When image is rotated 90 degrees clockwise (sensorOrientation 90):
+      // - Analysis coordinate (x, y) maps to Original coordinate (y, originalWidth - x - width)
+      // - Analysis width/height swap to Original height/width
       //
-      // For 270-degree rotation (sensorOrientation 270):
-      // - Analysis X -> Original Y (from bottom, inverted)
-      // - Analysis Y -> Original X (from left)
-      // - Analysis width -> Original height
-      // - Analysis height -> Original width
+      // When image is rotated 270 degrees (sensorOrientation 270):
+      // - Analysis coordinate (x, y) maps to Original coordinate (originalHeight - y - height, x)
+      // - Analysis width/height swap to Original height/width
 
       if (sensorOrientation == 90) {
         // 90-degree clockwise rotation
-        // Analysis (cropX, cropY) -> Original (cropY, analysisWidth - cropX - cropWidth)
+        // Analysis coordinate system: (0,0) at top-left of rotated view
+        // Original image: pixel data is not rotated, width > height
+        // Analysis (cropX, cropY) -> Original (cropY, analysisHeight - cropX - cropWidth)
+        // Note: analysisHeight = originalImage.width when rotated
         actualCropX = cropY;
-        actualCropY = analysisWidth - cropX - cropWidth;
+        actualCropY = analysisHeight - cropX - cropWidth;
         actualCropWidth = cropHeight;
         actualCropHeight = cropWidth;
       } else if (sensorOrientation == 270) {
-        // 270-degree counter-clockwise rotation (or 90-degree counter-clockwise)
-        // Analysis (cropX, cropY) -> Original (analysisHeight - cropY - cropHeight, cropX)
-        actualCropX = analysisHeight - cropY - cropHeight;
+        // 270-degree counter-clockwise rotation
+        // Analysis (cropX, cropY) -> Original (analysisWidth - cropY - cropHeight, cropX)
+        // Note: analysisWidth = originalImage.height when rotated
+        actualCropX = analysisWidth - cropY - cropHeight;
         actualCropY = cropX;
         actualCropWidth = cropHeight;
         actualCropHeight = cropWidth;
       } else {
         // Default: assume 90-degree rotation (most common)
+        // Use analysis dimensions for coordinate conversion
         actualCropX = cropY;
-        actualCropY = analysisWidth - cropX - cropWidth;
+        actualCropY = analysisHeight - cropX - cropWidth;
         actualCropWidth = cropHeight;
         actualCropHeight = cropWidth;
       }
