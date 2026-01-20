@@ -365,6 +365,15 @@ class CameraService {
         debugPrint('[releaseCamera] Preview is already paused, skipping(プレビューは既に一時停止されているため、スキップします)');
       }
 
+      // Dispose controller to fully release camera resources
+      try {
+        await cameraController!.dispose();
+        cameraController = null;
+        debugPrint('[releaseCamera] Camera controller disposed(カメラコントローラーを破棄しました)');
+      } catch (e) {
+        debugPrint('[releaseCamera] Error disposing camera controller: $e(カメラコントローラーの破棄中にエラーが発生しました: $e)');
+      }
+
       debugPrint('[releaseCamera] Camera released successfully(カメラの解放が正常に完了しました)');
     } catch (e) {
       debugPrint('[releaseCamera] Error releasing camera: $e(カメラの解放中にエラーが発生しました: $e)');
