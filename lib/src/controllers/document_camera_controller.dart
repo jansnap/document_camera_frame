@@ -77,8 +77,8 @@ class DocumentCameraController {
   Future<void> takeAndCropPicture(
     double frameWidth,
     double frameHeight,
-    int screenWidth,
-    int screenHeight, {
+    int effectiveDisplayWidth,
+    int effectiveDisplayHeight, {
     void Function(String message)? onStatusUpdate,
   }) async {
     if (!_cameraService.isInitialized) {
@@ -87,7 +87,7 @@ class DocumentCameraController {
     }
 
     debugPrint('[takeAndCropPicture] Starting capture and crop(キャプチャとクロップを開始します)');
-    debugPrint('[takeAndCropPicture] Frame: ${frameWidth}x${frameHeight}, Screen: ${screenWidth}x${screenHeight}(フレーム: ${frameWidth}x${frameHeight}, 画面: ${screenWidth}x${screenHeight})');
+    debugPrint('[takeAndCropPicture] Frame: ${frameWidth}x${frameHeight}, Display: ${effectiveDisplayWidth}x${effectiveDisplayHeight}(フレーム: ${frameWidth}x${frameHeight}, 表示: ${effectiveDisplayWidth}x${effectiveDisplayHeight})');
 
     try {
       onStatusUpdate?.call('画像を撮影しています...');
@@ -104,8 +104,8 @@ class DocumentCameraController {
         filePath,
         frameWidth,
         frameHeight,
-        screenWidth,
-        screenHeight,
+        effectiveDisplayWidth,
+        effectiveDisplayHeight,
         sensorOrientation: sensorOrientation,
         previewWidth: previewSize?.width.toInt(),
         previewHeight: previewSize?.height.toInt(),

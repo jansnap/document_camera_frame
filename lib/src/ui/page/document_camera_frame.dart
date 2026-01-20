@@ -449,15 +449,15 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
       debugPrint(
         '[captureAndHandleImageUnified] Capturing and cropping image(画像をキャプチャしてクロップします)',
       );
-      final int effectiveWidth =
+      final int effectiveDisplayWidth =
           (_previewDisplayWidth ?? screenWidth.toDouble()).round();
-      final int effectiveHeight =
+      final int effectiveDisplayHeight =
           (_previewDisplayHeight ?? screenHeight.toDouble()).round();
       await _controller.takeAndCropPicture(
         frameWidth,
         frameHeight,
-        effectiveWidth,
-        effectiveHeight,
+        effectiveDisplayWidth,
+        effectiveDisplayHeight,
         onStatusUpdate: (message) {
           if (mounted) {
             _detectionStatusNotifier.value = message;

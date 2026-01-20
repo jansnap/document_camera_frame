@@ -7,8 +7,8 @@ class ImageProcessingService {
     String filePath,
     double frameWidth,
     double frameHeight,
-    int screenWidth,
-    int screenHeight, {
+    int effectiveDisplayWidth,
+    int effectiveDisplayHeight, {
     int sensorOrientation = 0,
     int? previewWidth,
     int? previewHeight,
@@ -42,25 +42,25 @@ class ImageProcessingService {
 
     // Step 2: Calculate the crop area in the same coordinate system as document detection.
     // Adjust for preview letterboxing/cropping by using the fitted preview height.
-    final double displayWidth = screenWidth.toDouble();
-    final double displayHeight = screenHeight.toDouble();
+    final double displayWidthDouble = effectiveDisplayWidth.toDouble();
+    final double displayHeightDouble = effectiveDisplayHeight.toDouble();
     final double previewAspectRatio = (previewWidth != null && previewHeight != null)
         ? (previewHeight / previewWidth)
         : (analysisHeight / analysisWidth);
-    final double fittedPreviewHeight = displayWidth / previewAspectRatio;
-    final double verticalOffset = (fittedPreviewHeight - displayHeight) / 2;
+    final double fittedPreviewHeight = displayWidthDouble / previewAspectRatio;
+    final double verticalOffset = (fittedPreviewHeight - displayHeightDouble) / 2;
     debugPrint(
       '[cropImageToFrame] Preview mapping: preview=${previewWidth ?? 0}x${previewHeight ?? 0}, '
       'aspectRatio=${previewAspectRatio.toStringAsFixed(4)}, '
       'fittedH=${fittedPreviewHeight.toStringAsFixed(1)}, '
       'offsetY=${verticalOffset.toStringAsFixed(1)}, '
-      'display=${displayWidth.toStringAsFixed(1)}x${displayHeight.toStringAsFixed(1)}',
+      'display=${displayWidthDouble.toStringAsFixed(1)}x${displayHeightDouble.toStringAsFixed(1)}',
     );
 
     // Add margin to expand crop area on all sides (15% margin on each side = 30% total expansion).
     const double marginFactor = 0.15; // 15% margin on each side
     final int baseCropWidth =
-        (frameWidth / displayWidth * analysisWidth).round();
+        (frameWidth / displayWidthDouble * analysisWidth).round();
     final int baseCropHeight =
         (frameHeight / fittedPreviewHeight * analysisHeight).round();
 
@@ -76,7 +76,7 @@ class ImageProcessingService {
     final int finalCropHeight = cropHeight > maxCropHeight ? maxCropHeight : cropHeight;
 
     final int cropX = (analysisWidth - finalCropWidth) ~/ 2;
-    final double frameTopOnScreen = (displayHeight - frameHeight) / 2;
+    final double frameTopOnScreen = (displayHeightDouble - frameHeight) / 2;
     final double frameTopOnPreview = frameTopOnScreen + verticalOffset;
     final int cropY = ((frameTopOnPreview / fittedPreviewHeight) * analysisHeight).round();
 
