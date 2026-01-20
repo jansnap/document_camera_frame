@@ -69,11 +69,11 @@ class ImageProcessingService {
       // The saved image file has pixel data in the original orientation (not rotated).
       //
       // When image is rotated 90 degrees clockwise (sensorOrientation 90):
-      // - Analysis coordinate (x, y) maps to Original coordinate (y, originalWidth - x - width)
+      // - Analysis coordinate (x, y) maps to Original coordinate (y, originalHeight - x - width)
       // - Analysis width/height swap to Original height/width
       //
       // When image is rotated 270 degrees (sensorOrientation 270):
-      // - Analysis coordinate (x, y) maps to Original coordinate (originalHeight - y - height, x)
+      // - Analysis coordinate (x, y) maps to Original coordinate (originalWidth - y - height, x)
       // - Analysis width/height swap to Original height/width
 
       if (sensorOrientation == 90) {
@@ -83,14 +83,14 @@ class ImageProcessingService {
         // Analysis (cropX, cropY) -> Original (cropY, analysisHeight - cropX - finalCropWidth)
         // Note: analysisHeight = originalImage.width when rotated
         actualCropX = cropY;
-        actualCropY = analysisHeight - cropX - finalCropWidth;
+        actualCropY = originalImage.height - cropX - finalCropWidth;
         actualCropWidth = finalCropHeight;
         actualCropHeight = finalCropWidth;
       } else if (sensorOrientation == 270) {
         // 270-degree counter-clockwise rotation
         // Analysis (cropX, cropY) -> Original (analysisWidth - cropY - finalCropHeight, cropX)
         // Note: analysisWidth = originalImage.height when rotated
-        actualCropX = analysisWidth - cropY - finalCropHeight;
+        actualCropX = originalImage.width - cropY - finalCropHeight;
         actualCropY = cropX;
         actualCropWidth = finalCropHeight;
         actualCropHeight = finalCropWidth;
@@ -98,7 +98,7 @@ class ImageProcessingService {
         // Default: assume 90-degree rotation (most common)
         // Use analysis dimensions for coordinate conversion
         actualCropX = cropY;
-        actualCropY = analysisHeight - cropX - finalCropWidth;
+        actualCropY = originalImage.height - cropX - finalCropWidth;
         actualCropWidth = finalCropHeight;
         actualCropHeight = finalCropWidth;
       }
