@@ -90,7 +90,7 @@ class DocumentDetectionService {
           (frameWidth / displayWidth * analysisWidth).round();
       final int baseCropHeight =
           (frameHeight / fittedPreviewHeight * analysisHeight).round();
-      const double marginFactor = 0.20;
+      const double marginFactor = 0.15;
       final int cropWidth =
           (baseCropWidth * (1 + marginFactor * 2)).round();
       final int cropHeight =
