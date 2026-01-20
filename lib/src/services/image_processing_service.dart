@@ -80,15 +80,20 @@ class ImageProcessingService {
     final double frameTopOnPreview = frameTopOnScreen + verticalOffset;
     final int cropY = ((frameTopOnPreview / fittedPreviewHeight) * analysisHeight).round();
 
-    // Expand crop area upward by 10% of its height.
-    const double topExpandFactor = 0.10;
-    final int extraTopPixels = (finalCropHeight * topExpandFactor).round();
-    final int expandedCropHeight = (finalCropHeight + extraTopPixels) > maxCropHeight
-        ? maxCropHeight
-        : (finalCropHeight + extraTopPixels);
+    // Expand crop area vertically by 10% on both top and bottom.
+    const double verticalExpandFactor = 0.10;
+    final int extraTopPixels = (finalCropHeight * verticalExpandFactor).round();
+    final int extraBottomPixels =
+        (finalCropHeight * verticalExpandFactor).round();
     final int expandedCropY = (cropY - extraTopPixels) < 0
         ? 0
         : (cropY - extraTopPixels);
+    final int maxExpandedHeight = maxCropHeight - expandedCropY;
+    final int expandedCropHeight =
+        (finalCropHeight + extraTopPixels + extraBottomPixels) >
+                maxExpandedHeight
+            ? maxExpandedHeight
+            : (finalCropHeight + extraTopPixels + extraBottomPixels);
 
     debugPrint('[cropImageToFrame] Crop area (analysis coords): x=$cropX, y=$expandedCropY, w=$finalCropWidth, h=$expandedCropHeight(クロップ領域(分析座標): x=$cropX, y=$expandedCropY, w=$finalCropWidth, h=$expandedCropHeight)');
 
