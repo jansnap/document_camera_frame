@@ -217,13 +217,24 @@ class _TwoSidedAnimatedFrameState extends State<TwoSidedAnimatedFrame>
                         ),
                       ),
 
-                      /// CornerBorderBox of the document frame
+                      /// Detection frame border (outer frame)
                       AnimatedContainer(
                         height: cornerBoxHeight,
                         width: fullFrameWidth,
                         duration:
                             _isFlipping ? Duration.zero : animatedFrameDuration,
                         curve: widget.detectionFrameFlipCurve,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(
+                            widget.detectionFrameInnerCornerBorderRadius,
+                          ),
+                          border: Border.all(
+                            color: widget.isDocumentAligned
+                                ? Colors.green.shade400
+                                : Colors.white,
+                            width: 1,
+                          ),
+                        ),
                         child: animatedCornerHeight > 0
                             ? Stack(
                                 children: [
