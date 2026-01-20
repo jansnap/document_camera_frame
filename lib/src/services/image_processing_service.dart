@@ -34,10 +34,16 @@ class ImageProcessingService {
     debugPrint('[cropImageToFrame] Analysis dimensions: ${analysisWidth}x${analysisHeight}, isRotated: $isImageRotated(分析 dimensions: ${analysisWidth}x${analysisHeight}, 回転: $isImageRotated)');
 
     // Step 2: Calculate the crop area in the same coordinate system as document detection.
-    // This must match the calculation in document_detection_service.dart exactly.
-    final int cropWidth = (frameWidth / screenWidth * analysisWidth).round();
-    final int cropHeight = (frameHeight / screenHeight * analysisHeight).round();
+    // Add margin to expand crop area on all sides (15% margin on each side = 30% total expansion).
+    const double marginFactor = 0.15; // 15% margin on each side
+    final int baseCropWidth = (frameWidth / screenWidth * analysisWidth).round();
+    final int baseCropHeight = (frameHeight / screenHeight * analysisHeight).round();
 
+    // Expand width and height by adding margins
+    final int cropWidth = (baseCropWidth * (1 + marginFactor * 2)).round();
+    final int cropHeight = (baseCropHeight * (1 + marginFactor * 2)).round();
+
+    // Adjust position to center the expanded crop area
     final int cropX = (analysisWidth - cropWidth) ~/ 2;
     final int cropY = (analysisHeight - cropHeight) ~/ 2;
 
