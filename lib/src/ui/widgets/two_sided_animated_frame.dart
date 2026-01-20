@@ -198,26 +198,7 @@ class _TwoSidedAnimatedFrameState extends State<TwoSidedAnimatedFrame>
                           ),
                         ),
 
-                      /// Border of the guide frame (85% of detection width)
-                      AnimatedContainer(
-                        width: guideWidth,
-                        height: guideAnimatedHeight,
-                        duration:
-                            _isFlipping ? Duration.zero : animatedFrameDuration,
-                        curve: widget.detectionFrameFlipCurve,
-                        decoration: BoxDecoration(
-                          // 外側の枠線を表示（角丸の枠も表示）
-                          borderRadius: BorderRadius.circular(
-                            widget.detectionFrameInnerCornerBorderRadius,
-                          ),
-                          border: Border.all(
-                            color: Colors.white,
-                            width: 2,
-                          ),
-                        ),
-                      ),
-
-                      /// Detection frame border (outer frame)
+                      /// Detection frame border (outer frame - full width)
                       AnimatedContainer(
                         height: cornerBoxHeight,
                         width: fullFrameWidth,
@@ -232,7 +213,7 @@ class _TwoSidedAnimatedFrameState extends State<TwoSidedAnimatedFrame>
                             color: widget.isDocumentAligned
                                 ? Colors.green.shade400
                                 : Colors.white,
-                            width: 1,
+                            width: 2,
                           ),
                         ),
                         child: animatedCornerHeight > 0
@@ -268,6 +249,24 @@ class _TwoSidedAnimatedFrameState extends State<TwoSidedAnimatedFrame>
                                 ],
                               )
                             : const SizedBox.shrink(),
+                      ),
+
+                      /// Border of the guide frame (80% of detection width - inner)
+                      AnimatedContainer(
+                        width: guideWidth,
+                        height: guideAnimatedHeight,
+                        duration:
+                            _isFlipping ? Duration.zero : animatedFrameDuration,
+                        curve: widget.detectionFrameFlipCurve,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(
+                            widget.detectionFrameInnerCornerBorderRadius,
+                          ),
+                          border: Border.all(
+                            color: Colors.white,
+                            width: 1,
+                          ),
+                        ),
                       ),
                     ],
                   ),
