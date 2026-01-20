@@ -76,13 +76,23 @@ class DocumentDetectionService {
           : image.height; // Should be 3840
 
       // Step 2: Calculate the crop area in the *same coordinate system* as the ML Kit output.
-      // We use the screen and frame dimensions to find the proportional crop rectangle.
+      // Adjust for preview letterboxing/cropping using the fitted preview height.
+      final previewSize = cameraController.value.previewSize;
+      final double previewAspectRatio = previewSize != null
+          ? (previewSize.height / previewSize.width)
+          : (analysisHeight / analysisWidth);
+      final double fittedPreviewHeight = screenWidth / previewAspectRatio;
+      final double verticalOffset = (fittedPreviewHeight - screenHeight) / 2;
+
       final int cropWidth = (frameWidth / screenWidth * analysisWidth).round();
-      final int cropHeight = (frameHeight / screenHeight * analysisHeight)
-          .round();
+      final int cropHeight =
+          (frameHeight / fittedPreviewHeight * analysisHeight).round();
 
       final int cropX = (analysisWidth - cropWidth) ~/ 2;
-      final int cropY = (analysisHeight - cropHeight) ~/ 2;
+      final double frameTopOnScreen = (screenHeight - frameHeight) / 2;
+      final double frameTopOnPreview = frameTopOnScreen + verticalOffset;
+      final int cropY =
+          ((frameTopOnPreview / fittedPreviewHeight) * analysisHeight).round();
 
       // Step 3: Perform alignment checks in the consistent analysis coordinate system.
       final double objectArea = boundingBox.width * boundingBox.height;

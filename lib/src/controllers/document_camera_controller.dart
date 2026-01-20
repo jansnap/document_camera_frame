@@ -97,6 +97,7 @@ class DocumentCameraController {
       // Get sensor orientation from camera controller for proper coordinate transformation
       final sensorOrientation = cameraController?.description.sensorOrientation ?? 0;
       debugPrint('[takeAndCropPicture] Sensor orientation: $sensorOrientation(センサー方向: $sensorOrientation)');
+      final previewSize = cameraController?.value.previewSize;
 
       onStatusUpdate?.call('検出したドキュメントを切り出しています...');
       _imagePath = _imageProcessingService.cropImageToFrame(
@@ -106,6 +107,8 @@ class DocumentCameraController {
         screenWidth,
         screenHeight,
         sensorOrientation: sensorOrientation,
+        previewWidth: previewSize?.width.toInt(),
+        previewHeight: previewSize?.height.toInt(),
       );
       debugPrint('[takeAndCropPicture] Image cropped successfully(画像のクロップが正常に完了しました)');
     } catch (e) {

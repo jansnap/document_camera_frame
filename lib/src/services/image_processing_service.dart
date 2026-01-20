@@ -10,6 +10,8 @@ class ImageProcessingService {
     int screenWidth,
     int screenHeight, {
     int sensorOrientation = 0,
+    int? previewWidth,
+    int? previewHeight,
   }) {
     final File imageFile = File(filePath);
     final img.Image originalImage = img.decodeImage(
@@ -39,10 +41,23 @@ class ImageProcessingService {
     debugPrint('[cropImageToFrame] Capture orientation check: isSensorRotated=$isSensorRotated, isCapturedPortrait=$isCapturedPortrait(回転判定: センサー回転=$isSensorRotated, 撮影画像縦=$isCapturedPortrait)');
 
     // Step 2: Calculate the crop area in the same coordinate system as document detection.
+    // Adjust for preview letterboxing/cropping by using the fitted preview height.
+    final double previewAspectRatio = (previewWidth != null && previewHeight != null)
+        ? (previewHeight / previewWidth)
+        : (analysisHeight / analysisWidth);
+    final double fittedPreviewHeight = screenWidth / previewAspectRatio;
+    final double verticalOffset = (fittedPreviewHeight - screenHeight) / 2;
+    debugPrint(
+      '[cropImageToFrame] Preview mapping: preview=${previewWidth ?? 0}x${previewHeight ?? 0}, '
+      'aspectRatio=${previewAspectRatio.toStringAsFixed(4)}, '
+      'fittedH=${fittedPreviewHeight.toStringAsFixed(1)}, '
+      'offsetY=${verticalOffset.toStringAsFixed(1)}',
+    );
+
     // Add margin to expand crop area on all sides (15% margin on each side = 30% total expansion).
     const double marginFactor = 0.15; // 15% margin on each side
     final int baseCropWidth = (frameWidth / screenWidth * analysisWidth).round();
-    final int baseCropHeight = (frameHeight / screenHeight * analysisHeight).round();
+    final int baseCropHeight = (frameHeight / fittedPreviewHeight * analysisHeight).round();
 
     // Expand width and height by adding margins
     final int cropWidth = (baseCropWidth * (1 + marginFactor * 2)).round();
@@ -56,7 +71,9 @@ class ImageProcessingService {
     final int finalCropHeight = cropHeight > maxCropHeight ? maxCropHeight : cropHeight;
 
     final int cropX = (analysisWidth - finalCropWidth) ~/ 2;
-    final int cropY = (analysisHeight - finalCropHeight) ~/ 2;
+    final double frameTopOnScreen = (screenHeight - frameHeight) / 2;
+    final double frameTopOnPreview = frameTopOnScreen + verticalOffset;
+    final int cropY = ((frameTopOnPreview / fittedPreviewHeight) * analysisHeight).round();
 
     debugPrint('[cropImageToFrame] Crop area (analysis coords): x=$cropX, y=$cropY, w=$finalCropWidth, h=$finalCropHeight(クロップ領域(分析座標): x=$cropX, y=$cropY, w=$finalCropWidth, h=$finalCropHeight)');
 
