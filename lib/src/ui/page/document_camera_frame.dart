@@ -134,6 +134,7 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
   final ValueNotifier<bool> _isDocumentAlignedNotifier = ValueNotifier(false);
   final ValueNotifier<String> _detectionStatusNotifier =
       ValueNotifier('ドキュメントを検出中...');
+  final ValueNotifier<Rect?> _detectedRectNotifier = ValueNotifier(null);
 
   // Animation controllers
   AnimationController? _progressAnimationController;
@@ -341,6 +342,9 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
       if (_detectionStatusNotifier.value.isNotEmpty) {
         _detectionStatusNotifier.value = '';
       }
+      if (_detectedRectNotifier.value != null) {
+        _detectedRectNotifier.value = null;
+      }
       return;
     }
 
@@ -362,6 +366,11 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
         onStatusUpdated: (status) {
           if (mounted) {
             _detectionStatusNotifier.value = status;
+          }
+        },
+        onDetectedRectUpdated: (rect) {
+          if (mounted) {
+            _detectedRectNotifier.value = rect;
           }
         },
       );
@@ -858,6 +867,31 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
                       },
                     ),
 
+                  // Detected document overlay
+                  ValueListenableBuilder<Rect?>(
+                    valueListenable: _detectedRectNotifier,
+                    builder: (context, rect, child) {
+                      if (rect == null) return const SizedBox.shrink();
+                      return Positioned(
+                        left: rect.left,
+                        top: rect.top,
+                        width: rect.width,
+                        height: rect.height,
+                        child: IgnorePointer(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.yellow.withOpacity(0.2),
+                              border: Border.all(
+                                color: Colors.yellowAccent,
+                                width: 2,
+                              ),
+                            ),
+                          ),
+                        ),
+                      );
+                    },
+                  ),
+
               // Captured image preview
               if (false)
                 if (isInitialized)
@@ -1113,6 +1147,7 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
     _documentDataNotifier.dispose();
     _isDocumentAlignedNotifier.dispose();
     _detectionStatusNotifier.dispose();
+    _detectedRectNotifier.dispose();
 
     _debounceTimer?.cancel();
     _debounceTimer = null;

@@ -40,6 +40,7 @@ class DocumentDetectionService {
     required int screenWidth,
     required int screenHeight,
     ValueChanged<String>? onStatusUpdated,
+    ValueChanged<Rect?>? onDetectedRectUpdated,
   }) async {
     if (!_isDetectorInitialized) {
       return false;
@@ -59,6 +60,7 @@ class DocumentDetectionService {
 
       if (objects.isEmpty) {
         onStatusUpdated?.call('ドキュメントが見つかりません');
+        onDetectedRectUpdated?.call(null);
         return false;
       }
 
@@ -96,6 +98,17 @@ class DocumentDetectionService {
       final double frameTopOnPreview = frameTopOnScreen + verticalOffset;
       final int cropY =
           ((frameTopOnPreview / fittedPreviewHeight) * analysisHeight).round();
+
+      final Rect? detectedRectOnScreen = _mapBoundingBoxToScreenRect(
+        boundingBox: boundingBox,
+        analysisWidth: analysisWidth,
+        analysisHeight: analysisHeight,
+        displayWidth: displayWidth,
+        displayHeight: displayHeight,
+        fittedPreviewHeight: fittedPreviewHeight,
+        verticalOffset: verticalOffset,
+      );
+      onDetectedRectUpdated?.call(detectedRectOnScreen);
 
       // Step 3: Perform alignment checks in the consistent analysis coordinate system.
       final double objectArea = boundingBox.width * boundingBox.height;
@@ -211,6 +224,7 @@ class DocumentDetectionService {
       return isAligned;
     } catch (e) {
       onError?.call(e);
+      onDetectedRectUpdated?.call(null);
       return false;
     }
   }
@@ -222,6 +236,38 @@ class DocumentDetectionService {
       _isDetectorInitialized = false;
     }
   }
+}
+
+Rect? _mapBoundingBoxToScreenRect({
+  required Rect boundingBox,
+  required int analysisWidth,
+  required int analysisHeight,
+  required double displayWidth,
+  required double displayHeight,
+  required double fittedPreviewHeight,
+  required double verticalOffset,
+}) {
+  if (analysisWidth == 0 || analysisHeight == 0) return null;
+
+  final double scaleX = displayWidth / analysisWidth;
+  final double scaleY = fittedPreviewHeight / analysisHeight;
+
+  final double left = boundingBox.left * scaleX;
+  final double topOnPreview = boundingBox.top * scaleY;
+  final double top = topOnPreview - verticalOffset;
+  final double width = boundingBox.width * scaleX;
+  final double height = boundingBox.height * scaleY;
+
+  final double clampedLeft = left.clamp(0.0, displayWidth);
+  final double clampedTop = top.clamp(0.0, displayHeight);
+  final double clampedRight = (left + width).clamp(0.0, displayWidth);
+  final double clampedBottom = (top + height).clamp(0.0, displayHeight);
+
+  if (clampedRight <= clampedLeft || clampedBottom <= clampedTop) {
+    return null;
+  }
+
+  return Rect.fromLTRB(clampedLeft, clampedTop, clampedRight, clampedBottom);
 }
 
 void _updateDetectionStatus(
