@@ -231,10 +231,6 @@ class _TwoSidedAnimatedFrameState extends State<TwoSidedAnimatedFrame>
                           borderRadius: BorderRadius.circular(
                             widget.detectionFrameInnerCornerBorderRadius,
                           ),
-                          border: Border.all(
-                            color: Colors.white,
-                            width: 1,
-                          ),
                         ),
                         child: animatedCornerHeight > 0
                             ? Stack(
