@@ -99,6 +99,8 @@ class DocumentDetectionService {
       final int cropY =
           ((frameTopOnPreview / fittedPreviewHeight) * analysisHeight).round();
 
+      final bool isFrontCamera =
+          cameraController.description.lensDirection == CameraLensDirection.front;
       final Rect? detectedRectOnScreen = _mapBoundingBoxToScreenRect(
         boundingBox: boundingBox,
         analysisWidth: analysisWidth,
@@ -107,6 +109,7 @@ class DocumentDetectionService {
         displayHeight: displayHeight,
         fittedPreviewHeight: fittedPreviewHeight,
         verticalOffset: verticalOffset,
+        isMirrored: isFrontCamera,
       );
       onDetectedRectUpdated?.call(detectedRectOnScreen);
 
@@ -246,17 +249,21 @@ Rect? _mapBoundingBoxToScreenRect({
   required double displayHeight,
   required double fittedPreviewHeight,
   required double verticalOffset,
+  required bool isMirrored,
 }) {
   if (analysisWidth == 0 || analysisHeight == 0) return null;
 
   final double scaleX = displayWidth / analysisWidth;
   final double scaleY = fittedPreviewHeight / analysisHeight;
 
-  final double left = boundingBox.left * scaleX;
+  double left = boundingBox.left * scaleX;
   final double topOnPreview = boundingBox.top * scaleY;
   final double top = topOnPreview - verticalOffset;
   final double width = boundingBox.width * scaleX;
   final double height = boundingBox.height * scaleY;
+  if (isMirrored) {
+    left = displayWidth - (left + width);
+  }
 
   final double clampedLeft = left.clamp(0.0, displayWidth);
   final double clampedTop = top.clamp(0.0, displayHeight);
