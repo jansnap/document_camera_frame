@@ -211,12 +211,6 @@ class _TwoSidedAnimatedFrameState extends State<TwoSidedAnimatedFrame>
                           borderRadius: BorderRadius.circular(
                             widget.detectionFrameInnerCornerBorderRadius,
                           ),
-                          border: Border.all(
-                            color: widget.isDocumentAligned
-                                ? Colors.green.shade400
-                                : Colors.white,
-                            width: 2,
-                          ),
                         ),
                       ),
 
