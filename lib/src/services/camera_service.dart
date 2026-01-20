@@ -285,6 +285,7 @@ class CameraService {
     debugPrint('[captureImage] Starting image capture(画像キャプチャを開始します)');
 
     try {
+      await _lockFocusAtCenterForCapture();
       final extDir = await getApplicationDocumentsDirectory();
       final dirPath = '${extDir.path}/Pictures/flutter_test';
       await Directory(dirPath).create(recursive: true);
@@ -314,6 +315,43 @@ class CameraService {
     } catch (e) {
       debugPrint('[captureImage] Error during image capture: $e(画像キャプチャ中にエラーが発生しました: $e)');
       rethrow;
+    }
+  }
+
+  Future<void> _lockFocusAtCenterForCapture() async {
+    if (cameraController == null || !cameraController!.value.isInitialized) {
+      return;
+    }
+
+    final value = cameraController!.value;
+    const centerPoint = Offset(0.5, 0.5);
+
+    if (value.focusPointSupported) {
+      try {
+        debugPrint('[captureImage] Setting focus point to center(焦点ポイントを中央に設定)');
+        await cameraController!.setFocusPoint(centerPoint);
+      } catch (e) {
+        debugPrint('[captureImage] Error setting focus point: $e(焦点ポイントの設定に失敗しました)');
+      }
+    }
+
+    if (value.exposurePointSupported) {
+      try {
+        debugPrint('[captureImage] Setting exposure point to center(露出ポイントを中央に設定)');
+        await cameraController!.setExposurePoint(centerPoint);
+      } catch (e) {
+        debugPrint('[captureImage] Error setting exposure point: $e(露出ポイントの設定に失敗しました)');
+      }
+    }
+
+    try {
+      await cameraController!.setFocusMode(FocusMode.auto);
+      await Future.delayed(const Duration(milliseconds: 200));
+      await cameraController!.setFocusMode(FocusMode.locked);
+      await Future.delayed(const Duration(milliseconds: 100));
+      debugPrint('[captureImage] Focus locked at center(中央で焦点を固定)');
+    } catch (e) {
+      debugPrint('[captureImage] Error locking focus: $e(焦点の固定に失敗しました)');
     }
   }
 
