@@ -58,7 +58,7 @@ class ImageProcessingService {
     );
 
     // Add margin to expand crop area on all sides (15% margin on each side = 30% total expansion).
-    const double marginFactor = 0.15; // 15% margin on each side
+    const double marginFactor = 0.05; // 5% margin on each side
     final int baseCropWidth =
         (frameWidth / displayWidthDouble * analysisWidth).round();
     final int baseCropHeight =
