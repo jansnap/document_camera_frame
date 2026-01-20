@@ -149,9 +149,11 @@ class _TwoSidedAnimatedFrameState extends State<TwoSidedAnimatedFrame>
                     ? parentWidth
                     : widget.detectionFrameWidth;
             const double guideScale = 0.75;
+            final double aspectRatio =
+                widget.detectionFrameHeight / widget.detectionFrameWidth;
             final double guideWidth = fullFrameWidth * guideScale;
-            final double guideHeight = detectionFrameTotalHeight * guideScale;
-            final double guideAnimatedHeight = animatedFrameHeight * guideScale;
+            final double guideHeight = guideWidth * aspectRatio;
+            final double guideAnimatedHeight = guideWidth * aspectRatio;
             // 角の枠線の高さ（画像領域の高さに合わせる）
             final cornerBoxHeight = widget.detectionFrameHeight;
             final bool isGuideWiderThanFrame = guideWidth >= fullFrameWidth;
