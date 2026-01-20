@@ -86,15 +86,10 @@ class DocumentDetectionService {
       final double fittedPreviewHeight = displayWidth / previewAspectRatio;
       final double verticalOffset = (fittedPreviewHeight - displayHeight) / 2;
 
-      const double detectionMarginFactor = 0.05; // 5% on each side
-      final int baseCropWidth =
-          (frameWidth / displayWidth * analysisWidth).round();
-      final int baseCropHeight =
-          (frameHeight / fittedPreviewHeight * analysisHeight).round();
       final int cropWidth =
-          (baseCropWidth * (1 + detectionMarginFactor * 2)).round();
+          (frameWidth / displayWidth * analysisWidth).round();
       final int cropHeight =
-          (baseCropHeight * (1 + detectionMarginFactor * 2)).round();
+          (frameHeight / fittedPreviewHeight * analysisHeight).round();
 
       final int cropX = (analysisWidth - cropWidth) ~/ 2;
       final double frameTopOnScreen = (displayHeight - frameHeight) / 2;
