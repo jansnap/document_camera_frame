@@ -213,9 +213,9 @@ class CameraService {
     }
   }
 
-  /// Triggers auto focus at the specified point (normalized coordinates 0.0-1.0)
-  /// If no point is provided, focuses at the center (0.5, 0.5)
-  /// Falls back to continuous auto focus if focus point setting is not supported
+  /// Triggers auto focus at the specified point (normalized coordinates 0.0-1.0).
+  /// If no point is provided, focuses at the center (0.5, 0.5).
+  /// Falls back to continuous auto focus if focus point setting is not supported.
   Future<void> triggerAutoFocus([Offset? focusPoint]) async {
     if (cameraController == null || !cameraController!.value.isInitialized) {
       debugPrint('[triggerAutoFocus] Camera not initialized');
@@ -227,12 +227,8 @@ class CameraService {
     debugPrint('[triggerAutoFocus] Focus mode before: $beforeFocus(焦点モードの前)');
     debugPrint('[triggerAutoFocus] Focus point supported: ${value.focusPointSupported}(焦点ポイントがサポートされています)');
 
-    // Note: Focus point setting is disabled because many devices report support
-    // but actually don't support metering points (AF/AE/AWB MeteringPoints).
-    // Using continuous auto focus mode instead.
-    /*
-    // Try to set focus point if supported and not previously failed
-    if (value.focusPointSupported && !_focusPointSettingFailed) {
+    // Try to set focus point if supported
+    if (value.focusPointSupported) {
       try {
         // Focus at the specified point or center if not provided
         final point = focusPoint ?? const Offset(0.5, 0.5);
@@ -244,22 +240,13 @@ class CameraService {
         await Future.delayed(const Duration(milliseconds: 100));
 
         _logCameraProperties('After triggerAutoFocus(トリガー自動焦点の後)');
-        return;
       } catch (e) {
-        // Mark that focus point setting failed to avoid repeated attempts
-        _focusPointSettingFailed = true;
         debugPrint('[triggerAutoFocus] Error setting focus point: $e(焦点ポイントの設定に失敗しました)');
-        debugPrint('[triggerAutoFocus] Focus point setting will be skipped in future attempts(今後の試行では焦点ポイント設定をスキップします)');
         debugPrint('[triggerAutoFocus] Falling back to continuous auto focus mode(連続自動焦点モードに戻る)');
       }
     } else {
-      if (_focusPointSettingFailed) {
-        debugPrint('[triggerAutoFocus] Focus point setting previously failed, skipping attempt(焦点ポイント設定が以前に失敗したため、試行をスキップします)');
-      } else {
-        debugPrint('[triggerAutoFocus] Focus point not supported, using continuous auto focus(焦点ポイントがサポートされていないため、連続自動焦点モードを使用します)');
-      }
+      debugPrint('[triggerAutoFocus] Focus point not supported, using continuous auto focus(焦点ポイントがサポートされていないため、連続自動焦点モードを使用します)');
     }
-    */
 
     debugPrint('[triggerAutoFocus] Using continuous auto focus mode(連続自動焦点モードを使用します)');
 
