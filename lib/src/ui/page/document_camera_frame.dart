@@ -449,6 +449,9 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
       debugPrint(
         '[captureAndHandleImageUnified] Capturing and cropping image(画像をキャプチャしてクロップします)',
       );
+
+      _detectionStatusNotifier.value = '検出したドキュメントを切り出しています...';
+
       final int effectiveDisplayWidth =
           (_previewDisplayWidth ?? screenWidth.toDouble()).round();
       final int effectiveDisplayHeight =
@@ -468,6 +471,7 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
       debugPrint(
         '[captureAndHandleImageUnified] Image captured and cropped successfully(画像のキャプチャとクロップが正常に完了しました)',
       );
+      _detectionStatusNotifier.value = '検出したドキュメントを切り出しました';
 
       _capturedImageNotifier.value = _controller.imagePath;
       _handleCapture(_controller.imagePath);
