@@ -145,7 +145,7 @@ class _TwoSidedAnimatedFrameState extends State<TwoSidedAnimatedFrame>
             final parentWidth = constraints.maxWidth;
             final detectionFrameTotalHeight = widget.detectionFrameHeight;
             final double fullFrameWidth = widget.detectionFrameWidth;
-            const double guideScale = 0.85;
+            const double guideScale = 0.80;
             final double guideWidth = fullFrameWidth * guideScale;
             final double guideHeight = detectionFrameTotalHeight * guideScale;
             final double guideAnimatedHeight = animatedFrameHeight * guideScale;
