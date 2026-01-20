@@ -148,7 +148,7 @@ class _TwoSidedAnimatedFrameState extends State<TwoSidedAnimatedFrame>
                 widget.detectionFrameWidth > parentWidth
                     ? parentWidth
                     : widget.detectionFrameWidth;
-            const double guideScale = 0.75;
+            const double guideScale = 0.65;
             final double aspectRatio =
                 widget.detectionFrameHeight / widget.detectionFrameWidth;
             final double guideWidth = fullFrameWidth * guideScale;
