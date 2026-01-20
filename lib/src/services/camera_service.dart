@@ -87,6 +87,11 @@ class CameraService {
     // by the camera hardware when focusing on close objects. Some devices may
     // support manual macro mode through FocusMode, but this is device-dependent.
 
+    // macro mode を設定
+    await setMacroMode(true);
+
+
+
     try {
       await cameraController!.setExposureMode(ExposureMode.auto);
     } catch (e) {
