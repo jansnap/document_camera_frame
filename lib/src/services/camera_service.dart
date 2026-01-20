@@ -97,11 +97,11 @@ class CameraService {
     }
 
     try {
-      // Set zoom level to 2x
-      const zoomLevel = 2.0;
+      // Set zoom level to 1x (no zoom)
+      const zoomLevel = 1.0;
       await cameraController!.setZoomLevel(zoomLevel);
       _zoomLevel = zoomLevel;
-      debugPrint('[initialize] Zoom level set to 2.0x(ズームレベルを2.0倍に設定)');
+      debugPrint('[initialize] Zoom level set to 1.0x(ズームレベルを1.0倍に設定)');
     } catch (e) {
       debugPrint('[initialize] Error setting zoom level: $e(ズームレベルの設定に失敗しました)');
     }
