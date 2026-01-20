@@ -156,7 +156,7 @@ class _TwoSidedAnimatedFrameState extends State<TwoSidedAnimatedFrame>
             final imageAreaBottom = bottomPosition;
             // 角の枠線の高さ（画像領域の高さに合わせる）
             final cornerBoxHeight = widget.detectionFrameHeight;
-            final rightPosition = (parentWidth - fullFrameWidth) / 2;
+            final leftPosition = (parentWidth - fullFrameWidth) / 2;
 
             debugPrint('------------------------------');
             debugPrint(
@@ -170,7 +170,7 @@ class _TwoSidedAnimatedFrameState extends State<TwoSidedAnimatedFrame>
               'cornerH=${cornerBoxHeight.toStringAsFixed(1)} '
               'bottom=${bottomPosition.toStringAsFixed(1)} '
               'imageAreaBottom=${imageAreaBottom.toStringAsFixed(1)} '
-              'right=${rightPosition.toStringAsFixed(1)}',
+              'left=${leftPosition.toStringAsFixed(1)}',
             );
             debugPrint('------------------------------');
 
@@ -197,7 +197,7 @@ class _TwoSidedAnimatedFrameState extends State<TwoSidedAnimatedFrame>
                   Positioned(
                     bottom: bottomPosition +
                         (detectionFrameTotalHeight - guideAnimatedHeight) / 2,
-                    right: rightPosition + (fullFrameWidth - guideWidth) / 2,
+                    left: leftPosition + (fullFrameWidth - guideWidth) / 2,
                     child: AnimatedContainer(
                       width: guideWidth,
                       height: guideAnimatedHeight,
@@ -222,49 +222,46 @@ class _TwoSidedAnimatedFrameState extends State<TwoSidedAnimatedFrame>
                     // 画像領域の中央に角丸の枠を配置
                     bottom: imageAreaBottom +
                         (widget.detectionFrameHeight - cornerBoxHeight) / 2,
-                    left: 0,
-                    right: 0,
-                    child: Align(
-                      child: AnimatedContainer(
-                        height: cornerBoxHeight,
-                        width: fullFrameWidth,
-                        duration:
-                            _isFlipping ? Duration.zero : animatedFrameDuration,
-                        curve: widget.detectionFrameFlipCurve,
-                        child: animatedCornerHeight > 0
-                            ? Stack(
-                                children: [
-                                  // Top-left corner
-                                  Positioned(
-                                    top: 0,
-                                    left: 0,
-                                    child: _cornerBox(topLeft: true),
-                                  ),
+                    left: leftPosition,
+                    child: AnimatedContainer(
+                      height: cornerBoxHeight,
+                      width: fullFrameWidth,
+                      duration:
+                          _isFlipping ? Duration.zero : animatedFrameDuration,
+                      curve: widget.detectionFrameFlipCurve,
+                      child: animatedCornerHeight > 0
+                          ? Stack(
+                              children: [
+                                // Top-left corner
+                                Positioned(
+                                  top: 0,
+                                  left: 0,
+                                  child: _cornerBox(topLeft: true),
+                                ),
 
-                                  // Top-right corner
-                                  Positioned(
-                                    top: 0,
-                                    right: 0,
-                                    child: _cornerBox(topRight: true),
-                                  ),
+                                // Top-right corner
+                                Positioned(
+                                  top: 0,
+                                  right: 0,
+                                  child: _cornerBox(topRight: true),
+                                ),
 
-                                  // Bottom-left corner
-                                  Positioned(
-                                    bottom: 0,
-                                    left: 0,
-                                    child: _cornerBox(bottomLeft: true),
-                                  ),
+                                // Bottom-left corner
+                                Positioned(
+                                  bottom: 0,
+                                  left: 0,
+                                  child: _cornerBox(bottomLeft: true),
+                                ),
 
-                                  // Bottom-right corner
-                                  Positioned(
-                                    bottom: 0,
-                                    right: 0,
-                                    child: _cornerBox(bottomRight: true),
-                                  ),
-                                ],
-                              )
-                            : const SizedBox.shrink(),
-                      ),
+                                // Bottom-right corner
+                                Positioned(
+                                  bottom: 0,
+                                  right: 0,
+                                  child: _cornerBox(bottomRight: true),
+                                ),
+                              ],
+                            )
+                          : const SizedBox.shrink(),
                     ),
                   ),
                 ],
