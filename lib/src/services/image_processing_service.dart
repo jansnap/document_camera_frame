@@ -182,13 +182,15 @@ class ImageProcessingService {
       debugPrint('[cropImageToFrame]   Adjusted: x=$safeCropX, y=$safeCropY, w=$safeCropWidth, h=$safeCropHeight');
     }
 
-    final img.Image croppedImage = img.copyCrop(
-      originalImage,
-      x: safeCropX,
-      y: safeCropY,
-      width: safeCropWidth,
-      height: safeCropHeight,
-    );
+    // Skip cropping and use original image as-is.
+    // final img.Image croppedImage = img.copyCrop(
+    //   originalImage,
+    //   x: safeCropX,
+    //   y: safeCropY,
+    //   width: safeCropWidth,
+    //   height: safeCropHeight,
+    // );
+    final img.Image croppedImage = originalImage;
 
     debugPrint('[cropImageToFrame] Cropped image: ${croppedImage.width}x${croppedImage.height}(クロップ後の画像: ${croppedImage.width}x${croppedImage.height})');
 
