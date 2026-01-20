@@ -97,11 +97,16 @@ class CameraService {
     }
 
     try {
-      // Set zoom level to 2x
-      const zoomLevel = 2.0;
+      // Use 1x on front camera to increase depth-of-field for close shots
+      final isFrontCamera =
+          cameraController!.description.lensDirection == CameraLensDirection.front;
+      final zoomLevel = isFrontCamera ? 1.0 : 2.0;
       await cameraController!.setZoomLevel(zoomLevel);
       _zoomLevel = zoomLevel;
-      debugPrint('[initialize] Zoom level set to 2.0x(ズームレベルを2.0倍に設定)');
+      debugPrint(
+        '[initialize] Zoom level set to ${zoomLevel.toStringAsFixed(1)}x'
+        '(ズームレベルを${zoomLevel.toStringAsFixed(1)}倍に設定)',
+      );
     } catch (e) {
       debugPrint('[initialize] Error setting zoom level: $e(ズームレベルの設定に失敗しました)');
     }
