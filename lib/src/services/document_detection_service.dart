@@ -81,15 +81,17 @@ class DocumentDetectionService {
       final double previewAspectRatio = previewSize != null
           ? (previewSize.height / previewSize.width)
           : (analysisHeight / analysisWidth);
-      final double fittedPreviewHeight = screenWidth / previewAspectRatio;
-      final double verticalOffset = (fittedPreviewHeight - screenHeight) / 2;
+      final double displayWidth = screenWidth.toDouble();
+      final double displayHeight = screenHeight.toDouble();
+      final double fittedPreviewHeight = displayWidth / previewAspectRatio;
+      final double verticalOffset = (fittedPreviewHeight - displayHeight) / 2;
 
-      final int cropWidth = (frameWidth / screenWidth * analysisWidth).round();
+      final int cropWidth = (frameWidth / displayWidth * analysisWidth).round();
       final int cropHeight =
           (frameHeight / fittedPreviewHeight * analysisHeight).round();
 
       final int cropX = (analysisWidth - cropWidth) ~/ 2;
-      final double frameTopOnScreen = (screenHeight - frameHeight) / 2;
+      final double frameTopOnScreen = (displayHeight - frameHeight) / 2;
       final double frameTopOnPreview = frameTopOnScreen + verticalOffset;
       final int cropY =
           ((frameTopOnPreview / fittedPreviewHeight) * analysisHeight).round();

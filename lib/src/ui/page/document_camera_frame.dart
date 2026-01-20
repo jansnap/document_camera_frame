@@ -147,6 +147,8 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
   // Frame dimensions
   late double _updatedFrameWidth;
   late double _updatedFrameHeight;
+  double? _previewDisplayWidth;
+  double? _previewDisplayHeight;
 
   @override
   void initState() {
@@ -345,14 +347,18 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
     _isDetectorBusy = true;
 
     try {
+      final int effectiveWidth =
+          (_previewDisplayWidth ?? MediaQuery.of(context).size.width).round();
+      final int effectiveHeight =
+          (_previewDisplayHeight ?? MediaQuery.of(context).size.height).round();
       final bool isAligned = await _documentDetectionService!.processImage(
         image: image,
         cameraController: _controller.cameraController!,
         context: context,
         frameWidth: _updatedFrameWidth,
         frameHeight: _updatedFrameHeight,
-        screenWidth: MediaQuery.of(context).size.width.toInt(),
-        screenHeight: MediaQuery.of(context).size.height.toInt(),
+        screenWidth: effectiveWidth,
+        screenHeight: effectiveHeight,
         onStatusUpdated: (status) {
           if (mounted) {
             _detectionStatusNotifier.value = status;
@@ -443,11 +449,15 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
       debugPrint(
         '[captureAndHandleImageUnified] Capturing and cropping image(画像をキャプチャしてクロップします)',
       );
+      final int effectiveWidth =
+          (_previewDisplayWidth ?? screenWidth.toDouble()).round();
+      final int effectiveHeight =
+          (_previewDisplayHeight ?? screenHeight.toDouble()).round();
       await _controller.takeAndCropPicture(
         frameWidth,
         frameHeight,
-        screenWidth,
-        screenHeight,
+        effectiveWidth,
+        effectiveHeight,
         onStatusUpdate: (message) {
           if (mounted) {
             _detectionStatusNotifier.value = message;
@@ -800,6 +810,8 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
 
                         final maxWidth = constraints.maxWidth;
                         final maxHeight = constraints.maxHeight;
+                        _previewDisplayWidth = maxWidth;
+                        _previewDisplayHeight = maxHeight;
                         final fittedWidth = maxWidth;
                         final fittedHeight = maxWidth / aspectRatio;
 
