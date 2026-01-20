@@ -103,14 +103,14 @@ class DocumentDetectionService {
           .toDouble(); // Use the calculated crop area
 
       // Size Alignment Check
-      // Thresholds: lower bound 50% (allow farther card), upper bound 98%
-      const double minSizeRatio = 0.50;
+      // Thresholds: lower bound 35% (allow farther card), upper bound 98%
+      const double minSizeRatio = 0.35;
       const double maxSizeRatio = 0.98;
       final bool sizeAligned = objectArea > (minSizeRatio * frameArea) &&
           objectArea < (maxSizeRatio * frameArea);
 
-      // Optional: give 5-10% tolerance
-      final double frameTolerance = 0.05;
+      // Optional: give 10% tolerance
+      final double frameTolerance = 0.10;
 
       final double relaxedFrameTop = cropY * (1 - frameTolerance);
       final double relaxedFrameBottom = (cropY + cropHeight) * (1 + frameTolerance);
@@ -134,7 +134,7 @@ class DocumentDetectionService {
       // debugPrint('[processImage]   Position: left=${boundingBox.left.toStringAsFixed(1)}, top=${boundingBox.top.toStringAsFixed(1)}, right=${boundingBox.right.toStringAsFixed(1)}, bottom=${boundingBox.bottom.toStringAsFixed(1)}(位置: left=${boundingBox.left.toStringAsFixed(1)}, top=${boundingBox.top.toStringAsFixed(1)}, right=${boundingBox.right.toStringAsFixed(1)}, bottom=${boundingBox.bottom.toStringAsFixed(1)})');
       debugPrint('[processImage]   Size: boundingBox.width=${boundingBox.width.toStringAsFixed(1)}, height=${boundingBox.height.toStringAsFixed(1)}, area=${objectArea.toStringAsFixed(1)}(サイズ: width=${boundingBox.width.toStringAsFixed(1)}, height=${boundingBox.height.toStringAsFixed(1)}, area=${objectArea.toStringAsFixed(1)})');
       // debugPrint('[processImage]   Frame: x=$cropX, y=$cropY, width=$cropWidth, height=$cropHeight, area=${frameArea.toStringAsFixed(1)}(フレーム: x=$cropX, y=$cropY, width=$cropWidth, height=$cropHeight, area=${frameArea.toStringAsFixed(1)})');
-      debugPrint('[processImage]   Size ratio: ${sizeRatio.toStringAsFixed(1)}% (threshold: 50-98%)(サイズ比率: ${sizeRatio.toStringAsFixed(1)}% (閾値: 50-98%))');
+      debugPrint('[processImage]   Size ratio: ${sizeRatio.toStringAsFixed(1)}% (threshold: 35-98%)(サイズ比率: ${sizeRatio.toStringAsFixed(1)}% (閾値: 35-98%))');
       debugPrint('[processImage]   Size aligned: $sizeAligned, Position aligned: $positionAligned(サイズが合っている: $sizeAligned, 位置が合っている: $positionAligned)');
       debugPrint(
         '[processImage]   Expected position: '
@@ -241,7 +241,7 @@ void _updateDetectionStatus(
 
   String? sizeMessage;
   if (!sizeAligned) {
-    const double minSizeRatio = 0.50;
+    const double minSizeRatio = 0.35;
     const double maxSizeRatio = 0.98;
     if (objectArea < (minSizeRatio * frameArea)) {
       sizeMessage = 'もっと近づけて';
