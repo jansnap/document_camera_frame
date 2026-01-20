@@ -216,6 +216,24 @@ class _TwoSidedAnimatedFrameState extends State<TwoSidedAnimatedFrame>
                             width: 2,
                           ),
                         ),
+                      ),
+
+                      /// Border of the guide frame (80% of detection width - inner)
+                      AnimatedContainer(
+                        width: guideWidth,
+                        height: guideAnimatedHeight,
+                        duration:
+                            _isFlipping ? Duration.zero : animatedFrameDuration,
+                        curve: widget.detectionFrameFlipCurve,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(
+                            widget.detectionFrameInnerCornerBorderRadius,
+                          ),
+                          border: Border.all(
+                            color: Colors.white,
+                            width: 1,
+                          ),
+                        ),
                         child: animatedCornerHeight > 0
                             ? Stack(
                                 children: [
@@ -249,24 +267,6 @@ class _TwoSidedAnimatedFrameState extends State<TwoSidedAnimatedFrame>
                                 ],
                               )
                             : const SizedBox.shrink(),
-                      ),
-
-                      /// Border of the guide frame (80% of detection width - inner)
-                      AnimatedContainer(
-                        width: guideWidth,
-                        height: guideAnimatedHeight,
-                        duration:
-                            _isFlipping ? Duration.zero : animatedFrameDuration,
-                        curve: widget.detectionFrameFlipCurve,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(
-                            widget.detectionFrameInnerCornerBorderRadius,
-                          ),
-                          border: Border.all(
-                            color: Colors.white,
-                            width: 1,
-                          ),
-                        ),
                       ),
                     ],
                   ),
