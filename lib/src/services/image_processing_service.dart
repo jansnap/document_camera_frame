@@ -57,14 +57,20 @@ class ImageProcessingService {
       'display=${displayWidth.toStringAsFixed(1)}x${displayHeight.toStringAsFixed(1)}',
     );
 
-    // Add margin to expand crop area on all sides (15% margin on each side = 30% total expansion).
-    const double marginFactor = 0.15; // 15% margin on each side
-    final int baseCropWidth = (frameWidth / displayWidth * analysisWidth).round();
-    final int baseCropHeight = (frameHeight / fittedPreviewHeight * analysisHeight).round();
+    // Add margin to expand crop area on all sides.
+    const double horizontalMarginFactor = 0.15; // 15% on each side
+    const double verticalMarginFactor = 0.25; // 25% on each side (larger for top/bottom)
+    const double horizontalBiasFactor = 0.03; // shift crop right by 3% of width
+    final int baseCropWidth =
+        (frameWidth / displayWidth * analysisWidth).round();
+    final int baseCropHeight =
+        (frameHeight / fittedPreviewHeight * analysisHeight).round();
 
     // Expand width and height by adding margins
-    final int cropWidth = (baseCropWidth * (1 + marginFactor * 2)).round();
-    final int cropHeight = (baseCropHeight * (1 + marginFactor * 2)).round();
+    final int cropWidth =
+        (baseCropWidth * (1 + horizontalMarginFactor * 2)).round();
+    final int cropHeight =
+        (baseCropHeight * (1 + verticalMarginFactor * 2)).round();
 
     // Adjust position to center the expanded crop area
     // Ensure crop area doesn't exceed image bounds
@@ -73,7 +79,9 @@ class ImageProcessingService {
     final int finalCropWidth = cropWidth > maxCropWidth ? maxCropWidth : cropWidth;
     final int finalCropHeight = cropHeight > maxCropHeight ? maxCropHeight : cropHeight;
 
-    final int cropX = (analysisWidth - finalCropWidth) ~/ 2;
+    final int cropX =
+        ((analysisWidth - finalCropWidth) / 2 + analysisWidth * horizontalBiasFactor)
+            .round();
     final double frameTopOnScreen = (displayHeight - frameHeight) / 2;
     final double frameTopOnPreview = frameTopOnScreen + verticalOffset;
     final int cropY = ((frameTopOnPreview / fittedPreviewHeight) * analysisHeight).round();
