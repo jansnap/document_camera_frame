@@ -82,7 +82,7 @@ class ImageProcessingService {
 
     // Expand crop area vertically and horizontally by 20% on each side.
     const double verticalExpandFactor = 0.25;
-    const double horizontalExpandFactor = 0.50;
+    const double horizontalExpandFactor = 0.90;
     final int extraTopPixels = (finalCropHeight * verticalExpandFactor).round();
     final int extraBottomPixels =
         (finalCropHeight * verticalExpandFactor).round();
