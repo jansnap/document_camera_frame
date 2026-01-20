@@ -80,22 +80,37 @@ class ImageProcessingService {
     final double frameTopOnPreview = frameTopOnScreen + verticalOffset;
     final int cropY = ((frameTopOnPreview / fittedPreviewHeight) * analysisHeight).round();
 
-    // Expand crop area vertically by 10% on both top and bottom.
+    // Expand crop area vertically and horizontally by 10% on each side.
     const double verticalExpandFactor = 0.10;
+    const double horizontalExpandFactor = 0.10;
     final int extraTopPixels = (finalCropHeight * verticalExpandFactor).round();
     final int extraBottomPixels =
         (finalCropHeight * verticalExpandFactor).round();
+    final int extraLeftPixels = (finalCropWidth * horizontalExpandFactor).round();
+    final int extraRightPixels =
+        (finalCropWidth * horizontalExpandFactor).round();
+
     final int expandedCropY = (cropY - extraTopPixels) < 0
         ? 0
         : (cropY - extraTopPixels);
+    final int expandedCropX = (cropX - extraLeftPixels) < 0
+        ? 0
+        : (cropX - extraLeftPixels);
+
     final int maxExpandedHeight = maxCropHeight - expandedCropY;
+    final int maxExpandedWidth = maxCropWidth - expandedCropX;
     final int expandedCropHeight =
         (finalCropHeight + extraTopPixels + extraBottomPixels) >
                 maxExpandedHeight
             ? maxExpandedHeight
             : (finalCropHeight + extraTopPixels + extraBottomPixels);
+    final int expandedCropWidth =
+        (finalCropWidth + extraLeftPixels + extraRightPixels) >
+                maxExpandedWidth
+            ? maxExpandedWidth
+            : (finalCropWidth + extraLeftPixels + extraRightPixels);
 
-    debugPrint('[cropImageToFrame] Crop area (analysis coords): x=$cropX, y=$expandedCropY, w=$finalCropWidth, h=$expandedCropHeight(クロップ領域(分析座標): x=$cropX, y=$expandedCropY, w=$finalCropWidth, h=$expandedCropHeight)');
+    debugPrint('[cropImageToFrame] Crop area (analysis coords): x=$expandedCropX, y=$expandedCropY, w=$expandedCropWidth, h=$expandedCropHeight(クロップ領域(分析座標): x=$expandedCropX, y=$expandedCropY, w=$expandedCropWidth, h=$expandedCropHeight)');
 
     // Step 3: Convert coordinates from analysis coordinate system to original image coordinate system.
     // ML Kit returns bounding boxes in the rotated coordinate system (analysis coordinates).
@@ -125,30 +140,30 @@ class ImageProcessingService {
         // Analysis (cropX, cropY) -> Original (cropY, analysisHeight - cropX - finalCropWidth)
         // Note: analysisHeight = originalImage.width when rotated
         actualCropX = expandedCropY;
-        actualCropY = originalImage.height - cropX - finalCropWidth;
+        actualCropY = originalImage.height - expandedCropX - expandedCropWidth;
         actualCropWidth = expandedCropHeight;
-        actualCropHeight = finalCropWidth;
+        actualCropHeight = expandedCropWidth;
       } else if (sensorOrientation == 270) {
         // 270-degree counter-clockwise rotation
         // Analysis (cropX, cropY) -> Original (analysisWidth - cropY - finalCropHeight, cropX)
         // Note: analysisWidth = originalImage.height when rotated
         actualCropX = originalImage.width - expandedCropY - expandedCropHeight;
-        actualCropY = cropX;
+        actualCropY = expandedCropX;
         actualCropWidth = expandedCropHeight;
-        actualCropHeight = finalCropWidth;
+        actualCropHeight = expandedCropWidth;
       } else {
         // Default: assume 90-degree rotation (most common)
         // Use analysis dimensions for coordinate conversion
         actualCropX = expandedCropY;
-        actualCropY = originalImage.height - cropX - finalCropWidth;
+        actualCropY = originalImage.height - expandedCropX - expandedCropWidth;
         actualCropWidth = expandedCropHeight;
-        actualCropHeight = finalCropWidth;
+        actualCropHeight = expandedCropWidth;
       }
     } else {
       // No rotation: coordinates are the same
-      actualCropX = cropX;
+      actualCropX = expandedCropX;
       actualCropY = expandedCropY;
-      actualCropWidth = finalCropWidth;
+      actualCropWidth = expandedCropWidth;
       actualCropHeight = expandedCropHeight;
     }
 
