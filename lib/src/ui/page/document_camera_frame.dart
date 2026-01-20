@@ -150,6 +150,12 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
   double? _previewDisplayWidth;
   double? _previewDisplayHeight;
 
+  double _getEffectiveFrameWidth() {
+    final double adjustedWidth = _updatedFrameWidth -
+        AppConstants.kCornerBorderBoxHorizontalPadding * 2;
+    return adjustedWidth > 0 ? adjustedWidth : _updatedFrameWidth;
+  }
+
   @override
   void initState() {
     super.initState();
@@ -351,11 +357,12 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
           (_previewDisplayWidth ?? MediaQuery.of(context).size.width).round();
       final int effectiveHeight =
           (_previewDisplayHeight ?? MediaQuery.of(context).size.height).round();
+      final double effectiveFrameWidth = _getEffectiveFrameWidth();
       final bool isAligned = await _documentDetectionService!.processImage(
         image: image,
         cameraController: _controller.cameraController!,
         context: context,
-        frameWidth: _updatedFrameWidth,
+        frameWidth: effectiveFrameWidth,
         frameHeight: _updatedFrameHeight,
         screenWidth: effectiveWidth,
         screenHeight: effectiveHeight,
@@ -392,7 +399,7 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
             if (_isDocumentAlignedNotifier.value && mounted) {
               await _captureAndHandleImageUnified(
                 context,
-                _updatedFrameWidth,
+                _getEffectiveFrameWidth(),
                 _updatedFrameHeight,
                 1.sw(context).toInt(),
                 1.sh(context).toInt(),
@@ -1025,7 +1032,7 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
                   isLoadingNotifier: _isLoadingNotifier,
                   currentSideNotifier: _currentSideNotifier,
                   documentDataNotifier: _documentDataNotifier,
-                  frameWidth: _updatedFrameWidth,
+                  frameWidth: _getEffectiveFrameWidth(),
                   frameHeight: _updatedFrameHeight,
                   bottomFrameContainerHeight:
                       AppConstants.bottomFrameContainerHeight,
