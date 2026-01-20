@@ -387,7 +387,7 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
               await _captureAndHandleImageUnified(
                 context,
                 _updatedFrameWidth,
-                _updatedFrameHeight + AppConstants.bottomFrameContainerHeight,
+                _updatedFrameHeight,
                 1.sw(context).toInt(),
                 1.sh(context).toInt(),
               );

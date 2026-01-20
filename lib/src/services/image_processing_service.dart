@@ -23,7 +23,11 @@ class ImageProcessingService {
     // ML Kit returns bounding boxes in a coordinate system that accounts for sensor rotation.
     // When sensorOrientation is 90 or 270, ML Kit uses a rotated coordinate system.
     // The saved image file has pixel data in the original orientation (not rotated).
-    final bool isImageRotated = sensorOrientation == 90 || sensorOrientation == 270;
+    final bool isSensorRotated = sensorOrientation == 90 || sensorOrientation == 270;
+    // If the captured image is already portrait, the pixel data is upright,
+    // so we should not apply an extra rotation mapping.
+    final bool isCapturedPortrait = originalImage.height >= originalImage.width;
+    final bool isImageRotated = isSensorRotated && !isCapturedPortrait;
     final int analysisWidth = isImageRotated
         ? originalImage.height
         : originalImage.width;
@@ -32,6 +36,7 @@ class ImageProcessingService {
         : originalImage.height;
 
     debugPrint('[cropImageToFrame] Analysis dimensions: ${analysisWidth}x${analysisHeight}, isRotated: $isImageRotated(分析 dimensions: ${analysisWidth}x${analysisHeight}, 回転: $isImageRotated)');
+    debugPrint('[cropImageToFrame] Capture orientation check: isSensorRotated=$isSensorRotated, isCapturedPortrait=$isCapturedPortrait(回転判定: センサー回転=$isSensorRotated, 撮影画像縦=$isCapturedPortrait)');
 
     // Step 2: Calculate the crop area in the same coordinate system as document detection.
     // Add margin to expand crop area on all sides (15% margin on each side = 30% total expansion).

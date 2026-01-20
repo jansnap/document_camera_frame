@@ -202,8 +202,7 @@ class TwoSidedActionButtons extends StatelessWidget {
                                         await onManualCapture(
                                           context,
                                           frameWidth,
-                                          frameHeight +
-                                              bottomFrameContainerHeight,
+                                          frameHeight,
                                           1.sw(context).toInt(),
                                           1.sh(context).toInt(),
                                         );
