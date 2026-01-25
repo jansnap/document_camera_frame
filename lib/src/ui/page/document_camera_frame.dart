@@ -115,6 +115,7 @@ class DocumentCameraFrame extends StatefulWidget {
 
 class _DocumentCameraFrameState extends State<DocumentCameraFrame>
     with TickerProviderStateMixin {
+  static const double _previewScale = 2.5;
   Timer? _debounceTimer;
   bool _isDebouncing = false;
   Timer? _autoFocusTimer;
@@ -353,9 +354,13 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
 
     try {
       final int effectiveWidth =
-          (_previewDisplayWidth ?? MediaQuery.of(context).size.width).round();
+          ((_previewDisplayWidth ?? MediaQuery.of(context).size.width) *
+                  _previewScale)
+              .round();
       final int effectiveHeight =
-          (_previewDisplayHeight ?? MediaQuery.of(context).size.height).round();
+          ((_previewDisplayHeight ?? MediaQuery.of(context).size.height) *
+                  _previewScale)
+              .round();
       final bool isAligned = await _documentDetectionService!.processImage(
         image: image,
         cameraController: _controller.cameraController!,
@@ -463,9 +468,11 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
       _detectionStatusNotifier.value = '検出したドキュメントを切り出しています...';
 
       final int effectiveDisplayWidth =
-          (_previewDisplayWidth ?? screenWidth.toDouble()).round();
+          ((_previewDisplayWidth ?? screenWidth.toDouble()) * _previewScale)
+              .round();
       final int effectiveDisplayHeight =
-          (_previewDisplayHeight ?? screenHeight.toDouble()).round();
+          ((_previewDisplayHeight ?? screenHeight.toDouble()) * _previewScale)
+              .round();
       await _controller.takeAndCropPicture(
         frameWidth,
         frameHeight,
@@ -789,7 +796,6 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
-    const double previewScale = 2.5;
     debugPrint('═══════════════════════════════════════');
     debugPrint(
       '[CameraPreview] Widget size: ${screenSize.width.toStringAsFixed(0)} x ${screenSize.height.toStringAsFixed(0)}',
@@ -863,7 +869,7 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
                             child: Align(
                               alignment: Alignment.center,
                               child: Transform.scale(
-                                scale: previewScale,
+                                scale: _previewScale,
                                 alignment: Alignment.center,
                                 child: SizedBox(
                                   width: fittedWidth,
@@ -882,7 +888,7 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
                   // Detected document overlay (scaled to match preview)
                   Positioned.fill(
                     child: Transform.scale(
-                      scale: previewScale,
+                      scale: _previewScale,
                       alignment: Alignment.center,
                       child: Stack(
                         children: [

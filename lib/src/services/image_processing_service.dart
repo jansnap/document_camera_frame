@@ -57,8 +57,8 @@ class ImageProcessingService {
       'display=${displayWidthDouble.toStringAsFixed(1)}x${displayHeightDouble.toStringAsFixed(1)}',
     );
 
-    // Add margin to expand crop area on all sides (15% margin on each side = 30% total expansion).
-    const double marginFactor = 0.05; // 5% margin on each side
+    // Keep crop strictly within the frame (no margin expansion).
+    const double marginFactor = 0.0;
     final int baseCropWidth =
         (frameWidth / displayWidthDouble * analysisWidth).round();
     final int baseCropHeight =
@@ -80,9 +80,9 @@ class ImageProcessingService {
     final double frameTopOnPreview = frameTopOnScreen + verticalOffset;
     final int cropY = ((frameTopOnPreview / fittedPreviewHeight) * analysisHeight).round();
 
-    // Expand crop area vertically and horizontally by 15% on each side.
-    const double verticalExpandFactor = 0.01;
-    const double horizontalExpandFactor = 0.15;
+    // No extra expansion beyond the frame.
+    const double verticalExpandFactor = 0.0;
+    const double horizontalExpandFactor = 0.0;
     final int extraTopPixels = (finalCropHeight * verticalExpandFactor).round();
     final int extraBottomPixels =
         (finalCropHeight * verticalExpandFactor).round();
