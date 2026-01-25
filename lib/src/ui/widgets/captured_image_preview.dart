@@ -27,39 +27,42 @@ class CapturedImagePreview extends StatelessWidget {
           return const SizedBox.shrink();
         }
 
-        final previewHeight =
-            detectionFrameHeight + AppConstants.bottomFrameContainerHeight;
+        const previewScale = 2.0;
+        final scaledFrameWidth = detectionFrameWidth * previewScale;
+        final scaledFrameHeight = detectionFrameHeight * previewScale;
+        final previewHeight = scaledFrameHeight +
+            AppConstants.bottomFrameContainerHeight * previewScale;
         debugPrint('----------------------------------');
         debugPrint(
-          '[CapturedImagePreview] Widget size: ${detectionFrameWidth.toStringAsFixed(0)} x ${previewHeight.toStringAsFixed(0)}',
+          '[CapturedImagePreview] Widget size: ${scaledFrameWidth.toStringAsFixed(0)} x ${previewHeight.toStringAsFixed(0)}',
         );
         debugPrint(
-          '[CapturedImagePreview] Preview size: ${detectionFrameWidth.toStringAsFixed(0)} x ${detectionFrameHeight.toStringAsFixed(0)}',
+          '[CapturedImagePreview] Preview size: ${scaledFrameWidth.toStringAsFixed(0)} x ${scaledFrameHeight.toStringAsFixed(0)}',
         );
         debugPrint('----------------------------------');
 
         return Align(
           alignment: Alignment.center,
           child: SizedBox(
-            width: detectionFrameWidth,
+            width: scaledFrameWidth,
             height: previewHeight,
             child: Stack(
               children: [
                 // Black background for padding
                 Container(
-                  width: detectionFrameWidth,
+                  width: scaledFrameWidth,
                   height: previewHeight,
                   color: Colors.black,
                 ),
                 // Image with centered alignment
                 Positioned(
-                  top: 3,
-                  left: 3,
-                  right: 3,
+                  top: 6,
+                  left: 6,
+                  right: 6,
                   child: Center(
                     child: Container(
-                      width: detectionFrameWidth,
-                      height: detectionFrameHeight,
+                      width: scaledFrameWidth,
+                      height: scaledFrameHeight,
                       decoration: BoxDecoration(
                         image: DecorationImage(
                           image: FileImage(File(imagePath)),
