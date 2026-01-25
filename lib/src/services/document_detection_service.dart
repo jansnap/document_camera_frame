@@ -21,7 +21,7 @@ class DocumentDetectionService {
     final options = ObjectDetectorOptions(
       mode: DetectionMode.stream,
       classifyObjects: false,
-      multipleObjects: false,
+      multipleObjects: true,
     );
     _objectDetector = ObjectDetector(options: options);
     _isDetectorInitialized = true;
@@ -64,7 +64,11 @@ class DocumentDetectionService {
         return false;
       }
 
-      final detectedObject = objects.first;
+      final double targetAspectRatio = frameHeight / frameWidth;
+      final DetectedObject detectedObject = _selectBestDetectedObject(
+        objects,
+        targetAspectRatio: targetAspectRatio,
+      );
       final boundingBox = detectedObject.boundingBox;
 
       // Step 1: Determine the correct analysis dimensions based on image rotation.
@@ -246,6 +250,35 @@ class DocumentDetectionService {
       _objectDetector.close();
       _isDetectorInitialized = false;
     }
+  }
+
+  DetectedObject _selectBestDetectedObject(
+    List<DetectedObject> objects, {
+    required double targetAspectRatio,
+  }) {
+    DetectedObject best = objects.first;
+    double bestAspectDiff = double.infinity;
+    double bestArea = -1;
+
+    for (final object in objects) {
+      final boundingBox = object.boundingBox;
+      if (boundingBox.width <= 0 || boundingBox.height <= 0) {
+        continue;
+      }
+      final double aspectRatio = boundingBox.height / boundingBox.width;
+      final double aspectDiff = (aspectRatio - targetAspectRatio).abs();
+      final double area = boundingBox.width * boundingBox.height;
+
+      final bool isBetter = aspectDiff < bestAspectDiff ||
+          (aspectDiff == bestAspectDiff && area > bestArea);
+      if (isBetter) {
+        best = object;
+        bestAspectDiff = aspectDiff;
+        bestArea = area;
+      }
+    }
+
+    return best;
   }
 }
 
