@@ -123,9 +123,9 @@ class DocumentDetectionService {
           .toDouble(); // Use the calculated crop area
 
       // Size Alignment Check
-      // Thresholds: lower bound 10% (allow smaller docs), upper bound 50%
-      const double minSizeRatio = 0.10;
-      const double maxSizeRatio = 0.50;
+      // Thresholds: lower bound 6% (allow smaller docs), upper bound 40%
+      const double minSizeRatio = 0.06;
+      const double maxSizeRatio = 0.40;
       final bool sizeAligned = objectArea > (minSizeRatio * frameArea) &&
           objectArea < (maxSizeRatio * frameArea);
 
@@ -156,8 +156,8 @@ class DocumentDetectionService {
       // debugPrint('[processImage]   Frame: x=$cropX, y=$cropY, width=$cropWidth, height=$cropHeight, area=${frameArea.toStringAsFixed(1)}(フレーム: x=$cropX, y=$cropY, width=$cropWidth, height=$cropHeight, area=${frameArea.toStringAsFixed(1)})');
       debugPrint(
         '[processImage]   Size ratio: ${sizeRatio.toStringAsFixed(1)}% '
-        '(threshold: 10-50%)(サイズ比率: ${sizeRatio.toStringAsFixed(1)}% '
-        '(閾値: 10-50%))',
+        '(threshold: 6-40%)(サイズ比率: ${sizeRatio.toStringAsFixed(1)}% '
+        '(閾値: 6-40%))',
       );
       debugPrint('[processImage]   Size aligned: $sizeAligned, Position aligned: $positionAligned(サイズが合っている: $sizeAligned, 位置が合っている: $positionAligned)');
       debugPrint(
