@@ -499,6 +499,9 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
       debugPrint(
         '[captureAndHandleImageUnified] Releasing camera after successful capture(撮影成功後にカメラを解放します)',
       );
+      if (mounted) {
+        _isInitializedNotifier.value = false;
+      }
       await _controller.releaseCamera();
       debugPrint(
         '[captureAndHandleImageUnified] Capture process completed successfully(キャプチャ処理が正常に完了しました)',
@@ -514,6 +517,9 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
         '[captureAndHandleImageUnified] Releasing camera after capture failure(撮影失敗後にカメラを解放します)',
       );
       try {
+        if (mounted) {
+          _isInitializedNotifier.value = false;
+        }
         await _controller.releaseCamera();
       } catch (releaseError) {
         debugPrint(
