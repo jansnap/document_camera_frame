@@ -65,11 +65,6 @@ class DocumentDetectionService {
       }
 
       final double targetAspectRatio = frameHeight / frameWidth;
-      final DetectedObject detectedObject = _selectBestDetectedObject(
-        objects,
-        targetAspectRatio: targetAspectRatio,
-      );
-      final boundingBox = detectedObject.boundingBox;
 
       // Step 1: Determine the correct analysis dimensions based on image rotation.
       // We assume a portrait UI, so if the image buffer is wider than it is tall, it's been rotated.
@@ -104,7 +99,6 @@ class DocumentDetectionService {
           ((frameTopOnPreview / fittedPreviewHeight) * analysisHeight).round();
 
       // Step 3: Perform alignment checks in the consistent analysis coordinate system.
-      final double objectArea = boundingBox.width * boundingBox.height;
       final double frameArea = (cropWidth * cropHeight)
           .toDouble(); // Use the calculated crop area
 
@@ -112,8 +106,6 @@ class DocumentDetectionService {
       // Thresholds: lower bound 6% (allow smaller docs), upper bound 40%
       const double minSizeRatio = 0.06;
       const double maxSizeRatio = 0.40;
-      final bool sizeAligned = objectArea > (minSizeRatio * frameArea) &&
-          objectArea < (maxSizeRatio * frameArea);
 
       // Optional: give 0% tolerance (strictly within frame)
       const double frameTolerance = 0.0;
@@ -123,23 +115,24 @@ class DocumentDetectionService {
 
       final bool isFrontCamera =
           cameraController.description.lensDirection == CameraLensDirection.front;
-      final List<Rect> detectedRectsOnScreen = objects
-          .where((object) {
-            final rect = object.boundingBox;
-            if (rect.width <= 0 || rect.height <= 0) {
-              return false;
-            }
-            final double area = rect.width * rect.height;
-            final bool sizeOk =
-                area > (minSizeRatio * frameArea) &&
-                area < (maxSizeRatio * frameArea);
-            final bool positionOk =
-                rect.left >= cropX &&
-                rect.top >= relaxedFrameTop &&
-                rect.right <= (cropX + cropWidth) &&
-                rect.bottom <= relaxedFrameBottom;
-            return sizeOk && positionOk;
-          })
+      final List<DetectedObject> filteredObjects = objects.where((object) {
+        final rect = object.boundingBox;
+        if (rect.width <= 0 || rect.height <= 0) {
+          return false;
+        }
+        final double area = rect.width * rect.height;
+        final bool sizeOk =
+            area > (minSizeRatio * frameArea) &&
+            area < (maxSizeRatio * frameArea);
+        final bool positionOk =
+            rect.left >= cropX &&
+            rect.top >= relaxedFrameTop &&
+            rect.right <= (cropX + cropWidth) &&
+            rect.bottom <= relaxedFrameBottom;
+        return sizeOk && positionOk;
+      }).toList();
+
+      final List<Rect> detectedRectsOnScreen = filteredObjects
           .map(
             (object) => _mapBoundingBoxToScreenRect(
               boundingBox: object.boundingBox,
@@ -155,6 +148,21 @@ class DocumentDetectionService {
           .whereType<Rect>()
           .toList();
       onDetectedRectUpdated?.call(detectedRectsOnScreen);
+
+      final DetectedObject detectedObject =
+          filteredObjects.isNotEmpty
+              ? _selectBestDetectedObject(
+                  filteredObjects,
+                  targetAspectRatio: targetAspectRatio,
+                )
+              : _selectBestDetectedObject(
+                  objects,
+                  targetAspectRatio: targetAspectRatio,
+                );
+      final boundingBox = detectedObject.boundingBox;
+      final double objectArea = boundingBox.width * boundingBox.height;
+      final bool sizeAligned = objectArea > (minSizeRatio * frameArea) &&
+          objectArea < (maxSizeRatio * frameArea);
 
       // Position Alignment Check
       final bool positionAligned =
