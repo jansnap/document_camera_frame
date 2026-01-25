@@ -40,7 +40,7 @@ class DocumentDetectionService {
     required int screenWidth,
     required int screenHeight,
     ValueChanged<String>? onStatusUpdated,
-    ValueChanged<Rect?>? onDetectedRectUpdated,
+    ValueChanged<List<Rect>>? onDetectedRectUpdated,
   }) async {
     if (!_isDetectorInitialized) {
       return false;
@@ -60,7 +60,7 @@ class DocumentDetectionService {
 
       if (objects.isEmpty) {
         onStatusUpdated?.call('ドキュメントが見つかりません');
-        onDetectedRectUpdated?.call(null);
+        onDetectedRectUpdated?.call(<Rect>[]);
         return false;
       }
 
@@ -105,17 +105,22 @@ class DocumentDetectionService {
 
       final bool isFrontCamera =
           cameraController.description.lensDirection == CameraLensDirection.front;
-      final Rect? detectedRectOnScreen = _mapBoundingBoxToScreenRect(
-        boundingBox: boundingBox,
-        analysisWidth: analysisWidth,
-        analysisHeight: analysisHeight,
-        displayWidth: displayWidth,
-        displayHeight: displayHeight,
-        fittedPreviewHeight: fittedPreviewHeight,
-        verticalOffset: verticalOffset,
-        isMirrored: isFrontCamera,
-      );
-      onDetectedRectUpdated?.call(detectedRectOnScreen);
+      final List<Rect> detectedRectsOnScreen = objects
+          .map(
+            (object) => _mapBoundingBoxToScreenRect(
+              boundingBox: object.boundingBox,
+              analysisWidth: analysisWidth,
+              analysisHeight: analysisHeight,
+              displayWidth: displayWidth,
+              displayHeight: displayHeight,
+              fittedPreviewHeight: fittedPreviewHeight,
+              verticalOffset: verticalOffset,
+              isMirrored: isFrontCamera,
+            ),
+          )
+          .whereType<Rect>()
+          .toList();
+      onDetectedRectUpdated?.call(detectedRectsOnScreen);
 
       // Step 3: Perform alignment checks in the consistent analysis coordinate system.
       final double objectArea = boundingBox.width * boundingBox.height;
@@ -239,7 +244,7 @@ class DocumentDetectionService {
       return isAligned;
     } catch (e) {
       onError?.call(e);
-      onDetectedRectUpdated?.call(null);
+      onDetectedRectUpdated?.call(<Rect>[]);
       return false;
     }
   }

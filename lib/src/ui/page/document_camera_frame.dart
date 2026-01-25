@@ -134,7 +134,8 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
   final ValueNotifier<bool> _isDocumentAlignedNotifier = ValueNotifier(false);
   final ValueNotifier<String> _detectionStatusNotifier =
       ValueNotifier('ドキュメントを検出中...');
-  final ValueNotifier<Rect?> _detectedRectNotifier = ValueNotifier(null);
+  final ValueNotifier<List<Rect>> _detectedRectNotifier =
+      ValueNotifier<List<Rect>>(<Rect>[]);
 
   // Animation controllers
   AnimationController? _progressAnimationController;
@@ -342,8 +343,8 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
       if (_detectionStatusNotifier.value.isNotEmpty) {
         _detectionStatusNotifier.value = '';
       }
-      if (_detectedRectNotifier.value != null) {
-        _detectedRectNotifier.value = null;
+      if (_detectedRectNotifier.value.isNotEmpty) {
+        _detectedRectNotifier.value = <Rect>[];
       }
       return;
     }
@@ -368,9 +369,9 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
             _detectionStatusNotifier.value = status;
           }
         },
-        onDetectedRectUpdated: (rect) {
+        onDetectedRectUpdated: (rects) {
           if (mounted) {
-            _detectedRectNotifier.value = rect;
+            _detectedRectNotifier.value = rects;
           }
         },
       );
@@ -879,11 +880,14 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
                       alignment: Alignment.center,
                       child: Stack(
                         children: [
-                          ValueListenableBuilder<Rect?>(
+                  ValueListenableBuilder<List<Rect>>(
                             valueListenable: _detectedRectNotifier,
-                            builder: (context, rect, child) {
-                              if (rect == null) return const SizedBox.shrink();
-                              return Positioned(
+                    builder: (context, rects, child) {
+                      if (rects.isEmpty) return const SizedBox.shrink();
+                      return Stack(
+                        children: rects
+                            .map(
+                              (rect) => Positioned(
                                 left: rect.left,
                                 top: rect.top,
                                 width: rect.width,
@@ -899,7 +903,10 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
                                     ),
                                   ),
                                 ),
-                              );
+                              ),
+                            )
+                            .toList(),
+                      );
                             },
                           ),
                         ],
