@@ -125,8 +125,8 @@ class DocumentDetectionService {
       final bool sizeAligned = objectArea > (minSizeRatio * frameArea) &&
           objectArea < (maxSizeRatio * frameArea);
 
-      // Optional: give 5-10% tolerance
-      final double frameTolerance = 0.05;
+      // Optional: give 0% tolerance (strictly within frame)
+      final double frameTolerance = 0.0;
 
       final double relaxedFrameTop = cropY * (1 - frameTolerance);
       final double relaxedFrameBottom = (cropY + cropHeight) * (1 + frameTolerance);
