@@ -103,9 +103,43 @@ class DocumentDetectionService {
       final int cropY =
           ((frameTopOnPreview / fittedPreviewHeight) * analysisHeight).round();
 
+      // Step 3: Perform alignment checks in the consistent analysis coordinate system.
+      final double objectArea = boundingBox.width * boundingBox.height;
+      final double frameArea = (cropWidth * cropHeight)
+          .toDouble(); // Use the calculated crop area
+
+      // Size Alignment Check
+      // Thresholds: lower bound 6% (allow smaller docs), upper bound 40%
+      const double minSizeRatio = 0.06;
+      const double maxSizeRatio = 0.40;
+      final bool sizeAligned = objectArea > (minSizeRatio * frameArea) &&
+          objectArea < (maxSizeRatio * frameArea);
+
+      // Optional: give 0% tolerance (strictly within frame)
+      const double frameTolerance = 0.0;
+
+      final double relaxedFrameTop = cropY * (1 - frameTolerance);
+      final double relaxedFrameBottom = (cropY + cropHeight) * (1 + frameTolerance);
+
       final bool isFrontCamera =
           cameraController.description.lensDirection == CameraLensDirection.front;
       final List<Rect> detectedRectsOnScreen = objects
+          .where((object) {
+            final rect = object.boundingBox;
+            if (rect.width <= 0 || rect.height <= 0) {
+              return false;
+            }
+            final double area = rect.width * rect.height;
+            final bool sizeOk =
+                area > (minSizeRatio * frameArea) &&
+                area < (maxSizeRatio * frameArea);
+            final bool positionOk =
+                rect.left >= cropX &&
+                rect.top >= relaxedFrameTop &&
+                rect.right <= (cropX + cropWidth) &&
+                rect.bottom <= relaxedFrameBottom;
+            return sizeOk && positionOk;
+          })
           .map(
             (object) => _mapBoundingBoxToScreenRect(
               boundingBox: object.boundingBox,
@@ -121,24 +155,6 @@ class DocumentDetectionService {
           .whereType<Rect>()
           .toList();
       onDetectedRectUpdated?.call(detectedRectsOnScreen);
-
-      // Step 3: Perform alignment checks in the consistent analysis coordinate system.
-      final double objectArea = boundingBox.width * boundingBox.height;
-      final double frameArea = (cropWidth * cropHeight)
-          .toDouble(); // Use the calculated crop area
-
-      // Size Alignment Check
-      // Thresholds: lower bound 6% (allow smaller docs), upper bound 40%
-      const double minSizeRatio = 0.06;
-      const double maxSizeRatio = 0.40;
-      final bool sizeAligned = objectArea > (minSizeRatio * frameArea) &&
-          objectArea < (maxSizeRatio * frameArea);
-
-      // Optional: give 0% tolerance (strictly within frame)
-      final double frameTolerance = 0.0;
-
-      final double relaxedFrameTop = cropY * (1 - frameTolerance);
-      final double relaxedFrameBottom = (cropY + cropHeight) * (1 + frameTolerance);
 
       // Position Alignment Check
       final bool positionAligned =
