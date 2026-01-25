@@ -782,6 +782,7 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
+    const double previewScale = 2.0;
     debugPrint('═══════════════════════════════════════');
     debugPrint(
       '[CameraPreview] Widget size: ${screenSize.width.toStringAsFixed(0)} x ${screenSize.height.toStringAsFixed(0)}',
@@ -825,7 +826,6 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
                         final maxHeight = constraints.maxHeight;
                         _previewDisplayWidth = maxWidth;
                         _previewDisplayHeight = maxHeight;
-                        const double previewScale = 2.0;
                         final fittedWidth = maxWidth;
                         final fittedHeight = maxWidth / aspectRatio;
 
@@ -872,29 +872,39 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
                       },
                     ),
 
-                  // Detected document overlay
-                  ValueListenableBuilder<Rect?>(
-                    valueListenable: _detectedRectNotifier,
-                    builder: (context, rect, child) {
-                      if (rect == null) return const SizedBox.shrink();
-                      return Positioned(
-                        left: rect.left,
-                        top: rect.top,
-                        width: rect.width,
-                        height: rect.height,
-                        child: IgnorePointer(
-                          child: Container(
-                            decoration: BoxDecoration(
-                              color: Colors.yellow.withOpacity(0.2),
-                              border: Border.all(
-                                color: Colors.yellowAccent,
-                                width: 2,
-                              ),
-                            ),
+                  // Detected document overlay (scaled to match preview)
+                  Positioned.fill(
+                    child: Transform.scale(
+                      scale: previewScale,
+                      alignment: Alignment.center,
+                      child: Stack(
+                        children: [
+                          ValueListenableBuilder<Rect?>(
+                            valueListenable: _detectedRectNotifier,
+                            builder: (context, rect, child) {
+                              if (rect == null) return const SizedBox.shrink();
+                              return Positioned(
+                                left: rect.left,
+                                top: rect.top,
+                                width: rect.width,
+                                height: rect.height,
+                                child: IgnorePointer(
+                                  child: Container(
+                                    decoration: BoxDecoration(
+                                      color: Colors.yellow.withOpacity(0.2),
+                                      border: Border.all(
+                                        color: Colors.yellowAccent,
+                                        width: 2,
+                                      ),
+                                    ),
+                                  ),
+                                ),
+                              );
+                            },
                           ),
-                        ),
-                      );
-                    },
+                        ],
+                      ),
+                    ),
                   ),
 
                   // Captured image preview
