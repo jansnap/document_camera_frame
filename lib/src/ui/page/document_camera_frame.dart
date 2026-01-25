@@ -782,7 +782,6 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
   @override
   Widget build(BuildContext context) {
     final screenSize = MediaQuery.of(context).size;
-    const double previewScale = 2.0;
     debugPrint('═══════════════════════════════════════');
     debugPrint(
       '[CameraPreview] Widget size: ${screenSize.width.toStringAsFixed(0)} x ${screenSize.height.toStringAsFixed(0)}',
@@ -804,7 +803,6 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
               valueListenable: _isInitializedNotifier,
               builder: (context, isInitialized, child) => Stack(
                 fit: StackFit.expand,
-                clipBehavior: Clip.none,
                 children: [
                   // Camera preview
                   if (isInitialized && _controller.cameraController != null)
@@ -827,6 +825,7 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
                         final maxHeight = constraints.maxHeight;
                         _previewDisplayWidth = maxWidth;
                         _previewDisplayHeight = maxHeight;
+                        const double previewScale = 2.0;
                         final fittedWidth = maxWidth;
                         final fittedHeight = maxWidth / aspectRatio;
 
@@ -856,11 +855,15 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
                           child: ClipRect(
                             child: Align(
                               alignment: Alignment.center,
-                              child: SizedBox(
-                                width: fittedWidth,
-                                height: fittedHeight,
-                                child: CameraPreview(
-                                  _controller.cameraController!,
+                              child: Transform.scale(
+                                scale: previewScale,
+                                alignment: Alignment.center,
+                                child: SizedBox(
+                                  width: fittedWidth,
+                                  height: fittedHeight,
+                                  child: CameraPreview(
+                                    _controller.cameraController!,
+                                  ),
                                 ),
                               ),
                             ),
@@ -869,93 +872,79 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
                       },
                     ),
 
-                  // Scaled overlays (preview + bounding box + frame)
-                  Transform.scale(
-                    scale: previewScale,
-                    alignment: Alignment.center,
-                    child: Stack(
-                      fit: StackFit.expand,
-                      children: [
-                        // Detected document overlay
-                        ValueListenableBuilder<Rect?>(
-                          valueListenable: _detectedRectNotifier,
-                          builder: (context, rect, child) {
-                            if (rect == null) return const SizedBox.shrink();
-                            return Positioned(
-                              left: rect.left,
-                              top: rect.top,
-                              width: rect.width,
-                              height: rect.height,
-                              child: IgnorePointer(
-                                child: Container(
-                                  decoration: BoxDecoration(
-                                    color: Colors.yellow.withOpacity(0.2),
-                                    border: Border.all(
-                                      color: Colors.yellowAccent,
-                                      width: 2,
-                                    ),
-                                  ),
-                                ),
+                  // Detected document overlay
+                  ValueListenableBuilder<Rect?>(
+                    valueListenable: _detectedRectNotifier,
+                    builder: (context, rect, child) {
+                      if (rect == null) return const SizedBox.shrink();
+                      return Positioned(
+                        left: rect.left,
+                        top: rect.top,
+                        width: rect.width,
+                        height: rect.height,
+                        child: IgnorePointer(
+                          child: Container(
+                            decoration: BoxDecoration(
+                              color: Colors.yellow.withOpacity(0.2),
+                              border: Border.all(
+                                color: Colors.yellowAccent,
+                                width: 2,
                               ),
-                            );
-                          },
-                        ),
-
-                        // Captured image preview
-                        if (false)
-                          if (isInitialized)
-                            CapturedImagePreview(
-                              capturedImageNotifier: _capturedImageNotifier,
-                              detectionFrameWidth: _updatedFrameWidth,
-                              detectionFrameHeight: _updatedFrameHeight,
-                              borderRadius:
-                                  widget.frameStyle.outerFrameBorderRadius,
                             ),
-
-                        // Frame capture animation
-                        if (false)
-                          if (isInitialized)
-                            ValueListenableBuilder<bool>(
-                              valueListenable: _isLoadingNotifier,
-                              child: FrameCaptureAnimation(
-                                frameWidth: _updatedFrameWidth,
-                                frameHeight: _updatedFrameHeight,
-                                animationDuration:
-                                    widget.animationStyle.capturingAnimationDuration,
-                                animationColor:
-                                    widget.animationStyle.capturingAnimationColor,
-                                curve: widget.animationStyle.capturingAnimationCurve,
-                              ),
-                              builder: (context, isLoading, child) {
-                                return isLoading
-                                    ? child!
-                                    : const SizedBox.shrink();
-                              },
-                            ),
-
-                        // Document frame
-                        ValueListenableBuilder<bool>(
-                          valueListenable: _isDocumentAlignedNotifier,
-                          builder: (context, isAligned, child) {
-                            return TwoSidedAnimatedFrame(
-                              detectionFrameHeight: _updatedFrameHeight,
-                              detectionFrameWidth: _updatedFrameWidth,
-                              detectionFrameOuterBorderRadius:
-                                  widget.frameStyle.outerFrameBorderRadius,
-                              detectionFrameInnerCornerBorderRadius:
-                                  widget.frameStyle.innerCornerBroderRadius,
-                              detectionFrameFlipDuration:
-                                  widget.animationStyle.frameFlipDuration,
-                              detectionFrameFlipCurve:
-                                  widget.animationStyle.frameFlipCurve,
-                              border: widget.frameStyle.frameBorder,
-                              currentSideNotifier: _currentSideNotifier,
-                              isDocumentAligned: isAligned,
-                            );
-                          },
+                          ),
                         ),
-                      ],
-                    ),
+                      );
+                    },
+                  ),
+
+                  // Captured image preview
+                  if (false)
+                    if (isInitialized)
+                      CapturedImagePreview(
+                        capturedImageNotifier: _capturedImageNotifier,
+                        detectionFrameWidth: _updatedFrameWidth,
+                        detectionFrameHeight: _updatedFrameHeight,
+                        borderRadius: widget.frameStyle.outerFrameBorderRadius,
+                      ),
+
+                  // Frame capture animation
+                  if (false)
+                    if (isInitialized)
+                      ValueListenableBuilder<bool>(
+                        valueListenable: _isLoadingNotifier,
+                        child: FrameCaptureAnimation(
+                          frameWidth: _updatedFrameWidth,
+                          frameHeight: _updatedFrameHeight,
+                          animationDuration:
+                              widget.animationStyle.capturingAnimationDuration,
+                          animationColor:
+                              widget.animationStyle.capturingAnimationColor,
+                          curve: widget.animationStyle.capturingAnimationCurve,
+                        ),
+                        builder: (context, isLoading, child) {
+                          return isLoading ? child! : const SizedBox.shrink();
+                        },
+                      ),
+
+                  // Document frame
+                  ValueListenableBuilder<bool>(
+                    valueListenable: _isDocumentAlignedNotifier,
+                    builder: (context, isAligned, child) {
+                      return TwoSidedAnimatedFrame(
+                        detectionFrameHeight: _updatedFrameHeight,
+                        detectionFrameWidth: _updatedFrameWidth,
+                        detectionFrameOuterBorderRadius:
+                            widget.frameStyle.outerFrameBorderRadius,
+                        detectionFrameInnerCornerBorderRadius:
+                            widget.frameStyle.innerCornerBroderRadius,
+                        detectionFrameFlipDuration:
+                            widget.animationStyle.frameFlipDuration,
+                        detectionFrameFlipCurve: widget.animationStyle.frameFlipCurve,
+                        border: widget.frameStyle.frameBorder,
+                        currentSideNotifier: _currentSideNotifier,
+                        isDocumentAligned: isAligned,
+                      );
+                    },
                   ),
 
               // Bottom frame container
