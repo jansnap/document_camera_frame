@@ -41,6 +41,7 @@ class DocumentDetectionService {
     required int screenHeight,
     ValueChanged<String>? onStatusUpdated,
     ValueChanged<List<Rect>>? onDetectedRectUpdated,
+    ValueChanged<Rect?>? onBestDetectedRectUpdated,
   }) async {
     if (!_isDetectorInitialized) {
       return false;
@@ -61,6 +62,7 @@ class DocumentDetectionService {
       if (objects.isEmpty) {
         onStatusUpdated?.call('ドキュメントが見つかりません');
         onDetectedRectUpdated?.call(<Rect>[]);
+        onBestDetectedRectUpdated?.call(null);
         return false;
       }
 
@@ -149,16 +151,25 @@ class DocumentDetectionService {
           .toList();
       onDetectedRectUpdated?.call(detectedRectsOnScreen);
 
-      final DetectedObject detectedObject =
-          filteredObjects.isNotEmpty
-              ? _selectBestDetectedObject(
-                  filteredObjects,
-                  targetAspectRatio: targetAspectRatio,
-                )
-              : _selectBestDetectedObject(
-                  objects,
-                  targetAspectRatio: targetAspectRatio,
-                );
+      final List<DetectedObject> selectionPool =
+          filteredObjects.isNotEmpty ? filteredObjects : objects;
+      final DetectedObject detectedObject = _selectBestDetectedObject(
+        selectionPool,
+        targetAspectRatio: targetAspectRatio,
+      );
+      final Rect? bestDetectedRectOnScreen = _mapBoundingBoxToScreenRect(
+        boundingBox: detectedObject.boundingBox,
+        analysisWidth: analysisWidth,
+        analysisHeight: analysisHeight,
+        displayWidth: displayWidth,
+        displayHeight: displayHeight,
+        fittedPreviewHeight: fittedPreviewHeight,
+        verticalOffset: verticalOffset,
+        isMirrored: isFrontCamera,
+      );
+      onBestDetectedRectUpdated?.call(
+        filteredObjects.isNotEmpty ? bestDetectedRectOnScreen : null,
+      );
       final boundingBox = detectedObject.boundingBox;
       final double objectArea = boundingBox.width * boundingBox.height;
       final bool sizeAligned = objectArea > (minSizeRatio * frameArea) &&
@@ -269,6 +280,7 @@ class DocumentDetectionService {
     } catch (e) {
       onError?.call(e);
       onDetectedRectUpdated?.call(<Rect>[]);
+      onBestDetectedRectUpdated?.call(null);
       return false;
     }
   }

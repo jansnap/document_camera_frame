@@ -137,6 +137,7 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
       ValueNotifier('ドキュメントを検出中...');
   final ValueNotifier<List<Rect>> _detectedRectNotifier =
       ValueNotifier<List<Rect>>(<Rect>[]);
+  final ValueNotifier<Rect?> _bestDetectedRectNotifier = ValueNotifier(null);
 
   // Animation controllers
   AnimationController? _progressAnimationController;
@@ -347,6 +348,9 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
       if (_detectedRectNotifier.value.isNotEmpty) {
         _detectedRectNotifier.value = <Rect>[];
       }
+      if (_bestDetectedRectNotifier.value != null) {
+        _bestDetectedRectNotifier.value = null;
+      }
       return;
     }
 
@@ -377,6 +381,11 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
         onDetectedRectUpdated: (rects) {
           if (mounted) {
             _detectedRectNotifier.value = rects;
+          }
+        },
+        onBestDetectedRectUpdated: (rect) {
+          if (mounted) {
+            _bestDetectedRectNotifier.value = rect;
           }
         },
       );
@@ -478,6 +487,7 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
         frameHeight,
         effectiveDisplayWidth,
         effectiveDisplayHeight,
+        cropRectOnScreen: _bestDetectedRectNotifier.value,
         onStatusUpdate: (message) {
           if (mounted) {
             _detectionStatusNotifier.value = message;
@@ -1182,6 +1192,7 @@ class _DocumentCameraFrameState extends State<DocumentCameraFrame>
     _isDocumentAlignedNotifier.dispose();
     _detectionStatusNotifier.dispose();
     _detectedRectNotifier.dispose();
+    _bestDetectedRectNotifier.dispose();
 
     _debounceTimer?.cancel();
     _debounceTimer = null;

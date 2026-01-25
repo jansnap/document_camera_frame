@@ -1,4 +1,5 @@
 import 'dart:io';
+import 'dart:ui';
 import 'package:flutter/foundation.dart';
 import 'package:image/image.dart' as img;
 
@@ -9,6 +10,7 @@ class ImageProcessingService {
     double frameHeight,
     int effectiveDisplayWidth,
     int effectiveDisplayHeight, {
+    Rect? cropRectOnScreen,
     int sensorOrientation = 0,
     int? previewWidth,
     int? previewHeight,
@@ -59,10 +61,16 @@ class ImageProcessingService {
 
     // Keep crop strictly within the frame (no margin expansion).
     const double marginFactor = 0.0;
+    final double cropLeftOnScreen = cropRectOnScreen?.left ?? 0.0;
+    final double cropTopOnScreen = cropRectOnScreen?.top ??
+        ((displayHeightDouble - frameHeight) / 2);
+    final double cropWidthOnScreen = cropRectOnScreen?.width ?? frameWidth;
+    final double cropHeightOnScreen = cropRectOnScreen?.height ?? frameHeight;
+
     final int baseCropWidth =
-        (frameWidth / displayWidthDouble * analysisWidth).round();
+        (cropWidthOnScreen / displayWidthDouble * analysisWidth).round();
     final int baseCropHeight =
-        (frameHeight / fittedPreviewHeight * analysisHeight).round();
+        (cropHeightOnScreen / fittedPreviewHeight * analysisHeight).round();
 
     // Expand width and height by adding margins
     final int cropWidth = (baseCropWidth * (1 + marginFactor * 2)).round();
@@ -75,10 +83,11 @@ class ImageProcessingService {
     final int finalCropWidth = cropWidth > maxCropWidth ? maxCropWidth : cropWidth;
     final int finalCropHeight = cropHeight > maxCropHeight ? maxCropHeight : cropHeight;
 
-    final int cropX = (analysisWidth - finalCropWidth) ~/ 2;
-    final double frameTopOnScreen = (displayHeightDouble - frameHeight) / 2;
-    final double frameTopOnPreview = frameTopOnScreen + verticalOffset;
-    final int cropY = ((frameTopOnPreview / fittedPreviewHeight) * analysisHeight).round();
+    final int cropX =
+        ((cropLeftOnScreen / displayWidthDouble) * analysisWidth).round();
+    final double cropTopOnPreview = cropTopOnScreen + verticalOffset;
+    final int cropY =
+        ((cropTopOnPreview / fittedPreviewHeight) * analysisHeight).round();
 
     // No extra expansion beyond the frame.
     const double verticalExpandFactor = 0.0;

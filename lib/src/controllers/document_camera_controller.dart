@@ -79,6 +79,7 @@ class DocumentCameraController {
     double frameHeight,
     int effectiveDisplayWidth,
     int effectiveDisplayHeight, {
+    Rect? cropRectOnScreen,
     void Function(String message)? onStatusUpdate,
   }) async {
     if (!_cameraService.isInitialized) {
@@ -106,6 +107,7 @@ class DocumentCameraController {
         frameHeight,
         effectiveDisplayWidth,
         effectiveDisplayHeight,
+        cropRectOnScreen: cropRectOnScreen,
         sensorOrientation: sensorOrientation,
         previewWidth: previewSize?.width.toInt(),
         previewHeight: previewSize?.height.toInt(),
