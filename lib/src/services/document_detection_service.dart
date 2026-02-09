@@ -372,7 +372,7 @@ void _updateDetectionStatus(
   if (onStatusUpdated == null) return;
 
   if (isAligned) {
-    onStatusUpdated('位置が合っています');
+    onStatusUpdated('撮影します。そのまま静止してください');
     return;
   }
 
