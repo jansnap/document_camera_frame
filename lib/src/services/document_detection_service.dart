@@ -196,8 +196,10 @@ class DocumentDetectionService {
       // debugPrint('[processImage]   Frame: x=$cropX, y=$cropY, width=$cropWidth, height=$cropHeight, area=${frameArea.toStringAsFixed(1)}(フレーム: x=$cropX, y=$cropY, width=$cropWidth, height=$cropHeight, area=${frameArea.toStringAsFixed(1)})');
       debugPrint(
         '[processImage]   Size ratio: ${sizeRatio.toStringAsFixed(1)}% '
-        '(threshold: 6-40%)(サイズ比率: ${sizeRatio.toStringAsFixed(1)}% '
-        '(閾値: 6-40%))',
+        '(threshold: ${(minSizeRatio * 100).toStringAsFixed(0)}-'
+        '${(maxSizeRatio * 100).toStringAsFixed(0)}%)(サイズ比率: ${sizeRatio.toStringAsFixed(1)}% '
+        '(閾値: ${(minSizeRatio * 100).toStringAsFixed(0)}-'
+        '${(maxSizeRatio * 100).toStringAsFixed(0)}%))',
       );
       debugPrint('[processImage]   Size aligned: $sizeAligned, Position aligned: $positionAligned(サイズが合っている: $sizeAligned, 位置が合っている: $positionAligned)');
       debugPrint(
