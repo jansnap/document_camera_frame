@@ -105,8 +105,8 @@ class DocumentDetectionService {
           .toDouble(); // Use the calculated crop area
 
       // Size Alignment Check
-      // Thresholds: lower bound 45% (allow smaller docs), upper bound 70%
-      const double minSizeRatio = 0.45;
+      // Thresholds: lower bound 50% (allow smaller docs), upper bound 70%
+      const double minSizeRatio = 0.50;
       const double maxSizeRatio = 0.70;
 
       // Optional: give 0% tolerance (strictly within frame)
