@@ -226,7 +226,7 @@ class DocumentDetectionService {
         if (boundingBox.left < cropX) {
           adjustments.add('もっと右に');
         }
-        if (boundingBox.right > (cropX + cropWidth)) {
+        else if (boundingBox.right > (cropX + cropWidth)) {
           adjustments.add('もっと左に');
         }
         final bool isOverTop = boundingBox.top < relaxedFrameTop;
@@ -236,7 +236,7 @@ class DocumentDetectionService {
         } else if (isOverTop) {
           adjustments.add('もっと下に');
         }
-        if (!isOverTop && isOverBottom) {
+        else if (!isOverTop && isOverBottom) {
           adjustments.add('もっと上に');
         }
         // if (adjustments.isNotEmpty) {
